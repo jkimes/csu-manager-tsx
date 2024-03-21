@@ -10,7 +10,7 @@ import { COLORS, FONT, SIZES } from "../../constants";
 
 /*Custom imports */
 import Card from "../Cards/Card";
-import { firebase } from "../../config";
+import { firebase } from "../../../csu-manager-2/config";
 
 //initalizes firebase connection
 if (!firebase.apps.length) {

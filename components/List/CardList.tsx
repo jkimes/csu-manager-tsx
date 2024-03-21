@@ -2,104 +2,55 @@
 /* Author: Jalon Kimes                                                                                        */
 /* This file fetched the data from the api and displays it in a list of card elements                         */
 /**************************************************************************************************************/
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
-  Button,
   StyleSheet,
   Image,
   TouchableOpacity,
+  Platform,
+  Linking,
 } from "react-native";
-import { Link, Stack } from "expo-router";
-import { Dropdown } from "react-native-element-dropdown";
+// import { Link, Stack } from "expo-router";
+// import { Dropdown } from "react-native-element-dropdown";
 import { COLORS, FONT, SIZES } from "../../constants";
-import { ThemeProvider, createTheme } from "@rneui/themed";
+import { ThemeProvider, useTheme, Card, Button } from "@rneui/themed";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 /*Custom imports */
-import Card from "../Cards/Card";
 import { firebase, firebaseConfig } from "../../config";
 import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
+import { DataContext, useDataContext } from "../DataContext";
 
-const theme = createTheme({
-  lightColors: {
-    primary: "red",
-  },
-  darkColors: {
-    primary: "blue",
-  },
-  components: {
-    Button: {
-      raised: true,
-    },
-  },
-});
 //initalizes firebase connection
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-interface CardListProps {
-  searchText: string;
-  showComplete: boolean;
-}
-export interface ClientParams {
-  id: string;
-  ClientName: string;
-  ClientNumber: number;
-  ClientEmail: string;
-  ClientPhone: number;
-  StreetName: string;
-  City: string;
-  Zip: string;
-  Active: boolean;
-  Contacts: Map<string, Map<string, string>>; // Update this to the correct type if possible
-  JobStreet: string;
-  JobCity: string;
-  Quotes: Map<string, Map<string, quoteTypes>>;
-}
-type quoteTypes = string | Map<string, lineTypes>;
-type lineTypes = string | number;
-
-const CardList: React.FC<CardListProps> = ({ searchText, showComplete }) => {
-  const [data, setData] = useState<any[]>([]);
-  const [filteredData, setFilteredData] = useState<any[]>([]);
+const CardList = ({ navigation, route, searchText }) => {
+  const { theme, updateTheme } = useTheme();
+  const data = useContext(DataContext);
+  const [filteredData, setFilteredData] = useState(data);
   const collectionRef = firebase.firestore().collection("clients");
   const [filterState, setFilterState] = useState<string>("showAll");
 
   useEffect(() => {
-    renderCardList();
+    renderCardList(navigation);
   }, [data]); // Call renderCardList whenever data changes
 
   useEffect(() => {
     // This effect will run whenever 'data' changes
-    console.log("Data has been Updated: ", filteredData);
+    // console.log("Data has been Updated: ", filteredData);
     // data.forEach((item) => {
     //   console.log("Updated Data: ", item);
     // });
   }, [filteredData]);
 
   useEffect(() => {
-    fetchData(); // Fetch initial data when component mounts
-  }, []);
-
-  useEffect(() => {
     filterData(); // Update filtered data whenever filterState changes
   }, [filterState, searchText]);
-
-  const fetchData = async () => {
-    const snapshot = await collectionRef.get();
-    if (snapshot.empty) {
-      console.log("No matching results!");
-    } else {
-      const newData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setData(newData); // Update state with fetched data
-      setFilteredData(newData); // Initialize filteredData with fetched data
-    }
-  };
 
   const filterData = async () => {
     let newData: any[] = []; // Initialize filteredData
@@ -119,15 +70,13 @@ const CardList: React.FC<CardListProps> = ({ searchText, showComplete }) => {
     }
 
     if (searchText !== "") {
-      console.log("User Input: ", searchText);
+      // console.log("User Input: ", searchText);
       // Filter further based on search text
       newData = newData.filter((item) => {
         const clientNumber = (item.ClientNumber || "").toString().toLowerCase();
-        const id = (item.id || "").toString().toLowerCase();
-        const city = (item.Address?.City || "").toString().toLowerCase();
-        const street = (item.Address?.StreetName || "")
-          .toString()
-          .toLowerCase();
+        const id = (item.ClientName || "").toString().toLowerCase();
+        const city = (item.Address_City || "").toString().toLowerCase();
+        const street = (item.Address_Street || "").toString().toLowerCase();
 
         const search = searchText.toLowerCase();
         return (
@@ -138,86 +87,84 @@ const CardList: React.FC<CardListProps> = ({ searchText, showComplete }) => {
         );
       });
     }
-
     setFilteredData(newData);
   };
 
   function DisplayJobStatus(bool: boolean) {
     return bool ? "Active" : "Inactive";
   }
-
-  const renderCardList = () => {
-    console.log("Inside RENDER Cards", filteredData[0]); // data is empty
+  const handleAddress = (street: string, city: string) => {
+    if (street?.trim() === '""') {
+      return "No address found";
+    } else {
+      return `${street}, ${city}`;
+    }
+  };
+  const renderCardList = (navigation) => {
+    // console.log("Inside RENDER Cards", filteredData.length); // data is empty
     return filteredData.map((item) => (
-      <ThemeProvider theme={theme}>
-        <View key={item.id} style={styles.contactBox}>
+      <ThemeProvider key={item.id} theme={theme}>
+        <Card>
+          {/* <View key={item.id} style={styles.contactBox}> */}
           <View style={styles.contactBoxDetails}>
             <View>
               <Text style={styles.textStyleName}>{item.ClientName}</Text>
-              <Text style={styles.textStyle}>{item.ClientNumber}</Text>
-              <Text style={styles.textStyle}>{item.Address?.StreetName}</Text>
-              <Text> Job Status: {DisplayJobStatus(item.Active)} </Text>
+              <Text style={styles.textStyle}>
+                Job Status: {DisplayJobStatus(item.Active)}
+              </Text>
+              <Text style={styles.textStyle}>Client#: {item.ClientNumber}</Text>
+
+              <Text style={styles.textStyle}>
+                {handleAddress(item.Address_Street, item.Address_City)}
+              </Text>
             </View>
           </View>
-          <Link
-            href={{
-              pathname: "/clients/[id]",
-              params: {
-                id: item.ClientName,
-                ClientName: item.ClientName,
+          <Button
+            title="View Profile"
+            onPress={() => {
+              /* 1. Navigate to the Details route with params */
+              navigation.navigate("Profile", {
                 ClientNumber: item.ClientNumber,
-                ClientEmail: item.ClientEmail,
                 ClientPhone: item.ClientPhone,
-                StreetName: item.Address?.StreetName,
-                City: item.Address?.City,
-                Zip: item.Address?.Zip,
-                Active: item.Active,
-                Contacts: item.Contacts,
-                JobStreet: item.JobSite?.StreetName,
-                JobCity: item.JobSite?.City,
-                Quotes: item.Quotes,
-                filteredData: filteredData,
-              } as ClientParams,
+                ClientEmail: item.ClientEmail,
+                ClientName: item.ClientName,
+              });
             }}
-            asChild
-          >
-            <Button title={"View Contact"} />
-          </Link>
-        </View>
+          />
+          {/* </View> */}
+        </Card>
       </ThemeProvider>
     ));
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              setFilterState("showAll");
-            }}
-          >
-            <Text>Show All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              setFilterState("filterByActive");
-            }}
-          >
-            <Text>InActive</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setFilterState("filterByInactive")}
-          >
-            <Text>Active</Text>
-          </TouchableOpacity>
-        </View>
+      <DataContext.Provider value={data}>
+        <View>
+          <View style={styles.buttonContainer}>
+            <Button
+              title="Show All"
+              onPress={() => {
+                setFilterState("showAll");
+              }}
+            />
 
-        {renderCardList()}
-      </View>
+            <Button
+              title="Active"
+              onPress={() => {
+                setFilterState("filterByActive");
+              }}
+            />
+
+            <Button
+              title="Inactive"
+              onPress={() => setFilterState("filterByInactive")}
+            />
+          </View>
+          <Card.Divider />
+          {renderCardList(navigation)}
+        </View>
+      </DataContext.Provider>
     </ThemeProvider>
   );
 };
@@ -279,95 +226,3 @@ const styles = StyleSheet.create({
 });
 
 export default CardList;
-
-//<View style={styles.container}>
-//   {/* <View style={styles.cardsContainer}> */}
-//   <Stack.Screen options={{ title: "Clients" }} />
-//   {filteredData.map((item) => {
-//     // console.log("Current data object:", data); // Log the current data object
-//     return (
-//       <View key={item.id} style={styles.contactBox}>
-//         <View style={styles.contactBoxDetails}>
-//           <View>
-//             <Text style={styles.textStyleName}>{item.id}</Text>
-//             <Text style={styles.textStyle}>{item.ClientNumber}</Text>
-//             <Text> Job Status: {handleJobStatus(item.Complete)} </Text>
-//           </View>
-//         </View>
-//         <Link
-//           href={{
-//             pathname: "/clients/[id]",
-//             params: {
-//               id: item.id,
-//               Address: item.Address,
-//               Email: item.Email,
-//               PhoneNumer: item.PhoneNumber,
-//               ClientNumer: item.ClientNumber,
-//               Contracts: item.Contracts,
-//               Quotes: item.Quotes,
-//               Refferals: item.Refferals,
-//               Complete: item.Complete,
-//               BillAddress: item.BillingAddress,
-//             },
-//           }}
-//           asChild
-//         >
-//           <Button title={"View Contact"}></Button>
-//         </Link>
-//       </View>
-//     );
-//   })}
-// </View>
-
-/*const [data, setData] = useState([]);
-  const [sortBy, setSortBy] = useState("id");
-  // const [showComplete, setShowComplete] = useState(false);
-
-  // This function fetches the data from the firebase db when CardList component is and stores it to data variable
-  // it only updated the data when there is a change to the firebase db
-  useEffect(() => {
-    const unsubscribe = firebase
-      // .orderBy(sortBy) // Initially sort by ClientNumber
-      .firestore()
-      .collection("clients")
-      // OnSnapshot listens for changes to the data and retrieves it only when there is a change which limits read calls to firebase db
-      .onSnapshot((snapshot) => {
-        const newData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setData(newData);
-      });
-
-    return () => unsubscribe();
-  }, [sortBy]);
-
-  // Handels the sorting function
-  const handleSortChange = (value) => {
-    setSortBy(value);
-  };
-
-  const handleToggleComplete = () => {
-    setShowComplete(!showComplete);
-  };
-
-  // Filter data based on search text
-  const filteredData = data.filter((item) => {
-    const clientNumber = (item.ClientNumber || "").toString().toLowerCase();
-    const id = (item.id || "").toString().toLowerCase();
-    const city = (item.BillingAddress?.City || "").toString().toLowerCase();
-    const search = searchText.toLowerCase();
-    return (
-      ((!showComplete || item.Complete) && clientNumber.includes(search)) ||
-      id.includes(search) ||
-      city.includes(search)
-    );
-  });
-
-  const handleJobStatus = (bool) => {
-    if (bool) {
-      return "complete";
-    } else {
-      return "incomplete";
-    }
-  };*/

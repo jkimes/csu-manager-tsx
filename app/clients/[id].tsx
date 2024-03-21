@@ -60,7 +60,7 @@ const SingleClient = () => {
       <Text>Number - {ClientPhone}</Text>
       <Text>Client # - {ClientNumber}</Text>
       <Text>Job Status - {handleActive(Active)}</Text>
-      <Text>Job Site: {handleJobSite(JobStreet)}</Text>
+      <Text>Job Site: {handleJobSite(JobStreet.toString())}</Text>
 
       {/* Container for buttons to switch tabs */}
       <View style={styles.buttonContainer}>

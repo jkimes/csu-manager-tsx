@@ -17,7 +17,6 @@ export const filterByShowAll = async (collectionRef: any) => {
 
 export const filterByActive = async (collectionRef: any) => {
   const activeData = await collectionRef.where("Active", "==", true).get();
-
   if (activeData.empty) {
     console.log("No matching results!");
     return [];

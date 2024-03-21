@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // import { FlatList, Pressable, View, Text } from "react-native";
-import { firebase } from "../config";
+import { firebase } from "../../csu-manager-2/config";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
