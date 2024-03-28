@@ -22,7 +22,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
 import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
-import { DataContext, useDataContext } from "../DataContext";
+import { DataContext } from "../DataContext";
 
 //initalizes firebase connection
 if (!firebase.apps.length) {
@@ -36,39 +36,42 @@ const CardList = ({ navigation, route, searchText }) => {
   const collectionRef = firebase.firestore().collection("clients");
   const [filterState, setFilterState] = useState<string>("showAll");
 
+  // Call renderCardList whenever data changes
   useEffect(() => {
     renderCardList(navigation);
-  }, [data]); // Call renderCardList whenever data changes
+    console.log("Card List Data context", { data });
+  }, [data]);
 
+  // This effect will run whenever 'data' changes
   useEffect(() => {
-    // This effect will run whenever 'data' changes
-    // console.log("Data has been Updated: ", filteredData);
-    // data.forEach((item) => {
-    //   console.log("Updated Data: ", item);
-    // });
+    console.log("Filtered Data", filteredData);
   }, [filteredData]);
 
+  // Update filtered data whenever filterState changes
   useEffect(() => {
-    filterData(); // Update filtered data whenever filterState changes
+    filterData();
   }, [filterState, searchText]);
 
+  // executes a helper method to filter data based on the state of "filterState" then optionally
+  // if the user types text into the search bar it will filter by the input after the first filter has been applied
   const filterData = async () => {
     let newData: any[] = []; // Initialize filteredData
 
     switch (filterState) {
       case "showAll":
-        newData = await filterByShowAll(collectionRef);
+        newData = await filterByShowAll(data);
         break;
       case "filterByActive":
-        newData = await filterByActive(collectionRef);
+        newData = await filterByActive(data);
         break;
       case "filterByInactive":
-        newData = await filterByInactive(collectionRef);
+        newData = await filterByInactive(data);
         break;
       default:
         break;
     }
 
+    // if user input is not blank filter further by the input by checking if certain values in the data match the input
     if (searchText !== "") {
       // console.log("User Input: ", searchText);
       // Filter further based on search text
@@ -90,9 +93,12 @@ const CardList = ({ navigation, route, searchText }) => {
     setFilteredData(newData);
   };
 
+  // Takes the Active bool and returns string Active or Inactive if it is T or F
   function DisplayJobStatus(bool: boolean) {
     return bool ? "Active" : "Inactive";
   }
+
+  //Checks to see if there is an address and returns a not found message or the address if found
   const handleAddress = (street: string, city: string) => {
     if (street?.trim() === '""') {
       return "No address found";
@@ -100,71 +106,67 @@ const CardList = ({ navigation, route, searchText }) => {
       return `${street}, ${city}`;
     }
   };
-  const renderCardList = (navigation) => {
-    // console.log("Inside RENDER Cards", filteredData.length); // data is empty
-    return filteredData.map((item) => (
-      <ThemeProvider key={item.id} theme={theme}>
-        <Card>
-          {/* <View key={item.id} style={styles.contactBox}> */}
-          <View style={styles.contactBoxDetails}>
-            <View>
-              <Text style={styles.textStyleName}>{item.ClientName}</Text>
-              <Text style={styles.textStyle}>
-                Job Status: {DisplayJobStatus(item.Active)}
-              </Text>
-              <Text style={styles.textStyle}>Client#: {item.ClientNumber}</Text>
 
-              <Text style={styles.textStyle}>
-                {handleAddress(item.Address_Street, item.Address_City)}
-              </Text>
-            </View>
+  // renders a component for each client in filtered data that links to their profile page
+  const renderCardList = (navigation) => {
+    return filteredData.map((item) => (
+      <Card key={item.id}>
+        {/* <View key={item.id} style={styles.contactBox}> */}
+        <View style={styles.contactBoxDetails}>
+          <View>
+            <Text style={styles.textStyleName}>{item.ClientName}</Text>
+            <Text style={styles.textStyle}>
+              Job Status: {DisplayJobStatus(item.Active)}
+            </Text>
+            <Text style={styles.textStyle}>Client#: {item.ClientNumber}</Text>
+
+            <Text style={styles.textStyle}>
+              {handleAddress(item.Address_Street, item.Address_City)}
+            </Text>
           </View>
-          <Button
-            title="View Profile"
-            onPress={() => {
-              /* 1. Navigate to the Details route with params */
-              navigation.navigate("Profile", {
-                ClientNumber: item.ClientNumber,
-                ClientPhone: item.ClientPhone,
-                ClientEmail: item.ClientEmail,
-                ClientName: item.ClientName,
-              });
-            }}
-          />
-          {/* </View> */}
-        </Card>
-      </ThemeProvider>
+        </View>
+        <Button
+          title="View Profile"
+          onPress={() => {
+            /* 1. Navigate to the Details route with params */
+            navigation.navigate("Profile", {
+              ClientNumber: item.ClientNumber,
+              ClientPhone: item.ClientPhone,
+              ClientEmail: item.ClientEmail,
+              ClientName: item.ClientName,
+            });
+          }}
+        />
+      </Card>
     ));
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <DataContext.Provider value={data}>
-        <View>
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Show All"
-              onPress={() => {
-                setFilterState("showAll");
-              }}
-            />
+      <View>
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Show All"
+            onPress={() => {
+              setFilterState("showAll");
+            }}
+          />
 
-            <Button
-              title="Active"
-              onPress={() => {
-                setFilterState("filterByActive");
-              }}
-            />
+          <Button
+            title="Active"
+            onPress={() => {
+              setFilterState("filterByActive");
+            }}
+          />
 
-            <Button
-              title="Inactive"
-              onPress={() => setFilterState("filterByInactive")}
-            />
-          </View>
-          <Card.Divider />
-          {renderCardList(navigation)}
+          <Button
+            title="Inactive"
+            onPress={() => setFilterState("filterByInactive")}
+          />
         </View>
-      </DataContext.Provider>
+        <Card.Divider />
+        {renderCardList(navigation)}
+      </View>
     </ThemeProvider>
   );
 };

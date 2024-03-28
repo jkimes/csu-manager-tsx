@@ -8,13 +8,16 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Card, Button, Tab, TabView } from "@rneui/themed";
-import { DataContext, useDataContext } from "../components/DataContext";
+import { Card, Button, Tab, TabView, ListItem, Icon } from "@rneui/themed";
+import { DataContext } from "../components/DataContext";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
 import { QuoteContext } from "../components/QuoteContext";
 import { CardDivider } from "@rneui/base/dist/Card/Card.Divider";
 import Delete from "../components/Buttons/Delete";
 import Edit from "../components/Buttons/Edit";
+import QuoteList from "../components/List/QuoteList";
+import ContactList from "../components/List/ContactList";
+
 // import { Stack, useLocalSearchParams, Tabs } from "expo-router";
 
 export default function SingleClient({ route, navigation }) {
@@ -22,7 +25,8 @@ export default function SingleClient({ route, navigation }) {
   const quotes = useContext(QuoteContext);
   const [activeTab, setActiveTab] = React.useState<number>(0); // State to manage the active tab
   const { ClientNumber, ClientEmail, ClientPhone, ClientName } = route.params;
-  let client;
+  const client = data.find((item) => item.ClientNumber === ClientNumber);
+  const active = client.Active;
 
   // Log the values of the route params to the console
   console.log("ClientName:", ClientName);
@@ -54,6 +58,8 @@ export default function SingleClient({ route, navigation }) {
       Linking.openURL(`telprompt:${number}`);
     }
   }
+
+  // opens email app and passes the email to it
   function sendEmail(email: string) {
     console.log(`send email to ${email}`);
     Linking.openURL(`mailto:${email}`);
@@ -64,24 +70,23 @@ export default function SingleClient({ route, navigation }) {
     return new Map(Object.entries(Obj));
   }
 
-  // Filters Quotes by the Client number that is passed through route.params (filters quotes by client that is selected)
-  const filteredQuotes = quotes.filter(
-    (item) => item.ClientNumber === ClientNumber
-  );
+  // Filters Quotes by the Client number which is passed through route.params (filters quotes by client that is selected)
+  const filteredQuotes = quotes.filter((item) => {
+    console.log("item.ClientNumber:", item.ClientNumber);
+    console.log("ClientNumber:", ClientNumber);
+    const match = item.ClientNumber === ClientNumber;
+    if (match) {
+      console.log("Filtered Quote:", item);
+    }
+    return match;
+  });
+  console.log(`Filtered Quotes ${filteredQuotes}`);
 
   //Converts the LineItems subcollection inside of the quote data into a Map. However it just makes the whole document the value and the key is a random code
   const quotesWithLineItemsAsMap = filteredQuotes.map((quote) => ({
     ...quote,
     lineItemsMap: new Map(quote.lineItems.map((item) => [item.id, item])),
   }));
-
-  // console.log("Quotes with Line Items as Map:", quotesWithLineItemsAsMap);
-  // quotesWithLineItemsAsMap.forEach((quote) => {
-  //   console.log(
-  //     "&*Line Items Map:",
-  //     quote.lineItemsMap.get("xTgVN8NzqcPPxyKEx7I8").Price
-  //   );
-  // });
 
   // Renders filtered quotes with the .map() function
   const renderQuotesWithLineItems = (quotes) => {
@@ -118,16 +123,16 @@ export default function SingleClient({ route, navigation }) {
   };
 
   // Grabs the matching Client Document from the Data and stores it for manipulation
-  data.forEach((item) => {
-    if (item.ClientNumber === ClientNumber) {
-      client = item;
-      // console.log("$$Found Client", client);
-    }
-  });
-  const active = client.Active;
+  // data.forEach((item) => {
+  //   if (item.ClientNumber === ClientNumber) {
+  //     client = item;
+  //     // console.log("$$Found Client", client);
+  //   }
+  // });
 
   // const Address = convertObjectToMap(client.Address);
 
+  // maybe make a file for helper methods becasue i use this in the cardList and probable Quote and contact List too
   const handleActive = (bool: boolean) => {
     return bool ? "Active" : "Inactive";
   };
@@ -165,73 +170,135 @@ export default function SingleClient({ route, navigation }) {
     0: (
       <View style={{ flex: 1 }}>
         <ScrollView>
-          <Card
-            containerStyle={styles.cardContainer}
-            wrapperStyle={styles.cardContentContainer}
+          <ListItem.Swipeable
+            leftContent={(action) => (
+              <Delete id={client.id} field={"ClientName"} />
+            )}
+            rightContent={(action) => (
+              <Edit id={client.id} field={"ClientName"} />
+            )}
           >
-            <Card.Title style={styles.cardTitle}>Name </Card.Title>
-            <View style={{ flexDirection: "row" }}>
-              <Text>{ClientName}</Text>
+            <Card.Title style={styles.cardTitle}> Name </Card.Title>
+            <View
+              style={{ flexDirection: "row", alignContent: "space-between" }}
+            >
+              <Text>{client.ClientName}</Text>
             </View>
-          </Card>
+          </ListItem.Swipeable>
+
           <Card.Divider></Card.Divider>
 
-          <Card
-            containerStyle={styles.cardContainer}
-            wrapperStyle={styles.cardContentContainer}
+          <ListItem.Swipeable
+            leftWidth={80}
+            rightWidth={90}
+            // minSlideWidth={40}
+            leftContent={(action) => (
+              <Delete id={client.id} field={"ClientNumber"} />
+            )}
+            rightContent={(action) => (
+              <Edit id={client.id} field={"ClientNumber"} />
+            )}
           >
             <Card.Title style={styles.cardTitle}>Client # </Card.Title>
-            <Text>{ClientNumber}</Text>
-          </Card>
-          <Card.Divider></Card.Divider>
+            <View
+              style={{ flexDirection: "row", alignContent: "space-between" }}
+            >
+              <Text>{client.ClientNumber}</Text>
+            </View>
+          </ListItem.Swipeable>
 
-          <Card
-            containerStyle={styles.cardContainer}
-            wrapperStyle={styles.cardContentContainer}
+          <Card.Divider />
+
+          <ListItem.Swipeable
+            leftContent={(action) => (
+              <Delete id={client.id} field={"Address_Street"} />
+            )}
+            rightContent={(action) => (
+              <Edit id={client.id} field={"Address_Street"} />
+            )}
           >
             <Card.Title style={styles.cardTitle}>Address</Card.Title>
-            <Text>
-              {handleAddress(client.Address_Street, client.Address_City)}
-            </Text>
-          </Card>
-          <Card.Divider></Card.Divider>
+            <View
+              style={{ flexDirection: "row", alignContent: "space-between" }}
+            >
+              <Text>
+                {handleAddress(client.Address_Street, client.Address_City)}
+              </Text>
+            </View>
+          </ListItem.Swipeable>
 
-          <Card containerStyle={styles.cardContainer}>
+          <Card.Divider />
+
+          <ListItem.Swipeable
+            leftContent={(action) => (
+              <Delete id={client.id} field={"ClientEmail"} />
+            )}
+            rightContent={(action) => (
+              <Edit id={client.id} field={"ClientEmail"} />
+            )}
+          >
             <Card.Title style={styles.cardTitle}>Email</Card.Title>
             <View
               style={{ flexDirection: "row", alignContent: "space-between" }}
             >
               <TouchableOpacity
-                onPress={() => sendEmail(ClientEmail.toString())}
+                onPress={() => sendEmail(client.ClientEmail.toString())}
               >
-                <Text>{handleEmail(ClientEmail)}</Text>
+                <Text>{handleEmail(client.ClientEmail)}</Text>
               </TouchableOpacity>
-              <Delete id={client.id} field={"ClientEmail"} />
-              <Edit id={client.id} field={"ClientEmail"} />
             </View>
-          </Card>
+          </ListItem.Swipeable>
+
           <Card.Divider></Card.Divider>
 
-          <Card containerStyle={styles.cardContainer}>
-            <TouchableOpacity onPress={() => makePhoneCall(ClientPhone)}>
-              <Card.Title style={styles.cardTitle}>Phone</Card.Title>
-              <Text>{handlePhone(ClientPhone)}</Text>
-            </TouchableOpacity>
-          </Card>
+          <ListItem.Swipeable
+            leftContent={(action) => (
+              <Delete id={client.id} field={"ClientPhone"} />
+            )}
+            rightContent={(action) => (
+              <Edit id={client.id} field={"ClientPhone"} />
+            )}
+          >
+            <Card.Title style={styles.cardTitle}>Phone</Card.Title>
+            <View
+              style={{ flexDirection: "row", alignContent: "space-between" }}
+            >
+              <TouchableOpacity
+                onPress={() => makePhoneCall(client.ClientPhone)}
+              >
+                <Text>{handlePhone(client.ClientPhone)}</Text>
+              </TouchableOpacity>
+            </View>
+          </ListItem.Swipeable>
+
           <Card.Divider></Card.Divider>
 
-          <Card containerStyle={styles.cardContainer}>
+          <ListItem.Swipeable
+            rightContent={(action) => <Edit id={client.id} field={"Active"} />}
+          >
             <Card.Title style={styles.cardTitle}>Job Status</Card.Title>
-            <Text>{handleActive(active)}</Text>
-          </Card>
+            <View
+              style={{ flexDirection: "row", alignContent: "space-between" }}
+            >
+              <Text>{handleActive(client.Active)}</Text>
+            </View>
+          </ListItem.Swipeable>
+
           <Card.Divider></Card.Divider>
 
-          <Card containerStyle={styles.cardContainer}>
+          <ListItem.Swipeable
+            leftContent={(action) => (
+              <Delete id={client.id} field={"Site_Street"} />
+            )}
+            rightContent={(action) => (
+              <Edit id={client.id} field={"Site_Street"} />
+            )}
+          >
             <TouchableOpacity>
               <Card.Title style={styles.cardTitle}>Job Site {}</Card.Title>
               <Text>{handleAddress(client.Site_Street, client.Site_City)}</Text>
             </TouchableOpacity>
-          </Card>
+          </ListItem.Swipeable>
           <Card.Divider></Card.Divider>
         </ScrollView>
       </View>
@@ -240,28 +307,27 @@ export default function SingleClient({ route, navigation }) {
       <View>
         <Card containerStyle={styles.cardContainer}>
           <Card.Title style={styles.cardTitle}>
-            <Text>Title!</Text>
+            <Text>Quote List</Text>
           </Card.Title>
-          <CardDivider />
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <View>
-              <Text>{client.ClientName}</Text>
-              <Text>{handleEmail(client.ClientEmail)}</Text>
-              <Text>{handleAddress(client.Site_Street, client.Site_City)}</Text>
-              <Text>{handlePhone(client.ClientPhone)}</Text>
-            </View>
-            <View>
-              <Text>Issue Date</Text>
-              <Text>Expiry Date </Text>
-            </View>
-          </View>
-
-          {renderQuotesWithLineItems(filteredQuotes)}
         </Card>
 
+        <Text>Here </Text>
+        <QuoteList
+          navigation={navigation}
+          route={route}
+          ClientNumber={client.ClientNumber}
+        ></QuoteList>
+
         {/* Add any additional content for Tab 2 */}
+      </View>
+    ),
+    2: (
+      <View>
+        <ContactList
+          ClientNumber={client.ClientNumber}
+          navigation={navigation}
+          route={route}
+        ></ContactList>
       </View>
     ),
   };
@@ -271,6 +337,7 @@ export default function SingleClient({ route, navigation }) {
       <Tab value={activeTab} onChange={setActiveTab} dense>
         <Tab.Item>Client info</Tab.Item>
         <Tab.Item>Quotes</Tab.Item>
+        <Tab.Item>Contact Info</Tab.Item>
       </Tab>
 
       {/* Container for buttons to switch tabs */}

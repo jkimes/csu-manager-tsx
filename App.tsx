@@ -110,9 +110,52 @@ export default function App() {
   const quotesRef = firebase.firestore().collection("Quotes");
 
   useEffect(() => {
-    fetchData(); // Fetch initial data when component mounts
+    // Fetch initial data when component mounts
+    fetchData();
     fetchQuotes();
-    console.log("Got Data and Quotes");
+
+    // Set up Firestore listener for clients collection
+    const unsubscribeClients = collectionRef
+      .orderBy("ClientName")
+      .onSnapshot((snapshot) => {
+        const newData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setData(newData);
+        setFilteredData(newData);
+      });
+
+    // Set up Firestore listener for quotes collection
+    const unsubscribeQuotes = quotesRef.onSnapshot((snapshot) => {
+      const fetchedQuotes = [];
+
+      snapshot.forEach(async (doc) => {
+        const quoteData = doc.data();
+        const lineItemsRef = quotesRef.doc(doc.id).collection("LineItems");
+        const lineItemsSnapshot = await lineItemsRef.get();
+        const lineItems = lineItemsSnapshot.docs.map((lineItemDoc) => ({
+          id: lineItemDoc.id,
+          ...lineItemDoc.data(),
+        }));
+
+        const quoteWithLineItems = {
+          id: doc.id,
+          ...quoteData,
+          lineItems,
+        };
+
+        fetchedQuotes.push(quoteWithLineItems);
+      });
+
+      setQuotes(fetchedQuotes);
+    });
+
+    return () => {
+      // Clean up listeners
+      unsubscribeClients();
+      unsubscribeQuotes();
+    };
   }, []);
 
   // useEffect(() => {
@@ -150,7 +193,7 @@ export default function App() {
   };
 
   const fetchData = async () => {
-    const snapshot = await collectionRef.get();
+    const snapshot = await collectionRef.orderBy("ClientName").get();
     if (snapshot.empty) {
       console.log("No matching results!");
     } else {
