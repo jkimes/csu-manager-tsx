@@ -4,7 +4,7 @@ import { firebase } from "../../config";
 import { FAB } from "@rneui/themed";
 import { EditStyles } from "./styles/Edit.styles";
 
-export default function Edit(props) {
+export default function EditContact(props) {
   const [inputValue, setInputValue] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [step, setStep] = useState(1);
@@ -12,31 +12,20 @@ export default function Edit(props) {
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
 
-  const handleEditField = async (id, field, value, key) => {
-    if (field === "Contacts") {
-      try {
-        const collectionRef = firebase
-          .firestore()
-          .collection("clients")
-          .doc(id);
-        await collectionRef.update({
-          [`Contacts.${key}.name`]: value,
-        });
-      } catch (error) {
-        console.error("Error updating document: ", error);
-      }
-    } else {
-      try {
-        const collectionRef = firebase
-          .firestore()
-          .collection("clients")
-          .doc(id);
-        await collectionRef.update({
-          [field]: value,
-        });
-      } catch (error) {
-        console.error("Error updating document: ", error);
-      }
+  const handleEditField = async (
+    id: string,
+    field: string, // the field inside of Contact  1
+    contact: string,
+    value: any
+  ) => {
+    // console.log(` Value@ ${contact}`);
+    try {
+      const collectionRef = firebase.firestore().collection("clients").doc(id);
+      await collectionRef.update({
+        [`Contacts.${contact}.${field}`]: value,
+      });
+    } catch (error) {
+      console.error("Error updating document: ", error);
     }
   };
 
@@ -47,7 +36,7 @@ export default function Edit(props) {
   };
 
   const handleSubmit = () => {
-    if (props.field === "Address_Site") {
+    if (props.field === "street") {
       if (step === 1) {
         setStreet(inputValue);
         setInputValue("");
@@ -58,34 +47,15 @@ export default function Edit(props) {
         setStep(step + 1);
       } else if (step === 3) {
         setZip(inputValue);
-        handleEditField(props.id, "Address_Street", street, props.key);
-        handleEditField(props.id, "Address_City", city, props.key);
-        handleEditField(props.id, "Address_Zip", zip, props.key);
-        handleEditField(props.id, "Address_State", "Florida", props.key);
-        setInputValue("");
-        setModalVisible(false);
-      }
-    } else if (props.field === "Site_Street") {
-      // New case for Site_Street
-      if (step === 1) {
-        setStreet(inputValue);
-        setInputValue("");
-        setStep(step + 1);
-      } else if (step === 2) {
-        setCity(inputValue);
-        setInputValue("");
-        setStep(step + 1);
-      } else if (step === 3) {
-        setZip(inputValue);
-        handleEditField(props.id, "Site_Street", street, props.key);
-        handleEditField(props.id, "Site_City", city, props.key);
-        handleEditField(props.id, "Site_Zip", zip, props.key);
-        handleEditField(props.id, "Site_State", "Florida", props.key);
+        handleEditField(props.id, "street", props.contact, street);
+        handleEditField(props.id, "city", props.contact, city);
+        handleEditField(props.id, "zip", props.contact, zip);
+        // handleEditField(props.id, "Address_State", "Florida", props.key);
         setInputValue("");
         setModalVisible(false);
       }
     } else {
-      handleEditField(props.id, props.field, inputValue, props.key);
+      handleEditField(props.id, props.field, props.contact, inputValue);
       setInputValue("");
       setModalVisible(false);
     }
@@ -97,7 +67,7 @@ export default function Edit(props) {
   };
 
   const handleSetActive = (value) => {
-    handleEditField(props.id, props.field, value, props.key);
+    handleEditField(props.id, props.field, value, props.contact);
     setModalVisible(false);
   };
 
@@ -113,18 +83,6 @@ export default function Edit(props) {
       >
         <View style={EditStyles.modalContainer}>
           <View style={EditStyles.modalContent}>
-            {props.field === "Active" && (
-              <>
-                <Text style={EditStyles.label}>Set Active to:</Text>
-                <View style={EditStyles.buttonContainer}>
-                  <Button title="True" onPress={() => handleSetActive(true)} />
-                  <Button
-                    title="False"
-                    onPress={() => handleSetActive(false)}
-                  />
-                </View>
-              </>
-            )}
             {props.field !== "Active" && (
               <>
                 {step === 1 && (

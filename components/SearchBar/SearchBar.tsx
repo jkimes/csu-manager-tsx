@@ -7,6 +7,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 import React from "react";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
+import { searchstyles } from "./search.styles";
 
 const SearchBar = ({ userInput, setUserInput }) => {
   const handleSearchInputChange = (text) => {
@@ -14,7 +15,7 @@ const SearchBar = ({ userInput, setUserInput }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={searchstyles.container}>
       <Feather
         name="search"
         size={24}
@@ -22,7 +23,7 @@ const SearchBar = ({ userInput, setUserInput }) => {
         style={{ margin: 5, marginLeft: 2 }}
       />
       <TextInput
-        style={styles.SearchBar}
+        style={searchstyles.SearchBar}
         placeholder="Search Client #, ID , or Address(Street/City)"
         value={userInput}
         onChangeText={handleSearchInputChange}
@@ -32,25 +33,3 @@ const SearchBar = ({ userInput, setUserInput }) => {
 };
 
 export default SearchBar;
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    padding: 5,
-    backgroundColor: "gray",
-  },
-
-  SearchBar: {
-    height: 40,
-    borderWidth: 4,
-    borderColor: "gray",
-    borderRadius: 6,
-    // padding: 100,
-    // marginBottom: 10, // Adjust the margin bottom
-    width: "100%", // Make the input fill the widt
-  },
-  modButtons: {
-    flexDirection: "row",
-    padding: 10,
-  },
-});

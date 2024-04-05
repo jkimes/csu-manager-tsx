@@ -8,24 +8,45 @@ if (!firebase.apps.length) {
 }
 
 export default function Delete(props) {
-  const [addedDocumentId, setAddedDocumentId] = useState(null);
-
-  const [currentStep, setCurrentStep] = useState(1);
-
-  const handleNext = () => {
-    setCurrentStep(currentStep + 1);
-  };
-
-  const handleDeleteField = async (id: string, field: string) => {
-    if (props.id !== undefined && props.field !== undefined) {
+  console.log(`Contact* ${props.contact} | Field ${props.field}`);
+  const handleDeleteField = async (
+    id: string,
+    field: string,
+    contact: string
+  ) => {
+    if (field === "name" && id !== undefined) {
+      try {
+        const documentRef = firebase.firestore().collection("clients").doc(id);
+        // Update the document to set the name field to null
+        await documentRef.update({
+          [`Contacts.${contact}.${field}`]: null, // Use the provided contact key
+        });
+        console.log(`Name field updated successfully. ${contact}`);
+      } catch (error) {
+        console.error("Error updating name field: ", error);
+      }
+    } else if (field === "street" && id !== undefined) {
+      try {
+        const documentRef = firebase.firestore().collection("clients").doc(id);
+        // Update the document to set the name field to null
+        await documentRef.update({
+          [`Contacts.${contact}.${field}`]: null, // Use the provided contact key
+          [`Contacts.${contact}.city`]: null,
+          [`Contacts.${contact}.zip`]: null,
+        });
+        console.log(`Name field updated successfully. ${contact}`);
+      } catch (error) {
+        console.error("Error updating name field: ", error);
+      }
+    } else if (id !== undefined && field !== undefined) {
       // Perform the delete operation
       try {
         const collectionRef = firebase
           .firestore()
           .collection("clients")
-          .doc(props.id);
+          .doc(id);
         const res = await collectionRef.update({
-          [props.field]: null,
+          [`Contacts.${contact}.${field}`]: null,
         });
       } catch (error) {
         console.error("Error deleting document: ", error);
@@ -34,26 +55,16 @@ export default function Delete(props) {
       console.warn("ID or field is undefined:", props.id, props.field);
     }
   };
-  // Check if id and field are not undefined
-  // useEffect(() => {
-  //   if (props.id !== undefined && props.field !== undefined) {
-  //     // Perform the delete operation
-  //     handleDeleteField(props.id, props.field);
-  //     console.log("Deleted:", props.field);
-  //   } else {
-  //     console.warn("ID or field is undefined:", props.id, props.field);
-  //   }
-  // }, [props.id, props.field]);
 
   return (
-    <FAB
-      visible={true}
-      icon={{ name: "delete", color: "white" }}
-      color="teal"
-      size="small"
-      onPress={() => handleDeleteField(props.id, props.field)}
-    />
+    <View>
+      <FAB
+        visible={true}
+        icon={{ name: "delete", color: "white" }}
+        color="teal"
+        size="small"
+        onPress={() => handleDeleteField(props.id, props.field, props.contact)}
+      />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({});

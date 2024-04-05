@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, TextInput, Button } from "react-native";
 import { firebase, firebaseConfig } from "../config";
+import { AddClientStyles } from "./styles/AddClient.styles";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -53,7 +54,7 @@ export default function AddClient({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={AddClientStyles.container}>
       {currentStep === 1 && (
         <View>
           <Text>Enter Client Details:</Text>
@@ -181,11 +182,3 @@ export default function AddClient({ route, navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

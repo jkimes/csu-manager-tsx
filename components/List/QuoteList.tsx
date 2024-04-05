@@ -7,6 +7,7 @@ import {
   View,
   Text,
   StyleSheet,
+  ScrollView,
   Image,
   TouchableOpacity,
   Platform,
@@ -22,92 +23,154 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
 import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
-import { DataContext, useDataContext } from "../DataContext";
+import { DataContext } from "../DataContext";
 import { QuoteContext } from "../QuoteContext";
 import DataTable from "../DataTable";
+import { Quote, LineItem, Client } from "../../App";
+import { QuoteStyles } from "./styles/Quote.styles";
 
 //initalizes firebase connection
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+interface QuoteListProps {
+  navigation: any; // Replace 'any' with the actual type if possible
+  route: any; // Replace 'any' with the actual type if possible
+  ClientNumber: number; // Specify the type of ClientNumber as number
+}
 
-const QuoteList = ({ navigation, route, ClientNumber }) => {
+const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
   const { theme, updateTheme } = useTheme();
-  const quoteData = useContext(QuoteContext);
-  const [clientData, setclientData] = useState(quoteData);
+  const data = useContext(DataContext);
+  const quoteData: Quote[] = useContext(QuoteContext); // all quote data
+  const [clientData, setclientData] = useState(quoteData); // filters quote data to just data associated with client
   const [visible, setVisible] = useState(false);
+
+  const client: Client = data.find(
+    (item) => item.ClientNumber === ClientNumber
+  );
+  // console.log(`client Name; ${client.Address_Zip} `);
+
+  const filteredQuotes = quoteData.filter((item) => {
+    // console.log(
+    //   `Client Number: ${ClientNumber} Item Number: ${
+    //     item.ClientNumber
+    //   } evaluation: ${ClientNumber === item.ClientNumber}`
+    // );
+    const match = Number(item.ClientNumber) === Number(ClientNumber);
+    if (match) {
+      //   console.log("Filtered Quote:", item);
+    }
+    return match;
+  });
+  // console.log(`Filtered Quotes${filteredQuotes}`);
 
   useEffect(() => {
     // Filter quoteData by ClientNumber
-    const filteredData = quoteData.filter(
-      (item) => item.ClientNumber === ClientNumber
-    );
+    const filteredData = filteredQuotes;
+
     // Set filtered data to clientData
     setclientData(filteredData);
-  }, [quoteData]); // Update clientData whenever quoteData changes
+  }, [quoteData, ClientNumber]); // Update clientData whenever quoteData changes
 
   const toggleOverlay = () => {
     setVisible(!visible);
   };
-
-  useEffect(() => {
-    renderQuoteList(clientData);
-    console.log("Quote List Data context", { clientData });
-  }, [quoteData]); // Call renderQuoteList whenever data changes
 
   // Renders Active or Inactive on the screen based on bool value
   function DisplayJobStatus(bool: boolean) {
     return bool ? "Active" : "Inactive";
   }
 
-  //Formats the address based on if the value is assigned or not
-  const handleAddress = (street: string, city: string) => {
-    if (street?.trim() === '""') {
-      return "No address found";
-    } else {
-      return `${street}, ${city}`;
-    }
-  };
-
-  const lineItemsForEachClient = clientData.map((client) => {
-    // Access line items for the current client
-    const lineItems = client.lineItems;
-    // You can perform operations on lineItems here if needed
-    return lineItems;
-  });
-
-  console.log("Line Items for each client:", lineItemsForEachClient);
+  //   console.log("Line Items for each client:", lineItemsForEachClient);
 
   //Renders out the list of quotes that link to the whole quote
-  const renderQuoteList = (data: any) => {
+  const renderQuoteList = (data: Quote[]) => {
     // console.log("Inside RENDER Cards", filteredData.length); // data is empty
+    let totalPriceSum = 0;
+
     const quoteList = data.map((item) => {
-      const lineItems = item.lineItems;
-      const lineItemContent = lineItems.map((lineItem) => (
-        <View key={lineItem.id}>
-          <Text>Price: {lineItem.Price}</Text>
-          <Text>Description: {lineItem.Description}</Text>
-          <Text>Quantity: {lineItem.Quantity}</Text>
-        </View>
-      ));
-      console.log("Line Item Prices ", lineItemContent);
+      const lineItems: LineItem[] = item.lineItems;
+      const lineItemContent = lineItems.map((lineItem) => {
+        // Calculate the price for the current line item
+        const lineItemPrice = lineItem.Price * lineItem.Quantity;
+        // Add the price to the total sum
+        totalPriceSum += lineItemPrice;
+
+        return (
+          <Card key={lineItem.id} containerStyle={QuoteStyles.overlayCard}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View style={{ flexDirection: "column" }}>
+                <Text>{lineItem.Title}</Text>
+                <Text>D: {lineItem.Description}</Text>
+                <Text>
+                  {" "}
+                  {lineItem.Quantity} x ${lineItem.Price}
+                </Text>
+              </View>
+              <Text>Price: ${lineItem.Price * lineItem.Quantity}</Text>
+            </View>
+          </Card>
+        );
+      });
+      //   console.log("Line Item Prices ", lineItemContent);
 
       return (
         <Card key={item.id}>
-          <Card.Title>Title, {item.ClientName}</Card.Title>
+          <Card.Title>{item.ClientName}</Card.Title>
           <Button
             title="Open Overlay"
             onPress={toggleOverlay}
-            buttonStyle={styles.button}
+            buttonStyle={QuoteStyles.button}
           />
           <Overlay
             isVisible={visible}
             onBackdropPress={toggleOverlay}
-            overlayStyle={styles.overlay}
+            overlayStyle={QuoteStyles.overlay}
           >
-            <View style={styles.overlayContent}>
-              <Text>{lineItemContent}</Text>
-              <Button title="Start Building" onPress={toggleOverlay} />
+            <View style={QuoteStyles.overlayContent}>
+              <ScrollView>
+                <Card.Title>{item.ClientName}</Card.Title>
+                <Text>Issued on: {item.IssueDate}</Text>
+                <Text>Expiry Date: {item.ExpireDate}</Text>
+                <Text>Quote #: {item.QuoteNumber}</Text>
+                <Card.Divider />
+
+                <Text>Contractors Services Unlimited</Text>
+                <Text> Suite 101-C</Text>
+                <Text>9595 Fontainbleau Boulevard</Text>
+                <Text>Miami, Florida 33172-6883</Text>
+                <Text>Bililng@csuflorida.com</Text>
+                <Text>(305)-213-778</Text>
+                <Card.Divider />
+
+                <Card.Title> Client Details</Card.Title>
+                <Text>{client.ClientName}</Text>
+                <Text>{client.Address_Street}</Text>
+                <Text>
+                  {client.Address_City},Florida {client.Address_Zip}
+                </Text>
+                <Text>{client.ClientEmail}</Text>
+                <Text>{client.ClientPhone}</Text>
+                <Card.Divider />
+
+                <Card.Title> Product or Service</Card.Title>
+                <Text>{lineItemContent}</Text>
+                <Card.Divider />
+
+                <Text>Total Price: ${totalPriceSum}</Text>
+                <Card.Title> Notes</Card.Title>
+                <Text>{item.Notes}</Text>
+                <Card.Title>Legal Terms</Card.Title>
+                <Text>{item.LegalTerms}</Text>
+                <Button title="Start Building" onPress={toggleOverlay} />
+              </ScrollView>
             </View>
           </Overlay>
         </Card>
@@ -115,17 +178,6 @@ const QuoteList = ({ navigation, route, ClientNumber }) => {
     });
     return quoteList;
   };
-  //   clientData.map((item) => (
-  //   <Card key={item.id}>
-  //     <Card.Title>{item.ClientName}</Card.Title>
-
-  //     <Button title="Toggle Overlay" onPress={toggleOverlay} />
-  //     <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
-  //       <Text> Customer, {item.ClientName}</Text>
-  //       <Button title="Toggle Overlay" onPress={toggleOverlay} />
-  //     </Overlay>
-  //   </Card>
-  // ));
 
   return (
     <ThemeProvider theme={theme}>
@@ -134,74 +186,5 @@ const QuoteList = ({ navigation, route, ClientNumber }) => {
     </ThemeProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 10,
-  },
-  overlay: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  overlayContent: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    padding: 20,
-    borderRadius: 10,
-  },
-  button: {
-    padding: 10,
-    backgroundColor: COLORS.primary,
-    borderRadius: 5,
-  },
-  container: {
-    backgroundColor: "black",
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingTop: 0,
-    paddingBottom: 100,
-    width: "100%",
-    height: "100%",
-    marginTop: SIZES.small,
-    gap: SIZES.small,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: SIZES.large,
-    color: COLORS.primary,
-  },
-  headerBtn: {
-    fontSize: SIZES.medium,
-    color: COLORS.gray,
-  },
-  contactBox: {
-    borderWidth: 1,
-    borderColor: "#d1d1d1",
-    backgroundColor: "white",
-    borderRadius: 5,
-    width: "100%",
-  },
-  contactBoxDetails: {
-    flexDirection: "row",
-  },
-  textStyleName: {
-    fontSize: 20,
-  },
-  textStyle: {
-    fontSize: 18,
-    color: "#000",
-    fontWeight: "normal",
-    marginVertical: 2,
-  },
-});
 
 export default QuoteList;

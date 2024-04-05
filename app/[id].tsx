@@ -9,28 +9,38 @@ import {
   ScrollView,
 } from "react-native";
 import { Card, Button, Tab, TabView, ListItem, Icon } from "@rneui/themed";
-import { DataContext } from "../components/DataContext";
-import { setStatusBarBackgroundColor } from "expo-status-bar";
-import { QuoteContext } from "../components/QuoteContext";
-import { CardDivider } from "@rneui/base/dist/Card/Card.Divider";
+
+// custom imports
 import Delete from "../components/Buttons/Delete";
 import Edit from "../components/Buttons/Edit";
 import QuoteList from "../components/List/QuoteList";
 import ContactList from "../components/List/ContactList";
-
-// import { Stack, useLocalSearchParams, Tabs } from "expo-router";
+import { Client, LineItem } from "../App";
+import { DataContext } from "../components/DataContext";
+import { QuoteContext } from "../components/QuoteContext";
+import { CardDivider } from "@rneui/base/dist/Card/Card.Divider";
+import {
+  makePhoneCall,
+  sendEmail,
+  DisplayJobStatus,
+  handleAddress,
+  handlePhone,
+  handleEmail,
+} from "../components/helperFunctions";
+import { idStyles } from "./styles/[id].styles";
 
 export default function SingleClient({ route, navigation }) {
   const data = useContext(DataContext);
   const quotes = useContext(QuoteContext);
   const [activeTab, setActiveTab] = React.useState<number>(0); // State to manage the active tab
   const { ClientNumber, ClientEmail, ClientPhone, ClientName } = route.params;
-  const client = data.find((item) => item.ClientNumber === ClientNumber);
-  const active = client.Active;
+  const client: Client = data.find(
+    (item) => item.ClientNumber === ClientNumber
+  );
 
   // Log the values of the route params to the console
-  console.log("ClientName:", ClientName);
-  console.log("ClientEmail:", ClientEmail);
+  // console.log("ClientName:", ClientName);
+  // console.log("ClientEmail:", ClientEmail);
 
   // Check if any of the required params are undefined
   if (
@@ -47,138 +57,23 @@ export default function SingleClient({ route, navigation }) {
 
   const [index, setIndex] = React.useState(0); // for tab component
 
-  // Will open the Phone app and paste the phone number in it if the number is not 0
-  function makePhoneCall(number: number) {
-    if (number === 0) {
-      return "No number to call";
-    }
-    if (Platform.OS === "android") {
-      Linking.openURL(`tel:${number}`);
-    } else {
-      Linking.openURL(`telprompt:${number}`);
-    }
-  }
-
-  // opens email app and passes the email to it
-  function sendEmail(email: string) {
-    console.log(`send email to ${email}`);
-    Linking.openURL(`mailto:${email}`);
-  }
-
-  // Takes the JSON Object document from firebase and convert it to a Map so i can use .get() funcition
-  function convertObjectToMap(Obj) {
-    return new Map(Object.entries(Obj));
-  }
-
-  // Filters Quotes by the Client number which is passed through route.params (filters quotes by client that is selected)
-  const filteredQuotes = quotes.filter((item) => {
-    console.log("item.ClientNumber:", item.ClientNumber);
-    console.log("ClientNumber:", ClientNumber);
-    const match = item.ClientNumber === ClientNumber;
-    if (match) {
-      console.log("Filtered Quote:", item);
-    }
-    return match;
-  });
-  console.log(`Filtered Quotes ${filteredQuotes}`);
-
-  //Converts the LineItems subcollection inside of the quote data into a Map. However it just makes the whole document the value and the key is a random code
-  const quotesWithLineItemsAsMap = filteredQuotes.map((quote) => ({
-    ...quote,
-    lineItemsMap: new Map(quote.lineItems.map((item) => [item.id, item])),
-  }));
-
-  // Renders filtered quotes with the .map() function
-  const renderQuotesWithLineItems = (quotes) => {
-    return (
-      <View>
-        <Card containerStyle={styles.cardContainer}>
-          <CardDivider />
-          {/* Render labels for each column */}
-          <View style={styles.lineItemContainer}>
-            <Text style={styles.columnLabel}>Product or Service</Text>
-            <Text style={styles.columnLabel}>Price</Text>
-            <Text style={styles.columnLabel}>Quantity</Text>
-            <Text style={styles.columnLabel}>Line Total</Text>
-          </View>
-          <CardDivider />
-          {/* Render line items */}
-          {quotes.map((quote) => (
-            <View key={quote.id}>
-              {quote.lineItems.map((item) => (
-                <View key={item.id} style={styles.lineItemContainer}>
-                  <Text style={styles.column}>{item.Title}</Text>
-                  <Text style={styles.column}>${item.Price}</Text>
-                  <Text style={styles.column}>{item.Quantity}</Text>
-                  <Text style={styles.column}>
-                    ${item.Price * item.Quantity}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          ))}
-        </Card>
-      </View>
-    );
-  };
-
-  // Grabs the matching Client Document from the Data and stores it for manipulation
-  // data.forEach((item) => {
-  //   if (item.ClientNumber === ClientNumber) {
-  //     client = item;
-  //     // console.log("$$Found Client", client);
-  //   }
-  // });
-
-  // const Address = convertObjectToMap(client.Address);
-
-  // maybe make a file for helper methods becasue i use this in the cardList and probable Quote and contact List too
-  const handleActive = (bool: boolean) => {
-    return bool ? "Active" : "Inactive";
-  };
-
-  const handleAddress = (street: string, city: string) => {
-    if (street === null || street.trim() === '""') {
-      return "No address found";
-    } else {
-      return `${street}, ${city}`;
-    }
-  };
-
-  function formatPhoneNumber(phone) {
-    const cleaned = ("" + phone).replace(/\D/g, "");
-    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-    if (match) {
-      return "(" + match[1] + ")-" + match[2] + "-" + match[3];
-    }
-    return "No number found";
-  }
-
-  const handlePhone = (phone: number) => {
-    if (phone === null || phone === 0) {
-      return "No number found";
-    } else return formatPhoneNumber(phone);
-  };
-
-  const handleEmail = (email: string) => {
-    if (email === null || email.trim() === '""') {
-      return "No email found";
-    } else return email;
-  };
-
   const tabContent = {
     0: (
       <View style={{ flex: 1 }}>
         <ScrollView>
           <ListItem.Swipeable
             leftContent={(action) => (
-              <Delete id={client.id} field={"ClientName"} />
+              <Delete
+                id={client.id}
+                field={"ClientName"}
+                collection="clients"
+              />
             )}
             rightContent={(action) => (
-              <Edit id={client.id} field={"ClientName"} />
+              <Edit id={client.id} field={"ClientName"} collection="clients" />
             )}
           >
-            <Card.Title style={styles.cardTitle}> Name </Card.Title>
+            <Card.Title style={idStyles.cardTitle}> Name </Card.Title>
             <View
               style={{ flexDirection: "row", alignContent: "space-between" }}
             >
@@ -193,13 +88,21 @@ export default function SingleClient({ route, navigation }) {
             rightWidth={90}
             // minSlideWidth={40}
             leftContent={(action) => (
-              <Delete id={client.id} field={"ClientNumber"} />
+              <Delete
+                id={client.id}
+                field={"ClientNumber"}
+                collection="clients"
+              />
             )}
             rightContent={(action) => (
-              <Edit id={client.id} field={"ClientNumber"} />
+              <Edit
+                id={client.id}
+                field={"ClientNumber"}
+                collection="clients"
+              />
             )}
           >
-            <Card.Title style={styles.cardTitle}>Client # </Card.Title>
+            <Card.Title style={idStyles.cardTitle}>Client # </Card.Title>
             <View
               style={{ flexDirection: "row", alignContent: "space-between" }}
             >
@@ -211,13 +114,21 @@ export default function SingleClient({ route, navigation }) {
 
           <ListItem.Swipeable
             leftContent={(action) => (
-              <Delete id={client.id} field={"Address_Street"} />
+              <Delete
+                id={client.id}
+                field={"Address_Street"}
+                collection="clients"
+              />
             )}
             rightContent={(action) => (
-              <Edit id={client.id} field={"Address_Street"} />
+              <Edit
+                id={client.id}
+                field={"Address_Street"}
+                collection="clients"
+              />
             )}
           >
-            <Card.Title style={styles.cardTitle}>Address</Card.Title>
+            <Card.Title style={idStyles.cardTitle}>Address</Card.Title>
             <View
               style={{ flexDirection: "row", alignContent: "space-between" }}
             >
@@ -231,13 +142,17 @@ export default function SingleClient({ route, navigation }) {
 
           <ListItem.Swipeable
             leftContent={(action) => (
-              <Delete id={client.id} field={"ClientEmail"} />
+              <Delete
+                id={client.id}
+                field={"ClientEmail"}
+                collection="clients"
+              />
             )}
             rightContent={(action) => (
-              <Edit id={client.id} field={"ClientEmail"} />
+              <Edit id={client.id} field={"ClientEmail"} collection="clients" />
             )}
           >
-            <Card.Title style={styles.cardTitle}>Email</Card.Title>
+            <Card.Title style={idStyles.cardTitle}>Email</Card.Title>
             <View
               style={{ flexDirection: "row", alignContent: "space-between" }}
             >
@@ -253,13 +168,17 @@ export default function SingleClient({ route, navigation }) {
 
           <ListItem.Swipeable
             leftContent={(action) => (
-              <Delete id={client.id} field={"ClientPhone"} />
+              <Delete
+                id={client.id}
+                field={"ClientPhone"}
+                collection="clients"
+              />
             )}
             rightContent={(action) => (
-              <Edit id={client.id} field={"ClientPhone"} />
+              <Edit id={client.id} field={"ClientPhone"} collection="clients" />
             )}
           >
-            <Card.Title style={styles.cardTitle}>Phone</Card.Title>
+            <Card.Title style={idStyles.cardTitle}>Phone</Card.Title>
             <View
               style={{ flexDirection: "row", alignContent: "space-between" }}
             >
@@ -276,11 +195,11 @@ export default function SingleClient({ route, navigation }) {
           <ListItem.Swipeable
             rightContent={(action) => <Edit id={client.id} field={"Active"} />}
           >
-            <Card.Title style={styles.cardTitle}>Job Status</Card.Title>
+            <Card.Title style={idStyles.cardTitle}>Job Status</Card.Title>
             <View
               style={{ flexDirection: "row", alignContent: "space-between" }}
             >
-              <Text>{handleActive(client.Active)}</Text>
+              <Text>{DisplayJobStatus(client.Active)}</Text>
             </View>
           </ListItem.Swipeable>
 
@@ -288,14 +207,18 @@ export default function SingleClient({ route, navigation }) {
 
           <ListItem.Swipeable
             leftContent={(action) => (
-              <Delete id={client.id} field={"Site_Street"} />
+              <Delete
+                id={client.id}
+                field={"Site_Street"}
+                collection="clients"
+              />
             )}
             rightContent={(action) => (
-              <Edit id={client.id} field={"Site_Street"} />
+              <Edit id={client.id} field={"Site_Street"} collection="clients" />
             )}
           >
             <TouchableOpacity>
-              <Card.Title style={styles.cardTitle}>Job Site {}</Card.Title>
+              <Card.Title style={idStyles.cardTitle}>Job Site {}</Card.Title>
               <Text>{handleAddress(client.Site_Street, client.Site_City)}</Text>
             </TouchableOpacity>
           </ListItem.Swipeable>
@@ -305,8 +228,8 @@ export default function SingleClient({ route, navigation }) {
     ),
     1: (
       <View>
-        <Card containerStyle={styles.cardContainer}>
-          <Card.Title style={styles.cardTitle}>
+        <Card containerStyle={idStyles.cardContainer}>
+          <Card.Title style={idStyles.cardTitle}>
             <Text>Quote List</Text>
           </Card.Title>
         </Card>
@@ -340,31 +263,9 @@ export default function SingleClient({ route, navigation }) {
         <Tab.Item>Contact Info</Tab.Item>
       </Tab>
 
-      {/* Container for buttons to switch tabs */}
-      {/* <View style={styles.buttonContainer}>
-        <Button
-          title="Info"
-          onPress={() => setActiveTab("Info")}
-          color={activeTab === "Info" ? "blue" : "gray"} // Change button color based on active tab
-        />
-        <Button
-          title="Invoices"
-          onPress={() => setActiveTab("Invoices")}
-          color={activeTab === "Invoices" ? "blue" : "gray"} // Change button color based on active tab
-        />
-      </View> */}
-
       {/* Container for tabs with custom styles */}
-      <View style={styles.tabContainer}>
+      <View style={idStyles.tabContainer}>
         {/* Tabs with custom styles */}
-        {/* <Tabs
-          activeTab={activeTab}
-          onTabChange={(tab) => setActiveTab(tab)}
-          tabs={[
-            { key: "tab1", title: "Quotes" },
-            { key: "tab2", title: "Invoices" },
-          ]}
-        /> */}
 
         {/* Conditional rendering based on active tab */}
         {tabContent[activeTab]}
@@ -372,66 +273,3 @@ export default function SingleClient({ route, navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: "row", // Align buttons horizontally
-    justifyContent: "space-evenly", // Space buttons evenly horizontally
-    backgroundColor: "gray",
-    marginTop: 1,
-  },
-  tabContainer: {
-    backgroundColor: "white", // Set background color to black
-    height: "90%",
-  },
-  tabText: {
-    color: "black", // Set text color to white
-  },
-  cardContainer: {
-    borderWidth: 0, // Set borderWidth to 0 to remove borders
-    margin: 0,
-    marginTop: 0,
-    elevation: 0,
-    width: "100%",
-  },
-  cardTitle: {
-    textAlign: "left",
-    marginBottom: 1,
-    marginTop: 0,
-  },
-  tabViewItem: {
-    width: "100%",
-  },
-  cardContentContainer: {
-    marginTop: 0,
-  },
-  lineItemContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 5,
-    width: "100%",
-  },
-  column: {
-    flex: 1,
-  },
-  columnLabel: {
-    flex: 1,
-    fontWeight: "bold",
-  },
-});
-
-// export default SingleClient;
-
-// type SearchParamType = {
-//   id: number;
-//   description: string;
-//   age: number;
-//   name: string;
-// };
-
-// const Home = () => {
-//     const { id, description, age, name } = useLocalSearchParams<SearchParamType>();
-
-//     return <></>
-// }

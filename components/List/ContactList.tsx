@@ -7,24 +7,35 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
-  Platform,
-  Linking,
+  ScrollView,
 } from "react-native";
-// import { Link, Stack } from "expo-router";
-// import { Dropdown } from "react-native-element-dropdown";
-import { COLORS, FONT, SIZES } from "../../constants";
-import { ThemeProvider, useTheme, Card, Button, Overlay } from "@rneui/themed";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+import { COLORS, SIZES } from "../../constants";
+import {
+  ThemeProvider,
+  useTheme,
+  ListItem,
+  Card,
+  Button,
+  Overlay,
+  Icon,
+} from "@rneui/themed";
 
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
-import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
-import { DataContext, useDataContext } from "../DataContext";
-import { QuoteContext } from "../QuoteContext";
+import { DataContext } from "../DataContext";
 import DataTable from "../DataTable";
+import { Client, Contact } from "../../App";
+import {
+  makePhoneCall,
+  sendEmail,
+  handleFullAddress,
+  handlePhone,
+  handleEmail,
+} from "../helperFunctions";
+import EditContact from "../Buttons/EditContact";
+import Delete from "../Buttons/Delete";
 
 //initalizes firebase connection
 if (!firebase.apps.length) {
@@ -33,94 +44,163 @@ if (!firebase.apps.length) {
 
 const ContactList = ({ navigation, route, ClientNumber }) => {
   const { theme, updateTheme } = useTheme();
-  const quoteData = useContext(DataContext);
-  const [clientData, setclientData] = useState(quoteData);
+  const data = useContext(DataContext);
   const [visible, setVisible] = useState(false);
 
-  const getclient = (ClientNumber) => {
-    const client = quoteData.filter((item) => {
-      const clientNumber = (item.ClientNumber || "").toString().toLowerCase();
-      return clientNumber.includes(ClientNumber);
-    });
-    return client;
-  };
-  const client = getclient(ClientNumber);
+  const client: Client = data.find(
+    (item) => item.ClientNumber === ClientNumber
+  );
+  const contactList = client.Contacts;
+
+  // console.log(`Pure Client: ${client.Contacts}`);
+  // console.log(`Contacts@: ${JSON.stringify(client.Contacts)}`);
 
   const renderContacts = (contactList) => {
-    const contacts = contactList[0]?.Contacts;
-    if (!contacts) return null;
+    const keys: string[] = Object.keys(contactList);
+    const contacts: Contact[] = Object.values(contactList);
+    console.log(`Render Contacts ${keys}`);
+    if (!contacts.length) return null;
 
     return (
       <View>
-        {Object.keys(contacts).map((key, index) => {
-          const contact = contacts[key];
-          return (
-            <View key={index}>
-              <Text>
-                @#@ Contact Name: {contact.name}, Email: {contact.email},
-                Street: {contact.street}
-              </Text>
-            </View>
-          );
-        })}
+        {contacts.map((contact, index) => (
+          <View key={index}>
+            <ScrollView>
+              <Card.Divider />
+              <Card.Title>{keys[index]}</Card.Title>
+              <Card.Divider />
+              <ListItem.Swipeable
+                leftContent={(action) => (
+                  <Delete id={client.id} field={"name"} contact={keys[index]} />
+                )}
+                rightContent={(action) => (
+                  <>
+                    <EditContact
+                      id={client.id}
+                      field={"name"}
+                      contact={keys[index]}
+                    />
+                  </>
+                )}
+              >
+                <Card.Title> Name </Card.Title>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignContent: "space-between",
+                  }}
+                >
+                  <Text>{contact.name}</Text>
+                </View>
+              </ListItem.Swipeable>
+              <Card.Divider />
+
+              <ListItem.Swipeable
+                leftContent={(action) => (
+                  <Delete
+                    id={client.id}
+                    field={"email"}
+                    contact={keys[index]}
+                  />
+                )}
+                rightContent={(action) => (
+                  <EditContact
+                    id={client.id}
+                    field={"email"}
+                    contact={keys[index]}
+                  />
+                )}
+              >
+                <Card.Title> Email </Card.Title>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignContent: "space-between",
+                  }}
+                >
+                  <TouchableOpacity onPress={() => sendEmail(contact.email)}>
+                    <Text>{contact.email && handleEmail(contact.email)}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ListItem.Swipeable>
+              <Card.Divider />
+
+              <ListItem.Swipeable
+                leftContent={(action) => (
+                  <Delete
+                    id={client.id}
+                    field={"phone"}
+                    contact={keys[index]}
+                  />
+                )}
+                rightContent={(action) => (
+                  <EditContact
+                    id={client.id}
+                    field={"phone"}
+                    contact={keys[index]}
+                  />
+                )}
+              >
+                <Card.Title> Phone </Card.Title>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignContent: "space-between",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => makePhoneCall(contact.phone)}
+                  >
+                    <Text>{handlePhone(contact.phone)}</Text>
+                  </TouchableOpacity>
+                </View>
+              </ListItem.Swipeable>
+              <Card.Divider />
+
+              <ListItem.Swipeable
+                leftContent={(action) => (
+                  <Delete
+                    id={client.id}
+                    field={"street"}
+                    contact={keys[index]}
+                  />
+                )}
+                rightContent={(action) => (
+                  <EditContact
+                    id={client.id}
+                    field={"street"}
+                    contact={keys[index]}
+                  />
+                )}
+              >
+                <Card.Title> Address </Card.Title>
+                <View
+                  style={{
+                    flexDirection: "column",
+                    alignContent: "space-between",
+                  }}
+                >
+                  <Text>
+                    {handleFullAddress(
+                      contact.street,
+                      contact.city,
+                      contact.zip
+                    )}
+                  </Text>
+                </View>
+              </ListItem.Swipeable>
+              <Card.Divider />
+            </ScrollView>
+          </View>
+        ))}
       </View>
     );
   };
 
-  // const renderContacts = (contactList) => {
-  //   return contactList.map((contact, index) => (
-  //     <View key={index}>
-  //       <Text>
-  //         Contact Name: {contact.name}, Email: {contact.email}, Street:{" "}
-  //         {contact.street}
-  //       </Text>
-  //     </View>
-  //   ));
-  //   // contactList.forEach((item) => {
-  //   //   //Here i am mapping through the Array that holds "contact 1" object aka (item) in the first index [0] to access the key value pairs
-  //   //   return Object.keys(item).map((key) => {
-  //   //     const contact = contacts[key];
-  //   //     return (
-  //   //       <View key={key}>
-  //   //         <Text>
-  //   //           Contact Name: {contact.name}, Email: {contact.email}, Street:{" "}
-  //   //           {contact.street}
-  //   //         </Text>
-  //   //       </View>
-  //   //     );
-  //   //   });
-  //   // });
-  // };
-
-  console.log(`Client@: ${JSON.stringify(client)}`);
-  client.forEach((item) => {
-    Object.keys(item.Contacts).forEach((key) => {
-      const contact = item.Contacts[key];
-      console.log(
-        `$#Contact Name: ${contact.name}, Email: ${contact.email}, Street: ${contact.street}`
-      );
-    });
-    console.log(
-      `&Client Contacts: ${item.Contacts} ClientNum#: ${item.ClientNumber}`
-    );
-  });
-  const contacts = JSON.stringify(client.Contacts);
-  // console.log(`Contacts@: ${JSON.stringify(contacts)}`);
-  // contacts.forEach((item) => {
-  //   console.log(`Contacts: ${JSON.stringify(item)}`);
-  // });
-  // console.log(`Contacts: ${contacts}`);
-
-  const toggleOverlay = () => {
-    setVisible(!visible);
-  };
-
-  useEffect(() => {}, [quoteData]); // Call renderQuoteList whenever data changes
+  // useEffect(() => {}, [quoteData]); // Call renderQuoteList whenever data changes
 
   // Renders Active or Inactive on the screen based on bool value
-  function DisplayJobStatus(bool: boolean) {
-    return bool ? "Active" : "Inactive";
-  }
 
   //Formats the address based on if the value is assigned or not
   const handleAddress = (street: string, city: string) => {
@@ -133,12 +213,7 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <View>
-        <Text> Contact List </Text>
-        {client.map((item) => (
-          <View key={item.id}>{renderContacts(item.Contacts)}</View>
-        ))}
-      </View>
+      <View>{renderContacts(contactList)}</View>
     </ThemeProvider>
   );
 };
