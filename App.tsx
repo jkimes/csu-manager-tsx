@@ -7,10 +7,67 @@ import { ThemeProvider, createTheme, Button, Card } from "@rneui/themed";
 
 import Clientpage from "./app/clientpage";
 import SingleClient from "./app/[id]";
+import Wip from "./app/Wip";
+import VendorPage from "./app/VendorPage";
 import { DataContext } from "./components/DataContext";
 import { QuoteContext } from "./components/QuoteContext";
+import { WipContext } from "./components/WipContext";
 import AddClient from "./app/AddClient";
 import { firebase, firebaseConfig } from "./config";
+
+// Define your types and interfaces
+type DocumentData<T> = T & { id: string };
+export interface Contact {
+  email: string;
+  name: string;
+  street: string;
+  city: string;
+  zip: string;
+  phone: number;
+}
+
+export interface Client {
+  id: string;
+  ClientName: string;
+  ClientNumber: number;
+  ClientEmail: string;
+  ClientPhone: number;
+  Active: boolean;
+  Address_City: string;
+  Address_Street: string;
+  Address_Zip: string;
+  Address_State: string;
+  Contacts: {
+    [key: string]: Contact;
+  };
+  Site_Street: string;
+  Site_City: string;
+  Site_State: string;
+  Site_Zip: string;
+  // Add more fields as needed
+}
+
+export interface LineItem {
+  id: string;
+  Price: number;
+  Quantity: number;
+  Description: string;
+  Title: string;
+  // Add more fields as needed
+}
+
+export interface Quote {
+  id: string;
+  ClientNumber: number;
+  ClientName: string;
+  LegalTerms: string;
+  Notes: string;
+  QuoteNumber: number;
+  // Add more fields as needed
+  lineItems: LineItem[];
+  IssueDate: string;
+  ExpireDate: string;
+}
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -38,40 +95,50 @@ function HomeScreen({ navigation }) {
       <View
         style={{
           flex: 1,
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "flex-start",
         }}
       >
+        <Button
+          title="WIP"
+          onPress={() => navigation.navigate("Wip")}
+          buttonStyle={{
+            width: "100%",
+            height: 50,
+            margin: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }} // Adjust height as needed
+          titleStyle={{ alignSelf: "center" }}
+        />
+
         <Button
           title="Clients"
           onPress={() => navigation.navigate("Clients")}
           buttonStyle={{
             width: "100%",
             height: 50,
+            margin: 10,
             justifyContent: "center",
             alignItems: "center",
           }} // Adjust height as needed
           titleStyle={{ alignSelf: "center" }}
         />
+
+        {/* <Button
+          title="Vendors"
+          onPress={() => navigation.navigate("Vendors")}
+          buttonStyle={{
+            width: "100%",
+            height: 50,
+            margin: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }} // Adjust height as needed
+          titleStyle={{ alignSelf: "center" }}
+        /> */}
       </View>
-    </View>
-  );
-}
-
-function DetailsScreen({ route, navigation }) {
-  const { itemId, otherParam } = route.params;
-
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Details Screen</Text>
-      <Text>itemId: {JSON.stringify(itemId)}</Text>
-      <Text>otherParam: {JSON.stringify(otherParam)}</Text>
-      <Button
-        title="Go to Details... again"
-        onPress={() => navigation.push("Details")}
-      />
-      <Button title="Go to Home" onPress={() => navigation.navigate("Home")} />
-      <Button title="Go back" onPress={() => navigation.goBack()} />
     </View>
   );
 }
@@ -86,7 +153,7 @@ const theme = createTheme({
   },
   components: {
     Button: {
-      raised: true,
+      raised: false,
       color: "primary",
       titleStyle: { color: "white" },
     },
@@ -106,13 +173,25 @@ export default function App() {
   const [data, setData] = useState<any[]>([]);
   const [quotes, setQuotes] = useState<any[]>([]);
   const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [wip, setWip] = useState<any[]>([]);
   const collectionRef = firebase.firestore().collection("clients");
   const quotesRef = firebase.firestore().collection("Quotes");
+  const wipRef = firebase.firestore().collection("wip");
 
   useEffect(() => {
     // Fetch initial data when component mounts
     fetchData();
     fetchQuotes();
+    fetchWip();
+
+    // Set up Firestore listener for clients collection
+    const unsubscribeWip = wipRef.orderBy("name").onSnapshot((snapshot) => {
+      const newData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setWip(newData);
+    });
 
     // Set up Firestore listener for clients collection
     const unsubscribeClients = collectionRef
@@ -155,26 +234,36 @@ export default function App() {
       // Clean up listeners
       unsubscribeClients();
       unsubscribeQuotes();
+      unsubscribeWip();
     };
   }, []);
 
-  // useEffect(() => {
-  //   console.log("Quotes:", quotes);
-  // }, [quotes]);
+  const fetchWip = async () => {
+    const snapshot = await wipRef.get();
+    if (snapshot.empty) {
+      console.log("No matching results!");
+    } else {
+      const newData: DocumentData<Client>[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Client),
+      }));
+      setWip(newData); // Update state with fetched data
+    }
+  };
 
   const fetchQuotes = async () => {
     try {
       const quotesRef = firebase.firestore().collection("Quotes");
       const snapshot = await quotesRef.get();
-      const fetchedQuotes = [];
+      const fetchedQuotes: DocumentData<Quote>[] = [];
 
       snapshot.forEach(async (doc) => {
-        const quoteData = doc.data();
+        const quoteData = doc.data() as Quote;
         const lineItemsRef = quotesRef.doc(doc.id).collection("LineItems");
         const lineItemsSnapshot = await lineItemsRef.get();
         const lineItems = lineItemsSnapshot.docs.map((lineItemDoc) => ({
           id: lineItemDoc.id,
-          ...lineItemDoc.data(),
+          ...(lineItemDoc.data() as LineItem),
         }));
 
         const quoteWithLineItems = {
@@ -197,9 +286,9 @@ export default function App() {
     if (snapshot.empty) {
       console.log("No matching results!");
     } else {
-      const newData = snapshot.docs.map((doc) => ({
+      const newData: DocumentData<Client>[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...(doc.data() as Client),
       }));
       setData(newData); // Update state with fetched data
       setFilteredData(newData); // Initialize filteredData with fetched data
@@ -210,28 +299,31 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <DataContext.Provider value={data}>
         <QuoteContext.Provider value={quotes}>
-          <NavigationContainer>
-            <Stack.Navigator
-              screenOptions={({ navigation }) => ({
-                headerStyle: {
-                  backgroundColor: "black", // Set header background color to black
-                },
-                headerTintColor: "white",
-                headerRight: () => (
-                  <Button
-                    onPress={() => navigation.navigate("Home")}
-                    title="Home"
-                  />
-                ),
-              })}
-            >
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Details" component={DetailsScreen} />
-              <Stack.Screen name="Clients" component={Clientpage} />
-              <Stack.Screen name="Profile" component={SingleClient} />
-              <Stack.Screen name="AddClient" component={AddClient} />
-            </Stack.Navigator>
-          </NavigationContainer>
+          <WipContext.Provider value={wip}>
+            <NavigationContainer>
+              <Stack.Navigator
+                screenOptions={({ navigation }) => ({
+                  headerStyle: {
+                    backgroundColor: "black", // Set header background color to black
+                  },
+                  headerTintColor: "white",
+                  headerRight: () => (
+                    <Button
+                      onPress={() => navigation.navigate("Home")}
+                      title="Home"
+                    />
+                  ),
+                })}
+              >
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Clients" component={Clientpage} />
+                <Stack.Screen name="Profile" component={SingleClient} />
+                <Stack.Screen name="AddClient" component={AddClient} />
+                <Stack.Screen name="Vendors" component={VendorPage} />
+                <Stack.Screen name="Wip" component={Wip} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </WipContext.Provider>
         </QuoteContext.Provider>
       </DataContext.Provider>
     </ThemeProvider>

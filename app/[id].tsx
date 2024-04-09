@@ -56,172 +56,348 @@ export default function SingleClient({ route, navigation }) {
   }
 
   const [index, setIndex] = React.useState(0); // for tab component
-
+  const [expanded, setExpanded] = useState(false);
   const tabContent = {
     0: (
       <View style={{ flex: 1 }}>
         <ScrollView>
-          <ListItem.Swipeable
-            leftContent={(action) => (
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title>Name</Card.Title>
+                    </ListItem.Title>
+                    <ListItem.Subtitle>
+                      <Text>{client.ClientName}</Text>
+                    </ListItem.Subtitle>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={client.id} field={"ClientName"} collection="clients" />
               <Delete
                 id={client.id}
                 field={"ClientName"}
                 collection="clients"
               />
-            )}
-            rightContent={(action) => (
-              <Edit id={client.id} field={"ClientName"} collection="clients" />
-            )}
-          >
-            <Card.Title style={idStyles.cardTitle}> Name </Card.Title>
-            <View
-              style={{ flexDirection: "row", alignContent: "space-between" }}
-            >
-              <Text>{client.ClientName}</Text>
             </View>
-          </ListItem.Swipeable>
+          </ListItem.Accordion>
 
           <Card.Divider></Card.Divider>
 
-          <ListItem.Swipeable
-            leftWidth={80}
-            rightWidth={90}
-            // minSlideWidth={40}
-            leftContent={(action) => (
-              <Delete
-                id={client.id}
-                field={"ClientNumber"}
-                collection="clients"
-              />
-            )}
-            rightContent={(action) => (
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>
+                        Client #{" "}
+                      </Card.Title>
+                    </ListItem.Title>
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <Text>{client.ClientNumber}</Text>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
               <Edit
                 id={client.id}
                 field={"ClientNumber"}
                 collection="clients"
               />
-            )}
-          >
-            <Card.Title style={idStyles.cardTitle}>Client # </Card.Title>
-            <View
-              style={{ flexDirection: "row", alignContent: "space-between" }}
-            >
-              <Text>{client.ClientNumber}</Text>
+              <Delete
+                id={client.id}
+                field={"ClientNumber"}
+                collection="clients"
+              />
             </View>
-          </ListItem.Swipeable>
+          </ListItem.Accordion>
 
           <Card.Divider />
 
-          <ListItem.Swipeable
-            leftContent={(action) => (
-              <Delete
-                id={client.id}
-                field={"Address_Street"}
-                collection="clients"
-              />
-            )}
-            rightContent={(action) => (
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>
+                        Address
+                      </Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <Text>
+                        {handleAddress(
+                          client.Address_Street,
+                          client.Address_City
+                        )}
+                      </Text>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
               <Edit
                 id={client.id}
                 field={"Address_Street"}
                 collection="clients"
               />
-            )}
-          >
-            <Card.Title style={idStyles.cardTitle}>Address</Card.Title>
-            <View
-              style={{ flexDirection: "row", alignContent: "space-between" }}
-            >
-              <Text>
-                {handleAddress(client.Address_Street, client.Address_City)}
-              </Text>
+              <Delete
+                id={client.id}
+                field={"Address_Street"}
+                collection="clients"
+              />
             </View>
-          </ListItem.Swipeable>
+          </ListItem.Accordion>
 
           <Card.Divider />
 
-          <ListItem.Swipeable
-            leftContent={(action) => (
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>Email</Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => sendEmail(client.ClientEmail.toString())}
+                      >
+                        <Text>{handleEmail(client.ClientEmail)}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={client.id} field={"ClientEmail"} collection="clients" />
               <Delete
                 id={client.id}
                 field={"ClientEmail"}
                 collection="clients"
               />
-            )}
-            rightContent={(action) => (
-              <Edit id={client.id} field={"ClientEmail"} collection="clients" />
-            )}
-          >
-            <Card.Title style={idStyles.cardTitle}>Email</Card.Title>
-            <View
-              style={{ flexDirection: "row", alignContent: "space-between" }}
-            >
-              <TouchableOpacity
-                onPress={() => sendEmail(client.ClientEmail.toString())}
-              >
-                <Text>{handleEmail(client.ClientEmail)}</Text>
-              </TouchableOpacity>
             </View>
-          </ListItem.Swipeable>
+          </ListItem.Accordion>
 
           <Card.Divider></Card.Divider>
 
-          <ListItem.Swipeable
-            leftContent={(action) => (
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>Phone</Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => makePhoneCall(client.ClientPhone)}
+                      >
+                        <Text>{handlePhone(client.ClientPhone)}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={client.id} field={"ClientPhone"} collection="clients" />
               <Delete
                 id={client.id}
                 field={"ClientPhone"}
                 collection="clients"
               />
-            )}
-            rightContent={(action) => (
-              <Edit id={client.id} field={"ClientPhone"} collection="clients" />
-            )}
-          >
-            <Card.Title style={idStyles.cardTitle}>Phone</Card.Title>
-            <View
-              style={{ flexDirection: "row", alignContent: "space-between" }}
-            >
-              <TouchableOpacity
-                onPress={() => makePhoneCall(client.ClientPhone)}
-              >
-                <Text>{handlePhone(client.ClientPhone)}</Text>
-              </TouchableOpacity>
             </View>
-          </ListItem.Swipeable>
+          </ListItem.Accordion>
 
           <Card.Divider></Card.Divider>
 
-          <ListItem.Swipeable
-            rightContent={(action) => <Edit id={client.id} field={"Active"} />}
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>
+                        Job Status
+                      </Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <Text>{DisplayJobStatus(client.Active)}</Text>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
           >
-            <Card.Title style={idStyles.cardTitle}>Job Status</Card.Title>
-            <View
-              style={{ flexDirection: "row", alignContent: "space-between" }}
-            >
-              <Text>{DisplayJobStatus(client.Active)}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={client.id} field={"Active"} />
             </View>
-          </ListItem.Swipeable>
+          </ListItem.Accordion>
 
           <Card.Divider></Card.Divider>
 
-          <ListItem.Swipeable
-            leftContent={(action) => (
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>
+                        Job Site {}
+                      </Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <TouchableOpacity>
+                        <Text>
+                          {handleAddress(client.Site_Street, client.Site_City)}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={client.id} field={"Site_Street"} collection="clients" />
               <Delete
                 id={client.id}
                 field={"Site_Street"}
                 collection="clients"
               />
-            )}
-            rightContent={(action) => (
-              <Edit id={client.id} field={"Site_Street"} collection="clients" />
-            )}
-          >
-            <TouchableOpacity>
-              <Card.Title style={idStyles.cardTitle}>Job Site {}</Card.Title>
-              <Text>{handleAddress(client.Site_Street, client.Site_City)}</Text>
-            </TouchableOpacity>
-          </ListItem.Swipeable>
+            </View>
+          </ListItem.Accordion>
+
           <Card.Divider></Card.Divider>
         </ScrollView>
       </View>
@@ -234,7 +410,6 @@ export default function SingleClient({ route, navigation }) {
           </Card.Title>
         </Card>
 
-        <Text>Here </Text>
         <QuoteList
           navigation={navigation}
           route={route}

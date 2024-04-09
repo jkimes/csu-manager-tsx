@@ -59,7 +59,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
     // );
     const match = Number(item.ClientNumber) === Number(ClientNumber);
     if (match) {
-      //   console.log("Filtered Quote:", item);
+      console.log("Filtered Quote:", item);
     }
     return match;
   });
@@ -87,9 +87,11 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
   //Renders out the list of quotes that link to the whole quote
   const renderQuoteList = (data: Quote[]) => {
     // console.log("Inside RENDER Cards", filteredData.length); // data is empty
+
     let totalPriceSum = 0;
 
     const quoteList = data.map((item) => {
+      console.log(`Quote Item: ${item.ClientName}`);
       const lineItems: LineItem[] = item.lineItems;
       const lineItemContent = lineItems.map((lineItem) => {
         // Calculate the price for the current line item
@@ -106,15 +108,16 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
                 alignItems: "center",
               }}
             >
-              <View style={{ flexDirection: "column" }}>
+              <View style={{ flexDirection: "row" }}>
                 <Text>{lineItem.Title}</Text>
                 <Text>D: {lineItem.Description}</Text>
                 <Text>
                   {" "}
                   {lineItem.Quantity} x ${lineItem.Price}
                 </Text>
+
+                <Text>Price: ${lineItem.Price * lineItem.Quantity}</Text>
               </View>
-              <Text>Price: ${lineItem.Price * lineItem.Quantity}</Text>
             </View>
           </Card>
         );
@@ -123,9 +126,15 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
 
       return (
         <Card key={item.id}>
-          <Card.Title>{item.ClientName}</Card.Title>
+          <Card.FeaturedTitle style={{ color: "black" }}>
+            {item.ClientName}
+          </Card.FeaturedTitle>
+          <Card.FeaturedSubtitle style={{ color: "black" }}>
+            {" "}
+            #{item.QuoteNumber}
+          </Card.FeaturedSubtitle>
           <Button
-            title="Open Overlay"
+            title="Open Quote"
             onPress={toggleOverlay}
             buttonStyle={QuoteStyles.button}
           />
@@ -181,7 +190,6 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Text>Quote List</Text>
       <View>{renderQuoteList(clientData)}</View>
     </ThemeProvider>
   );
