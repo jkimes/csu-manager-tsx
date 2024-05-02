@@ -2,6 +2,26 @@ import { StyleSheet } from "react-native";
 import { COLORS, SIZES } from "../../../constants";
 
 export const QuoteStyles = StyleSheet.create({
+  cardContainer: {
+    width: "100%",
+  },
+  overlayCard: {
+    marginBottom: 10, // Adjust spacing between cards as needed
+  },
+  lineItemContainer: {
+    width: "100%", // Take up the whole width of the card
+    flexDirection: "column", // Ensure items are stacked vertically
+    flexWrap: "wrap", // Allow text to wrap when it's too long
+  },
+  lineItemText: {
+    width: "100%", // Take up the full width of the container
+    marginBottom: 5, // Add some spacing between items
+
+    fontSize: 12,
+  },
+  lineItemTitle: {
+    fontWeight: "bold", // Optionally make the title bold
+  },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -71,8 +91,5 @@ export const QuoteStyles = StyleSheet.create({
     color: "#000",
     fontWeight: "normal",
     marginVertical: 2,
-  },
-  overlayCard: {
-    width: "100%",
   },
 });

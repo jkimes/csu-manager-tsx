@@ -13,8 +13,10 @@ import {
 } from "../../wipFormulas";
 
 export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
-  console.log(`#Wip Data# ${wipData}`);
+  // console.log(`#Finance Summary Wip Data# ${wipData}`);
 
+  const costToComplete: number = wipData?.costToComplete;
+  console.log(`FINANCE Summary CTC: ${costToComplete}`);
   const tc = totalCost(wipData?.costToDate, wipData?.costToComplete);
   const perComplete: number = Number(
     (percentComplete(wipData?.costToDate, tc) * 100).toFixed(2)
@@ -37,26 +39,24 @@ export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
     eProfit
   );
   const fgEarnings: number = futureGrossEarnings(blog, wipData?.costToComplete);
+
   function addCommasToNumber(number) {
+    if (typeof number === "undefined") {
+      return ""; // Or any default value you prefer
+    }
     // Convert the number to a string
     let numStr = number.toString();
 
     // Split the number into integer and decimal parts, if any
     let parts = numStr.split(".");
     let integerPart = parts[0];
+    let decimalPart = parts.length > 1 ? "." + parts[1] : "";
 
-    // Parse the integer part to a number and keep the decimal part
-    let integerNumber = parseInt(integerPart, 10);
-    let decimalPart = parts.length > 1 ? parseFloat("." + parts[1]) : 0;
+    // Add commas to the integer part
+    let integerWithCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    // Combine the integer and decimal parts with commas
-    let formattedNumber = integerNumber.toLocaleString("en-US", {
-      maximumFractionDigits: 2, // Maximum number of decimal places
-      minimumFractionDigits: 0, // Minimum number of decimal places
-    });
-
-    // Combine the integer and decimal parts and return as a number
-    return parseFloat(formattedNumber + decimalPart);
+    // Combine the integer and decimal parts
+    return integerWithCommas + decimalPart;
   }
 
   return (
@@ -71,8 +71,15 @@ export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
         </ListItem>
 
         <ListItem>
-          <ListItem.Title>Est Cost to Date:</ListItem.Title>
-          <ListItem.Subtitle>{tc}</ListItem.Subtitle>
+          <ListItem.Title>Est Total Cost:</ListItem.Title>
+          <ListItem.Subtitle>{"$" + addCommasToNumber(tc)}</ListItem.Subtitle>
+        </ListItem>
+
+        <ListItem>
+          <ListItem.Title>Cost to Complete:</ListItem.Title>
+          <ListItem.Subtitle>
+            {"$" + addCommasToNumber(costToComplete)}
+          </ListItem.Subtitle>
         </ListItem>
 
         <ListItem>
@@ -82,32 +89,14 @@ export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
 
         <ListItem>
           <ListItem.Title>Gross Profit:</ListItem.Title>
-          <ListItem.Subtitle>${gProfit}</ListItem.Subtitle>
-        </ListItem>
-
-        <ListItem>
-          <ListItem.Title>Earned Profit:</ListItem.Title>
-          <ListItem.Subtitle>${eProfit}</ListItem.Subtitle>
-        </ListItem>
-
-        <ListItem>
-          <ListItem.Title>Under Billed:</ListItem.Title>
-          <ListItem.Subtitle>${uBilled}</ListItem.Subtitle>
-        </ListItem>
-
-        <ListItem>
-          <ListItem.Title>Over Billed:</ListItem.Title>
-          <ListItem.Subtitle>${oBilled}</ListItem.Subtitle>
-        </ListItem>
-
-        <ListItem>
-          <ListItem.Title>Backlog:</ListItem.Title>
-          <ListItem.Subtitle>${blog}</ListItem.Subtitle>
+          <ListItem.Subtitle>${addCommasToNumber(gProfit)}</ListItem.Subtitle>
         </ListItem>
 
         <ListItem>
           <ListItem.Title>Future Gross Earnings:</ListItem.Title>
-          <ListItem.Subtitle>${fgEarnings}</ListItem.Subtitle>
+          <ListItem.Subtitle>
+            ${addCommasToNumber(fgEarnings)}
+          </ListItem.Subtitle>
         </ListItem>
       </View>
     </BottomSheet>

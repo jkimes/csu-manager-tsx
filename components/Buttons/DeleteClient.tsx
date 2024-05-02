@@ -8,7 +8,7 @@ if (!firebase.apps.length) {
 }
 
 export default function Delete(props) {
-  console.log(`Contact* ${props.contact} | Field ${props.field}`);
+  // console.log(`Contact* ${props.contact} | Field ${props.field}`);
   const handleDelete = async (id: string) => {
     try {
       const documentRef = firebase.firestore().collection("clients").doc(id);

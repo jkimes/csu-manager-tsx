@@ -39,12 +39,12 @@ const CardList = ({ navigation, route, searchText }) => {
   // Call renderCardList whenever data changes
   useEffect(() => {
     renderCardList(navigation);
-    console.log("Card List Data context", { data });
+    // console.log("Card List Data context", { data });
   }, [data]);
 
   // This effect will run whenever 'data' changes
   useEffect(() => {
-    console.log("Filtered Data", filteredData);
+    // console.log("Filtered Data", filteredData);
   }, [filteredData]);
 
   // Update filtered data whenever filterState changes
@@ -116,11 +116,12 @@ const CardList = ({ navigation, route, searchText }) => {
               <Text style={cardlistStyles.textStyle}>
                 Job Status: {DisplayJobStatus(item.Active)}
               </Text>
-              <Text style={cardlistStyles.textStyle}>
+              <Text style={cardlistStyles.textClientNum}>
                 Client#: {item.ClientNumber}
               </Text>
 
               <Text style={cardlistStyles.textStyle}>
+                Job Site:{" "}
                 {handleAddress(item.Address_Street, item.Address_City)}
               </Text>
             </View>

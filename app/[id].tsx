@@ -37,7 +37,7 @@ export default function SingleClient({ route, navigation }) {
   const client: Client = data.find(
     (item) => item.ClientNumber === ClientNumber
   );
-
+  console.log(`${client.id}`);
   // Log the values of the route params to the console
   // console.log("ClientName:", ClientName);
   // console.log("ClientEmail:", ClientEmail);
@@ -421,6 +421,7 @@ export default function SingleClient({ route, navigation }) {
     ),
     2: (
       <View>
+        <Text>{`${client.ClientNumber}`}</Text>
         <ContactList
           ClientNumber={client.ClientNumber}
           navigation={navigation}

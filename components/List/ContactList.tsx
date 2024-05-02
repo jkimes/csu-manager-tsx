@@ -48,154 +48,178 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
   const [visible, setVisible] = useState(false);
 
   const client: Client = data.find(
-    (item) => item.ClientNumber === ClientNumber
+    (item) => item?.ClientNumber === ClientNumber
   );
-  const contactList = client.Contacts;
+  const contactList = client?.Contacts;
+  console.log(`@Contact List@: ${contactList}`);
+  // console.log(`${client.id}`);
 
   // console.log(`Pure Client: ${client.Contacts}`);
   // console.log(`Contacts@: ${JSON.stringify(client.Contacts)}`);
 
   const renderContacts = (contactList) => {
-    const keys: string[] = Object.keys(contactList);
-    const contacts: Contact[] = Object.values(contactList);
-    console.log(`Render Contacts ${keys}`);
-    if (!contacts.length) return null;
+    if (
+      contactList !== undefined &&
+      contactList !== null &&
+      typeof contactList === "object"
+    ) {
+      const keys: string[] = Object.keys(contactList);
+      const contacts: Contact[] = Object.values(contactList);
+      // Now you can safely use keys and contacts here
+      if (!contacts.length) return null;
 
-    return (
-      <View>
-        {contacts.map((contact, index) => (
-          <View key={index}>
-            <ScrollView>
-              <Card.Divider />
-              <Card.Title>{keys[index]}</Card.Title>
-              <Card.Divider />
-              <ListItem.Swipeable
-                leftContent={(action) => (
-                  <Delete id={client.id} field={"name"} contact={keys[index]} />
-                )}
-                rightContent={(action) => (
-                  <>
-                    <EditContact
-                      id={client.id}
+      return (
+        <View>
+          {contacts.map((contact, index) => (
+            <View key={index}>
+              <ScrollView>
+                <Card.Divider />
+                <Card.Title>{keys[index]}</Card.Title>
+                <Card.Divider />
+                <ListItem.Swipeable
+                  leftContent={(action) => (
+                    <Delete
+                      id={client?.id}
                       field={"name"}
                       contact={keys[index]}
                     />
-                  </>
-                )}
-              >
-                <Card.Title> Name </Card.Title>
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignContent: "space-between",
-                  }}
+                  )}
+                  rightContent={(action) => (
+                    <>
+                      <EditContact
+                        id={client?.id}
+                        field={"name"}
+                        contact={keys[index]}
+                      />
+                    </>
+                  )}
                 >
-                  <Text>{contact.name}</Text>
-                </View>
-              </ListItem.Swipeable>
-              <Card.Divider />
+                  <Card.Title> Name </Card.Title>
 
-              <ListItem.Swipeable
-                leftContent={(action) => (
-                  <Delete
-                    id={client.id}
-                    field={"email"}
-                    contact={keys[index]}
-                  />
-                )}
-                rightContent={(action) => (
-                  <EditContact
-                    id={client.id}
-                    field={"email"}
-                    contact={keys[index]}
-                  />
-                )}
-              >
-                <Card.Title> Email </Card.Title>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignContent: "space-between",
-                  }}
-                >
-                  <TouchableOpacity onPress={() => sendEmail(contact.email)}>
-                    <Text>{contact.email && handleEmail(contact.email)}</Text>
-                  </TouchableOpacity>
-                </View>
-              </ListItem.Swipeable>
-              <Card.Divider />
-
-              <ListItem.Swipeable
-                leftContent={(action) => (
-                  <Delete
-                    id={client.id}
-                    field={"phone"}
-                    contact={keys[index]}
-                  />
-                )}
-                rightContent={(action) => (
-                  <EditContact
-                    id={client.id}
-                    field={"phone"}
-                    contact={keys[index]}
-                  />
-                )}
-              >
-                <Card.Title> Phone </Card.Title>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignContent: "space-between",
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() => makePhoneCall(contact.phone)}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignContent: "space-between",
+                    }}
                   >
-                    <Text>{handlePhone(contact.phone)}</Text>
-                  </TouchableOpacity>
-                </View>
-              </ListItem.Swipeable>
-              <Card.Divider />
+                    <Text>{contact?.name}</Text>
+                  </View>
+                </ListItem.Swipeable>
+                <Card.Divider />
 
-              <ListItem.Swipeable
-                leftContent={(action) => (
-                  <Delete
-                    id={client.id}
-                    field={"street"}
-                    contact={keys[index]}
-                  />
-                )}
-                rightContent={(action) => (
-                  <EditContact
-                    id={client.id}
-                    field={"street"}
-                    contact={keys[index]}
-                  />
-                )}
-              >
-                <Card.Title> Address </Card.Title>
-                <View
-                  style={{
-                    flexDirection: "column",
-                    alignContent: "space-between",
-                  }}
+                <ListItem.Swipeable
+                  leftContent={(action) => (
+                    <Delete
+                      id={client?.id}
+                      field={"email"}
+                      contact={keys[index]}
+                    />
+                  )}
+                  rightContent={(action) => (
+                    <EditContact
+                      id={client?.id}
+                      field={"email"}
+                      contact={keys[index]}
+                    />
+                  )}
                 >
-                  <Text>
-                    {handleFullAddress(
-                      contact.street,
-                      contact.city,
-                      contact.zip
-                    )}
-                  </Text>
-                </View>
-              </ListItem.Swipeable>
-              <Card.Divider />
-            </ScrollView>
-          </View>
-        ))}
-      </View>
-    );
+                  <Card.Title> Email </Card.Title>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignContent: "space-between",
+                    }}
+                  >
+                    <TouchableOpacity onPress={() => sendEmail(contact?.email)}>
+                      <Text>
+                        {contact?.email && handleEmail(contact?.email)}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </ListItem.Swipeable>
+                <Card.Divider />
+
+                <ListItem.Swipeable
+                  leftContent={(action) => (
+                    <Delete
+                      id={client?.id}
+                      field={"phone"}
+                      contact={keys[index]}
+                    />
+                  )}
+                  rightContent={(action) => (
+                    <EditContact
+                      id={client?.id}
+                      field={"phone"}
+                      contact={keys[index]}
+                    />
+                  )}
+                >
+                  <Card.Title> Phone </Card.Title>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignContent: "space-between",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => makePhoneCall(contact?.phone)}
+                    >
+                      <Text>{handlePhone(contact?.phone)}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </ListItem.Swipeable>
+                <Card.Divider />
+
+                <ListItem.Swipeable
+                  leftContent={(action) => (
+                    <Delete
+                      id={client?.id}
+                      field={"street"}
+                      contact={keys[index]}
+                    />
+                  )}
+                  rightContent={(action) => (
+                    <EditContact
+                      id={client?.id}
+                      field={"street"}
+                      contact={keys[index]}
+                    />
+                  )}
+                >
+                  <Card.Title> Address </Card.Title>
+                  <View
+                    style={{
+                      flexDirection: "column",
+                      alignContent: "space-between",
+                    }}
+                  >
+                    <Text>
+                      {handleFullAddress(
+                        contact?.street,
+                        contact?.city,
+                        contact?.zip
+                      )}
+                    </Text>
+                  </View>
+                </ListItem.Swipeable>
+                <Card.Divider />
+              </ScrollView>
+            </View>
+          ))}
+        </View>
+      );
+    } else {
+      // Handle the case when contactList is undefined or not an object
+      //Maybe add a function that adds the contact if it is undefined because that meant that it did not find the variable in the client document
+      return (
+        <View>
+          <Text>No Contacts Found</Text>
+        </View>
+      );
+      // You can choose to return early or perform some other error handling
+    }
+    // console.log(`Render Contacts ${keys}`);
   };
 
   // useEffect(() => {}, [quoteData]); // Call renderQuoteList whenever data changes

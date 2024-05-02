@@ -17,7 +17,7 @@ import { WipContext } from "../components/WipContext";
 import { DisplayJobStatus, handleAddress } from "../components/helperFunctions";
 import FinanceSummary from "../components/List/BottomSheet/FinanceSummary";
 
-function addCommasToNumber(number) {
+function addCommasToNumber(number: number) {
   // Convert the number to a string
   let numStr = number.toString();
 
@@ -33,18 +33,18 @@ function addCommasToNumber(number) {
   return integerWithCommas + decimalPart;
 }
 
-export default function Wip() {
+export default function WIP() {
   const wipData = useContext(WipContext);
   const [isVisible, setIsVisible] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    console.log("selectedItem has changed:", selectedItem);
+    // console.log("selectedItem has changed:", selectedItem);
   }, [selectedItem]);
 
   const handleViewProfile = (item) => {
-    console.log(`ITEM: ${item}`);
+    // console.log(`ITEM: ${item}`);
     setIsVisible(!isVisible); // Show the bottom sheet
     setSelectedItem(item); // Set the selected item
   };
@@ -72,7 +72,7 @@ export default function Wip() {
             <>
               {/* <Icon name="place" size={30} /> */}
               <ListItem.Content>
-                <ListItem.Title>Wip</ListItem.Title>
+                <ListItem.Title>WIP</ListItem.Title>
               </ListItem.Content>
             </>
           }
@@ -82,6 +82,7 @@ export default function Wip() {
           }}
         >
           <ScrollView>
+            {/* Populates items to display on WIP Cards */}
             {wipData.map((item) => (
               <Card
                 key={item.id}
@@ -139,12 +140,13 @@ export default function Wip() {
                       {/* <Divider orientation="vertical" /> */}
                       <Card containerStyle={WipStyles.priceCard}>
                         <Card.Title style={WipStyles.title}>
-                          Cost to Complete
+                          Paid To Date
                         </Card.Title>
                         <Card.Divider />
                         <Text style={WipStyles.digits}>
                           {"$"}
-                          {addCommasToNumber(item.costToComplete)}
+                          {addCommasToNumber(item.paidToDate)}
+                          {/*  */}
                         </Text>
                       </Card>
                     </View>

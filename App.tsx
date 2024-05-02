@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ThemeProvider, createTheme, Button, Card } from "@rneui/themed";
 
 import Clientpage from "./app/clientpage";
+import UpdateData from "./components/updateData";
 import SingleClient from "./app/[id]";
 import Wip from "./app/Wip";
 import VendorPage from "./app/VendorPage";
@@ -102,7 +103,7 @@ function HomeScreen({ navigation }) {
       >
         <Button
           title="WIP"
-          onPress={() => navigation.navigate("Wip")}
+          onPress={() => navigation.navigate("WIP")}
           buttonStyle={{
             width: "100%",
             height: 50,
@@ -116,6 +117,19 @@ function HomeScreen({ navigation }) {
         <Button
           title="Clients"
           onPress={() => navigation.navigate("Clients")}
+          buttonStyle={{
+            width: "100%",
+            height: 50,
+            margin: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }} // Adjust height as needed
+          titleStyle={{ alignSelf: "center" }}
+        />
+
+        <Button
+          title="Update Data"
+          onPress={() => navigation.navigate("UpdateData")}
           buttonStyle={{
             width: "100%",
             height: 50,
@@ -320,7 +334,8 @@ export default function App() {
                 <Stack.Screen name="Profile" component={SingleClient} />
                 <Stack.Screen name="AddClient" component={AddClient} />
                 <Stack.Screen name="Vendors" component={VendorPage} />
-                <Stack.Screen name="Wip" component={Wip} />
+                <Stack.Screen name="WIP" component={Wip} />
+                <Stack.Screen name="UpdateData" component={UpdateData} />
               </Stack.Navigator>
             </NavigationContainer>
           </WipContext.Provider>

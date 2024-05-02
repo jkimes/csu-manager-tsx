@@ -30,10 +30,13 @@ export const handleFullAddress = (
 
 // renders the email if it is not null **slight issue when i delete email from contact Info it does not return No email found**
 export const handleEmail = (email: string) => {
-  console.log(`EMAIL: ${email}`);
   if (email === null || email.trim() === '""') {
+    console.log(`No email found (helpeprFunctions.tsx)`);
     return "No email found";
-  } else return email;
+  } else {
+    console.log(`EMAIL: ${email} (helperFunctions.tsx)`);
+    return email;
+  }
 };
 
 export function formatPhoneNumber(phone) {

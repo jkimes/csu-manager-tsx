@@ -13,7 +13,7 @@ export const percentComplete = (costToDate: number, totalCost: number) => {
     const percentage = costToDate / totalCost;
 
     const result = Number(percentage);
-    console.log(`CTD: ${costToDate} TC: ${totalCost} ${percentage}`);
+    // console.log(`CTD: ${costToDate} TC: ${totalCost} ${percentage}`);
     return percentage;
   }
 };
@@ -29,7 +29,7 @@ export const earnedProfit = (
   grossProfit: number,
   percentComplete: number
 ): number => {
-  console.log(`GrossP: ${grossProfit}, %:${percentComplete}`);
+  // console.log(`GrossP: ${grossProfit}, %:${percentComplete}`);
   const profit = grossProfit * percentComplete;
   return Number(profit.toFixed(2)); // Round the profit to two decimal places and convert to number
 };
@@ -39,9 +39,9 @@ export const underBilled = (
   earnedProfit: number,
   paidToDate: number
 ) => {
-  console.log(
-    `CTD: ${costToDate}, Earned: ${earnedProfit}, Paid: ${paidToDate}`
-  );
+  // console.log(
+  //   `CTD: ${costToDate}, Earned: ${earnedProfit}, Paid: ${paidToDate}`
+  // );
   if (costToDate + earnedProfit - paidToDate >= 0) {
     const result = costToDate + earnedProfit - paidToDate;
     return parseFloat((costToDate + earnedProfit - paidToDate).toFixed(2));
@@ -71,7 +71,7 @@ export const futureGrossEarnings = (
   costToComplete: number
 ) => {
   const earnings = `${backlog - costToComplete}`;
-  console.log(`&*backlog ${backlog} CTC ${costToComplete} ${earnings}`);
+  // console.log(`&*backlog ${backlog} CTC ${costToComplete} ${earnings}`);
   return Number(parseFloat(earnings).toFixed(2));
 };
 

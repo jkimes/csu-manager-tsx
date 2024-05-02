@@ -101,23 +101,23 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
 
         return (
           <Card key={lineItem.id} containerStyle={QuoteStyles.overlayCard}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Text>{lineItem.Title}</Text>
-                <Text>D: {lineItem.Description}</Text>
-                <Text>
-                  {" "}
-                  {lineItem.Quantity} x ${lineItem.Price}
-                </Text>
+            <View style={QuoteStyles.lineItemContainer}>
+              <Text
+                style={[QuoteStyles.lineItemText, QuoteStyles.lineItemTitle]}
+              >
+                {lineItem.Title}
+              </Text>
+              <Text style={QuoteStyles.lineItemText}>
+                {lineItem.Description}
+              </Text>
+              <Text style={QuoteStyles.lineItemText}>
+                {"Quantity: "}
+                {lineItem.Quantity}
+              </Text>
 
-                <Text>Price: ${lineItem.Price * lineItem.Quantity}</Text>
-              </View>
+              <Text style={QuoteStyles.lineItemText}>
+                Price: ${lineItem.Price * lineItem.Quantity}
+              </Text>
             </View>
           </Card>
         );
@@ -125,7 +125,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
       //   console.log("Line Item Prices ", lineItemContent);
 
       return (
-        <Card key={item.id}>
+        <Card key={item.id} containerStyle={QuoteStyles.cardContainer}>
           <Card.FeaturedTitle style={{ color: "black" }}>
             {item.ClientName}
           </Card.FeaturedTitle>
@@ -178,7 +178,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
                 <Text>{item.Notes}</Text>
                 <Card.Title>Legal Terms</Card.Title>
                 <Text>{item.LegalTerms}</Text>
-                <Button title="Start Building" onPress={toggleOverlay} />
+                <Button title="Close" onPress={toggleOverlay} />
               </ScrollView>
             </View>
           </Overlay>

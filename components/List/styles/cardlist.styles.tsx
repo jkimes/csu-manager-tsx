@@ -58,11 +58,14 @@ export const cardlistStyles = StyleSheet.create({
     flexDirection: "row",
   },
   textStyleName: {
-    fontSize: 20,
+    fontSize: 15,
+  },
+  textClientNum: {
+    fontSize: 15,
+    fontWeight: "bold",
   },
   textStyle: {
-    fontSize: 18,
-    color: "#000",
+    fontSize: 15,
     fontWeight: "normal",
     marginVertical: 2,
   },

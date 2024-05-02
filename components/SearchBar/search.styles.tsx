@@ -4,13 +4,14 @@ export const searchstyles = StyleSheet.create({
   container: {
     flexDirection: "row",
     padding: 5,
-    backgroundColor: "gray",
+    backgroundColor: "white",
   },
 
   SearchBar: {
     height: 40,
-    borderWidth: 4,
-    borderColor: "gray",
+    borderWidth: 0,
+    fontSize: 12,
+    color: "black",
     borderRadius: 6,
     // padding: 100,
     // marginBottom: 10, // Adjust the margin bottom

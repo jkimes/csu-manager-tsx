@@ -24,7 +24,8 @@ const SearchBar = ({ userInput, setUserInput }) => {
       />
       <TextInput
         style={searchstyles.SearchBar}
-        placeholder="Search Client #, ID , or Address(Street/City)"
+        placeholderTextColor="black"
+        placeholder="Search Client #, Name , or Address(Street/City)"
         value={userInput}
         onChangeText={handleSearchInputChange}
       />
