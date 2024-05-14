@@ -6,7 +6,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ThemeProvider, createTheme, Button, Card } from "@rneui/themed";
 
 import Clientpage from "./app/clientpage";
-import UpdateData from "./components/updateData";
+//import UpdateData from "./components/updateData";
+import CSVTest from "./components/csvTest";
 import SingleClient from "./app/[id]";
 import Wip from "./app/Wip";
 import VendorPage from "./app/VendorPage";
@@ -128,8 +129,8 @@ function HomeScreen({ navigation }) {
         />
 
         <Button
-          title="Update Data"
-          onPress={() => navigation.navigate("UpdateData")}
+          title="CSV Upload"
+          onPress={() => navigation.navigate("CSVUpload")}
           buttonStyle={{
             width: "100%",
             height: 50,
@@ -335,7 +336,7 @@ export default function App() {
                 <Stack.Screen name="AddClient" component={AddClient} />
                 <Stack.Screen name="Vendors" component={VendorPage} />
                 <Stack.Screen name="WIP" component={Wip} />
-                <Stack.Screen name="UpdateData" component={UpdateData} />
+                <Stack.Screen name="CSVUpload" component={CSVTest} />
               </Stack.Navigator>
             </NavigationContainer>
           </WipContext.Provider>
