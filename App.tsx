@@ -10,14 +10,29 @@ import Clientpage from "./app/clientpage";
 import CSVTest from "./components/csvTest";
 import SingleClient from "./app/[id]";
 import Wip from "./app/Wip";
-import VendorPage from "./app/VendorPage";
+import Vendors from "./app/Vendors";
 import { DataContext } from "./components/DataContext";
 import { QuoteContext } from "./components/QuoteContext";
 import { WipContext } from "./components/WipContext";
 import AddClient from "./app/AddClient";
 import { firebase, firebaseConfig } from "./config";
+import { VendorsContext } from "./components/VendorsContext";
+import VendorProfile from "./app/[vendor]";
 
 // Define your types and interfaces
+export interface Vendor {
+  id: string;
+  VendorNum: number;
+  VendorName: string;
+  VendorContact: string;
+  Phone: number;
+  Email: string;
+  Specialty: string;
+  Type: string;
+  WebLink: string;
+  ContactName: string;
+}
+
 type DocumentData<T> = T & { id: string };
 export interface Contact {
   email: string;
@@ -127,6 +142,18 @@ function HomeScreen({ navigation }) {
           }} // Adjust height as needed
           titleStyle={{ alignSelf: "center" }}
         />
+        <Button
+          title="Vendors"
+          onPress={() => navigation.navigate("Vendors")}
+          buttonStyle={{
+            width: "100%",
+            height: 50,
+            margin: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }} // Adjust height as needed
+          titleStyle={{ alignSelf: "center" }}
+        />
 
         <Button
           title="CSV Upload"
@@ -185,12 +212,14 @@ const theme = createTheme({
   },
 });
 export default function App() {
+  const [vendors, setVendors] = useState<any[]>([]);
   const [data, setData] = useState<any[]>([]);
   const [quotes, setQuotes] = useState<any[]>([]);
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [wip, setWip] = useState<any[]>([]);
   const collectionRef = firebase.firestore().collection("clients");
   const quotesRef = firebase.firestore().collection("Quotes");
+  const vendorsRef = firebase.firestore().collection("vendors");
   const wipRef = firebase.firestore().collection("wip");
 
   useEffect(() => {
@@ -206,6 +235,15 @@ export default function App() {
         ...doc.data(),
       }));
       setWip(newData);
+    });
+
+    // Set up Firestore listener for vendors collection
+    const unsubscribeVendors = vendorsRef.onSnapshot((snapshot) => {
+      const newData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setVendors(newData);
     });
 
     // Set up Firestore listener for clients collection
@@ -250,6 +288,7 @@ export default function App() {
       unsubscribeClients();
       unsubscribeQuotes();
       unsubscribeWip();
+      unsubscribeVendors();
     };
   }, []);
 
@@ -312,36 +351,42 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <DataContext.Provider value={data}>
-        <QuoteContext.Provider value={quotes}>
-          <WipContext.Provider value={wip}>
-            <NavigationContainer>
-              <Stack.Navigator
-                screenOptions={({ navigation }) => ({
-                  headerStyle: {
-                    backgroundColor: "black", // Set header background color to black
-                  },
-                  headerTintColor: "white",
-                  headerRight: () => (
-                    <Button
-                      onPress={() => navigation.navigate("Home")}
-                      title="Home"
-                    />
-                  ),
-                })}
-              >
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Clients" component={Clientpage} />
-                <Stack.Screen name="Profile" component={SingleClient} />
-                <Stack.Screen name="AddClient" component={AddClient} />
-                <Stack.Screen name="Vendors" component={VendorPage} />
-                <Stack.Screen name="WIP" component={Wip} />
-                <Stack.Screen name="CSVUpload" component={CSVTest} />
-              </Stack.Navigator>
-            </NavigationContainer>
-          </WipContext.Provider>
-        </QuoteContext.Provider>
-      </DataContext.Provider>
+      <VendorsContext.Provider value={vendors}>
+        <DataContext.Provider value={data}>
+          <QuoteContext.Provider value={quotes}>
+            <WipContext.Provider value={wip}>
+              <NavigationContainer>
+                <Stack.Navigator
+                  screenOptions={({ navigation }) => ({
+                    headerStyle: {
+                      backgroundColor: "black", // Set header background color to black
+                    },
+                    headerTintColor: "white",
+                    headerRight: () => (
+                      <Button
+                        onPress={() => navigation.navigate("Home")}
+                        title="Home"
+                      />
+                    ),
+                  })}
+                >
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Clients" component={Clientpage} />
+                  <Stack.Screen name="Profile" component={SingleClient} />
+                  <Stack.Screen name="AddClient" component={AddClient} />
+                  <Stack.Screen name="Vendors" component={Vendors} />
+                  <Stack.Screen
+                    name="VendorProfile"
+                    component={VendorProfile}
+                  />
+                  <Stack.Screen name="WIP" component={Wip} />
+                  <Stack.Screen name="CSVUpload" component={CSVTest} />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </WipContext.Provider>
+          </QuoteContext.Provider>
+        </DataContext.Provider>
+      </VendorsContext.Provider>
     </ThemeProvider>
   );
 }

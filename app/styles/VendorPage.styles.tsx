@@ -1,3 +1,22 @@
 import { StyleSheet } from "react-native";
 
-export const VendorPageStyles = StyleSheet.create({});
+export const VendorPageStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    paddingTop: 0,
+  },
+  listContainer: {
+    flex: 1,
+    paddingTop: 5,
+  },
+  SearchBar: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
+    width: "100%",
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+});
