@@ -7,6 +7,7 @@ import { ThemeProvider, createTheme, Button, Card } from "@rneui/themed";
 
 import Clientpage from "./app/clientpage";
 //import UpdateData from "./components/updateData";
+
 import CSVTest from "./components/csvTest";
 import SingleClient from "./app/[id]";
 import Wip from "./app/Wip";
@@ -18,6 +19,7 @@ import AddClient from "./app/AddClient";
 import { firebase, firebaseConfig } from "./config";
 import { VendorsContext } from "./components/VendorsContext";
 import VendorProfile from "./app/[vendor]";
+import selectDB from "./app/selectDB";
 
 // Define your types and interfaces
 export interface Vendor {
@@ -157,7 +159,7 @@ function HomeScreen({ navigation }) {
 
         <Button
           title="CSV Upload"
-          onPress={() => navigation.navigate("CSVUpload")}
+          onPress={() => navigation.navigate("SelectDB")}
           buttonStyle={{
             width: "100%",
             height: 50,
@@ -381,6 +383,7 @@ export default function App() {
                   />
                   <Stack.Screen name="WIP" component={Wip} />
                   <Stack.Screen name="CSVUpload" component={CSVTest} />
+                  <Stack.Screen name="SelectDB" component={selectDB} />
                 </Stack.Navigator>
               </NavigationContainer>
             </WipContext.Provider>

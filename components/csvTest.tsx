@@ -13,40 +13,50 @@ import { firebase } from "../config"; // Assuming you have your Firebase config 
 
 const CSVTest: React.FC = () => {
   const [csvData, setCsvData] = useState<string[][]>([]);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const file = await DocumentPicker.getDocumentAsync({
-          type: "text/csv", // Specify the file type you want to pick
-        });
+  // Define the mapping between field names and data types
+  const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
+    clientNumber: "number",
+    Address_Zip: "number",
+    Site_Zip: "number",
+    Active: "boolean",
+    ClientPhone: "number",
+    // Add more fields here as needed
+  };
+  const selectFile = async () => {
+    try {
+      const file = await DocumentPicker.getDocumentAsync({
+        type: "text/csv", // Specify the file type you want to pick
+      });
 
-        if (!file.canceled) {
-          const doc = file.assets[0];
-          console.log(`DOC: ${doc}`);
-          const fileContents = await readAsStringAsync(doc.uri);
-          if (fileContents) {
-            // Splitting CSV content into rows
-            const rows = fileContents.split("\n");
-            // Parsing each row into array of values
-            const data = rows.map((row) => row.split(","));
-            setCsvData(data);
-          }
+      if (!file.canceled) {
+        const doc = file.assets[0];
+        console.log(`DOC: ${doc}`);
+        const fileContents = await readAsStringAsync(doc.uri);
+        if (fileContents) {
+          // Splitting CSV content into rows
+          const rows = fileContents.split("\n");
+          // Parsing each row into array of values
+          const data = rows.map((row) => row.split(","));
+          setCsvData(data);
         }
-      } catch (error) {
-        console.error("Error picking file:", error);
       }
-    };
-
-    fetchData();
-  }, []);
+    } catch (error) {
+      console.error("Error picking file:", error);
+    }
+  };
 
   const handleUpload = async () => {
     try {
       // Process CSV data and update Firebase
       await updateFirebase(csvData);
+      setUploadStatus("Success");
+      // console.log(`Upload Status after success: ${uploadStatus}`);
     } catch (error) {
       console.error("Error uploading CSV:", error);
+      setUploadStatus("Failed");
+      // console.log(`Upload Status after fail: ${uploadStatus}`);
     }
   };
 
@@ -99,7 +109,20 @@ const CSVTest: React.FC = () => {
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
+      <Button title="Select File" onPress={selectFile} />
       <Button title="Upload CSV" onPress={handleUpload} />
+      {uploadStatus && (
+        <Text
+          style={{
+            color: uploadStatus === "Success" ? "green" : "red",
+            marginTop: 10,
+          }}
+        >
+          {uploadStatus === "Success"
+            ? `Upload successful!`
+            : `Upload failed. Please try again.`}
+        </Text>
+      )}
       <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
         CSV Data:
       </Text>
