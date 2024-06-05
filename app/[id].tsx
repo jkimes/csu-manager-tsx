@@ -56,6 +56,7 @@ export default function SingleClient({ route, navigation }) {
   }
 
   const [index, setIndex] = React.useState(0); // for tab component
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
   const tabContent = {
     0: (
@@ -84,9 +85,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expanded}
+            isExpanded={expandedIndex === 0}
             onPress={() => {
-              setExpanded(!expanded);
+              setExpandedIndex(expandedIndex === 0 ? null : 0);
             }}
           >
             <View style={{ flexDirection: "row" }}>
@@ -132,9 +133,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expanded}
+            isExpanded={expandedIndex === 1}
             onPress={() => {
-              setExpanded(!expanded);
+              setExpandedIndex(expandedIndex === 1 ? null : 1);
             }}
           >
             <View style={{ flexDirection: "row" }}>
@@ -188,9 +189,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expanded}
+            isExpanded={expandedIndex === 2}
             onPress={() => {
-              setExpanded(!expanded);
+              setExpandedIndex(expandedIndex === 2 ? null : 2);
             }}
           >
             <View style={{ flexDirection: "row" }}>
@@ -241,9 +242,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expanded}
+            isExpanded={expandedIndex === 3}
             onPress={() => {
-              setExpanded(!expanded);
+              setExpandedIndex(expandedIndex === 3 ? null : 3);
             }}
           >
             <View style={{ flexDirection: "row" }}>
@@ -290,9 +291,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expanded}
+            isExpanded={expandedIndex === 4}
             onPress={() => {
-              setExpanded(!expanded);
+              setExpandedIndex(expandedIndex === 4 ? null : 4);
             }}
           >
             <View style={{ flexDirection: "row" }}>
@@ -337,9 +338,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expanded}
+            isExpanded={expandedIndex === 5}
             onPress={() => {
-              setExpanded(!expanded);
+              setExpandedIndex(expandedIndex === 5 ? null : 5);
             }}
           >
             <View style={{ flexDirection: "row" }}>
@@ -383,9 +384,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expanded}
+            isExpanded={expandedIndex === 6}
             onPress={() => {
-              setExpanded(!expanded);
+              setExpandedIndex(expandedIndex === 6 ? null : 6);
             }}
           >
             <View style={{ flexDirection: "row" }}>

@@ -15,8 +15,14 @@ const SelectDB: React.FC<{ route: any; navigation: any }> = ({
   const { theme, updateTheme } = useTheme();
   const [visible, setVisible] = React.useState(true);
 
-  const navigateToCSVUpload = () => {
-    navigation.navigate("CSVUpload");
+  const navigateToClientUpload = () => {
+    navigation.navigate("Client Upload");
+  };
+  const navigateToWipUpload = () => {
+    navigation.navigate("Wip Upload");
+  };
+  const navigateToVendorUpload = () => {
+    navigation.navigate("Vendor Upload");
   };
 
   return (
@@ -28,9 +34,9 @@ const SelectDB: React.FC<{ route: any; navigation: any }> = ({
           <ScrollView
             contentContainerStyle={clientpageStyles.scrollViewContent}
           >
-            <Button title="Wip" onPress={navigateToCSVUpload} />
-            <Button title="Clients" onPress={navigateToCSVUpload} />
-            <Button title="Vendors" onPress={navigateToCSVUpload} />
+            <Button title="Wip" onPress={navigateToWipUpload} />
+            <Button title="Clients" onPress={navigateToClientUpload} />
+            <Button title="Vendors" onPress={navigateToVendorUpload} />
           </ScrollView>
         </View>
       </View>

@@ -12,9 +12,8 @@ import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
 import { firebase } from "../config";
 import { Table, Row, Rows } from "react-native-table-component";
-import { Header } from "@rneui/themed";
 
-export default function VendorUploader({ route, navigation }) {
+export default function WipUploader({ route, navigation }) {
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [tableData, setTableData] = useState<string[][]>([]);
@@ -46,7 +45,6 @@ export default function VendorUploader({ route, navigation }) {
           // Parsing each row into array of values
           const data = rows.map((row) => row.split(","));
           setCsvData(data);
-          console.log(`Data 0: ${data[0]}`);
 
           // Assuming the first row is the header
           if (data.length > 0) {
@@ -87,38 +85,24 @@ export default function VendorUploader({ route, navigation }) {
 
     for (const client of clientsData) {
       const clientNumber = client[0]; // Assuming client number is in the first column
-      console.log(`firebase upload client number check: ${clientsData.length}`);
-      const docRef = db.collection("vendors").doc(clientNumber);
+      console.log(`firebase upload client number check: ${clientNumber}`);
+      const docRef = db.collection("wip").doc(clientNumber);
       const doc = await docRef.get();
 
-      const cleanData = (data: { [key: string]: any }) => {
-        const cleaned: { [key: string]: any } = {};
-        Object.keys(data).forEach((key) => {
-          if (data[key] !== undefined && data[key] !== null) {
-            cleaned[key] = data[key];
-          }
-        });
-        return cleaned;
-      };
-
       if (doc.exists) {
-        console.log(`Doc Exists!`);
         // Update existing document with data from CSV row
         const updateData: { [key: string]: any } = {};
         headerRow.forEach((field, index) => {
           updateData[field] = client[index];
         });
-        await docRef.update(cleanData(updateData));
+        await docRef.update(updateData);
       } else {
         // Create new document with data from CSV row
         const newData: { [key: string]: any } = {};
         headerRow.forEach((field, index) => {
-          if (field != null || field != undefined) {
-            newData[field] = client[index];
-            console.log(`Firebase Field: ${field} Index: ${index}`);
-          }
+          newData[field] = client[index];
         });
-        await docRef.set(cleanData(newData));
+        await docRef.set(newData);
       }
     }
 

@@ -20,6 +20,8 @@ import { firebase, firebaseConfig } from "./config";
 import { VendorsContext } from "./components/VendorsContext";
 import VendorProfile from "./app/[vendor]";
 import selectDB from "./app/selectDB";
+import VendorUploader from "./components/VendorUploader";
+import WipUploader from "./components/WipUploader";
 
 // Define your types and interfaces
 export interface Vendor {
@@ -382,7 +384,12 @@ export default function App() {
                     component={VendorProfile}
                   />
                   <Stack.Screen name="WIP" component={Wip} />
-                  <Stack.Screen name="CSVUpload" component={CSVTest} />
+                  <Stack.Screen name="Client Upload" component={CSVTest} />
+                  <Stack.Screen
+                    name="Vendor Upload"
+                    component={VendorUploader}
+                  />
+                  <Stack.Screen name="Wip Upload" component={WipUploader} />
                   <Stack.Screen name="SelectDB" component={selectDB} />
                 </Stack.Navigator>
               </NavigationContainer>

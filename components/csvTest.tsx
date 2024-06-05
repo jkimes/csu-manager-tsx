@@ -8,12 +8,16 @@ import {
   ScrollView,
 } from "react-native";
 import { readAsStringAsync } from "expo-file-system";
+import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
-import { firebase } from "../config"; // Assuming you have your Firebase config in a separate file
+import { firebase } from "../config";
+import { Table, Row, Rows } from "react-native-table-component";
 
 const CSVTest: React.FC = () => {
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [tableData, setTableData] = useState<string[][]>([]);
+  const [tableHead, setTableHead] = useState<string[]>([]);
 
   // Define the mapping between field names and data types
   const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
@@ -34,12 +38,20 @@ const CSVTest: React.FC = () => {
         const doc = file.assets[0];
         console.log(`DOC: ${doc}`);
         const fileContents = await readAsStringAsync(doc.uri);
+
         if (fileContents) {
           // Splitting CSV content into rows
           const rows = fileContents.split("\n");
           // Parsing each row into array of values
           const data = rows.map((row) => row.split(","));
           setCsvData(data);
+
+          // Assuming the first row is the header
+          if (data.length > 0) {
+            // Assuming the first row is the header
+            setTableHead(data[0]);
+            setTableData(data.slice(1));
+          }
         }
       }
     } catch (error) {
@@ -127,13 +139,18 @@ const CSVTest: React.FC = () => {
         CSV Data:
       </Text>
       <ScrollView horizontal>
-        <FlatList
-          data={csvData}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={{ flexGrow: 1 }}
-          style={{ marginTop: 10, borderWidth: 1, borderColor: "black" }}
-        />
+        <View>
+          {tableHead.length > 0 && (
+            <Table borderStyle={{ borderWidth: 1, borderColor: "#C1C0B9" }}>
+              <Row
+                data={tableHead}
+                style={styles.head}
+                textStyle={styles.text}
+              />
+              <Rows data={tableData} textStyle={styles.text} />
+            </Table>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
@@ -155,6 +172,16 @@ const styles = StyleSheet.create({
   cellText: {
     textAlign: "center",
     flexWrap: "wrap",
+  },
+  tableContainer: {
+    marginTop: 20,
+  },
+  head: {
+    height: 40,
+    backgroundColor: "#f1f8ff",
+  },
+  text: {
+    margin: 6,
   },
 });
 
