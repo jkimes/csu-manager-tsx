@@ -13,6 +13,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { firebase } from "../config";
 import { Table, Row, Rows } from "react-native-table-component";
 import { Header } from "@rneui/themed";
+import Papa from "papaparse"; // Add this line
 
 export default function VendorUploader({ route, navigation }) {
   const [csvData, setCsvData] = useState<string[][]>([]);
@@ -41,10 +42,14 @@ export default function VendorUploader({ route, navigation }) {
         const fileContents = await readAsStringAsync(doc.uri);
 
         if (fileContents) {
-          // Splitting CSV content into rows
-          const rows = fileContents.split("\n");
-          // Parsing each row into array of values
-          const data = rows.map((row) => row.split(","));
+          // Use PapaParse to parse the CSV content
+          const parsedData = Papa.parse(fileContents, {
+            header: false,
+            skipEmptyLines: true,
+          });
+
+          const data = parsedData.data as string[][]; // Ensure the data is in the correct format
+
           setCsvData(data);
           console.log(`Data 0: ${data[0]}`);
 
@@ -82,6 +87,7 @@ export default function VendorUploader({ route, navigation }) {
 
     const headerRow = data[0];
     const clientsData = data.slice(1); // Exclude header row
+    console.log(`Vendor Uploader FileData ${clientsData}`);
 
     const db = firebase.firestore();
 
