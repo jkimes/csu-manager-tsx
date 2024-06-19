@@ -19,6 +19,7 @@ import FinanceSummary from "../components/List/BottomSheet/FinanceSummary";
 
 function addCommasToNumber(number: number) {
   // Convert the number to a string
+  console.log(`WIP add , to Num: ${number}`);
   let numStr = number.toString();
 
   // Split the number into integer and decimal parts, if any
@@ -119,7 +120,7 @@ export default function WIP() {
                         </View>
 
                         <Text style={WipStyles.digits}>
-                          ${addCommasToNumber(Number(item.quotedPrice))}
+                          ${Number(item.quotedPrice)}
                         </Text>
                       </Card>
 
@@ -133,7 +134,7 @@ export default function WIP() {
 
                         <Text style={WipStyles.digits}>
                           {"$"}
-                          {addCommasToNumber(item.costToDate)}
+                          {item.costToDate}
                         </Text>
                       </Card>
 
@@ -145,7 +146,7 @@ export default function WIP() {
                         <Card.Divider />
                         <Text style={WipStyles.digits}>
                           {"$"}
-                          {addCommasToNumber(item.paidToDate)}
+                          {item.paidToDate}
                           {/*  */}
                         </Text>
                       </Card>

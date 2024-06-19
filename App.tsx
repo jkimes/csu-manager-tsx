@@ -8,7 +8,7 @@ import { ThemeProvider, createTheme, Button, Card } from "@rneui/themed";
 import Clientpage from "./app/clientpage";
 //import UpdateData from "./components/updateData";
 
-import CSVTest from "./components/csvTest";
+import ClientUploader from "./components/ClientUploader";
 import SingleClient from "./app/[id]";
 import Wip from "./app/Wip";
 import Vendors from "./app/Vendors";
@@ -384,7 +384,10 @@ export default function App() {
                     component={VendorProfile}
                   />
                   <Stack.Screen name="WIP" component={Wip} />
-                  <Stack.Screen name="Client Upload" component={CSVTest} />
+                  <Stack.Screen
+                    name="Client Upload"
+                    component={ClientUploader}
+                  />
                   <Stack.Screen
                     name="Vendor Upload"
                     component={VendorUploader}
