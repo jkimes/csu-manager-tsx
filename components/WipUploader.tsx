@@ -153,7 +153,7 @@ export default function WipUploader({ route, navigation }) {
       ))}
     </View>
   );
-
+  console.log(`Style type: ${typeof styles.cellText}`); // Log the type of styles.cellText
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <Button title="Select File" onPress={selectFile} />
@@ -173,6 +173,7 @@ export default function WipUploader({ route, navigation }) {
       <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
         CSV Data:
       </Text>
+
       <ScrollView horizontal>
         <View>
           {tableHead.length > 0 && (
@@ -180,9 +181,12 @@ export default function WipUploader({ route, navigation }) {
               <Row
                 data={tableHead}
                 style={styles.head}
-                textStyle={styles.text}
+                textStyle={styles.cellText} // This should be an object
               />
-              <Rows data={tableData} textStyle={styles.text} />
+              <Rows
+                data={tableData}
+                textStyle={styles.cellText} // This should be an object
+              />
             </Table>
           )}
         </View>
@@ -219,16 +223,14 @@ const styles = StyleSheet.create({
     margin: 6,
   },
 });
-const convertDataType = (
-  value: string,
-  type: "string" | "number" | "boolean"
-) => {
+
+function convertDataType(value: string, type: string): any {
   switch (type) {
     case "number":
-      return parseFloat(value);
+      return parseFloat(value.replace(/,/g, "").trim()) || 0;
     case "boolean":
-      return value.toLowerCase() === "true";
+      return value.toLowerCase().trim() === "true";
     default:
-      return value;
+      return value.trim();
   }
-};
+}
