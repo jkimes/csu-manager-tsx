@@ -1,23 +1,4 @@
 import React, { useEffect, useState } from "react";
-<<<<<<< HEAD
-import {
-  View,
-  Text,
-  Button,
-  FlatList,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { readAsStringAsync } from "expo-file-system";
-import * as FileSystem from "expo-file-system";
-import * as DocumentPicker from "expo-document-picker";
-import { firebase } from "../config";
-import { Table, Row, Rows } from "react-native-table-component";
-import { Header } from "@rneui/themed";
-import Papa from "papaparse"; // Add this line
-
-export default function ClientUploader({ route, navigation }) {
-=======
 import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import { readAsStringAsync } from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
@@ -56,7 +37,6 @@ const convertDataType = (
 };
 
 export default function ClientUploader(route, navigation) {
->>>>>>> cfdd615 (fixed all uploaders)
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [tableData, setTableData] = useState<string[][]>([]);
@@ -64,19 +44,6 @@ export default function ClientUploader(route, navigation) {
 
   // Define the mapping between field names and data types
   const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
-<<<<<<< HEAD
-    clientNumber: "number",
-    Address_Zip: "number",
-    Site_Zip: "number",
-    Active: "boolean",
-    ClientPhone: "number",
-    // Add more fields here as needed
-  };
-  const selectFile = async () => {
-    try {
-      const file = await DocumentPicker.getDocumentAsync({
-        type: "text/csv", // Specify the file type you want to pick
-=======
     Address_Zip: "number",
     Active: "boolean",
     Address_City: "string",
@@ -93,7 +60,6 @@ export default function ClientUploader(route, navigation) {
     try {
       const file = await DocumentPicker.getDocumentAsync({
         type: "text/csv",
->>>>>>> cfdd615 (fixed all uploaders)
       });
 
       if (!file.canceled) {
@@ -102,15 +68,6 @@ export default function ClientUploader(route, navigation) {
         const fileContents = await readAsStringAsync(doc.uri);
 
         if (fileContents) {
-<<<<<<< HEAD
-          // Use PapaParse to parse the CSV content
-          const parsedData = Papa.parse(fileContents, {
-            header: false,
-            skipEmptyLines: true,
-          });
-
-          let data = parsedData.data as string[][]; // Ensure the data is in the correct format
-=======
           const parsedData = Papa.parse(fileContents, {
             header: false,
             skipEmptyLines: false,
@@ -119,22 +76,11 @@ export default function ClientUploader(route, navigation) {
           console.log("Parsed Data:", parsedData);
 
           let data: any[][] = parsedData.data as string[][];
->>>>>>> cfdd615 (fixed all uploaders)
 
           if (data.length > 0) {
             setTableHead(data[0]);
             const headers = data[0];
 
-<<<<<<< HEAD
-            // Convert data types based on fieldTypes
-            data = data.map((row, rowIndex) =>
-              rowIndex === 0
-                ? row // Skip the header row
-                : row.map((value, colIndex) => {
-                    const header = headers[colIndex];
-                    const type = fieldTypes[header] || "string";
-                    return convertDataType(value, type);
-=======
             // Check if all headers are present in fieldTypes
             headers.forEach((header) => {
               if (!fieldTypes.hasOwnProperty(header)) {
@@ -163,27 +109,13 @@ export default function ClientUploader(route, navigation) {
                       );
                     }
                     return convertDataType(String(value), type);
->>>>>>> cfdd615 (fixed all uploaders)
                   })
             );
 
             setCsvData(data);
             setTableData(data.slice(1));
-<<<<<<< HEAD
-            console.log(`Data 0: ${data[0]}`);
-
-            // setCsvData(data);
-            // console.log(`Data 0: ${data[0]}`);
-
-            // // Assuming the first row is the header
-            // if (data.length > 0) {
-            //   // Assuming the first row is the header
-            //   setTableHead(data[0]);
-            //   setTableData(data.slice(1));
-=======
             //console.log(`Data : ${data}`);
             data.forEach((row) => console.log(`Data: ${row}`));
->>>>>>> cfdd615 (fixed all uploaders)
           }
         }
       }
@@ -194,19 +126,6 @@ export default function ClientUploader(route, navigation) {
 
   const handleUpload = async () => {
     try {
-<<<<<<< HEAD
-      // Process CSV data and update Firebase
-      await updateFirebase(csvData);
-      setUploadStatus("Success");
-      // console.log(`Upload Status after success: ${uploadStatus}`);
-    } catch (error) {
-      console.error("Error uploading CSV:", error);
-      setUploadStatus("Failed");
-      // console.log(`Upload Status after fail: ${uploadStatus}`);
-    }
-  };
-
-=======
       await updateFirebase(csvData);
       setUploadStatus("Success");
     } catch (error) {
@@ -214,7 +133,6 @@ export default function ClientUploader(route, navigation) {
       setUploadStatus("Failed");
     }
   };
->>>>>>> cfdd615 (fixed all uploaders)
   const updateFirebase = async (data: string[][]) => {
     if (data.length === 0) {
       console.warn("No CSV data to upload.");
@@ -222,26 +140,15 @@ export default function ClientUploader(route, navigation) {
     }
 
     const headerRow = data[0];
-<<<<<<< HEAD
-    const clientsData = data.slice(1); // Exclude header row
-    console.log(`Vendor Uploader FileData ${clientsData}`);
-=======
     const clientsData = data.slice(1);
     console.log(`Client Uploader FileData:`, clientsData);
->>>>>>> cfdd615 (fixed all uploaders)
 
     const db = firebase.firestore();
 
     for (const client of clientsData) {
-<<<<<<< HEAD
-      const clientNumber = client[0]; // Assuming client number is in the first column
-      console.log(`firebase upload client number check: ${clientsData.length}`);
-      const docRef = db.collection("test").doc(clientNumber);
-=======
       const clientNumber = String(client[0]); // Ensure client number is a string
       console.log(`Uploading client number: ${clientNumber}`);
       const docRef = db.collection("clients").doc(clientNumber);
->>>>>>> cfdd615 (fixed all uploaders)
       const doc = await docRef.get();
 
       const cleanData = (data: { [key: string]: any }) => {
@@ -254,26 +161,6 @@ export default function ClientUploader(route, navigation) {
         return cleaned;
       };
 
-<<<<<<< HEAD
-      if (doc.exists) {
-        console.log(`Doc Exists!`);
-        // Update existing document with data from CSV row
-        const updateData: { [key: string]: any } = {};
-        headerRow.forEach((field, index) => {
-          updateData[field] = client[index];
-        });
-        await docRef.update(cleanData(updateData));
-      } else {
-        // Create new document with data from CSV row
-        const newData: { [key: string]: any } = {};
-        headerRow.forEach((field, index) => {
-          if (field != null || field != undefined) {
-            newData[field] = client[index];
-            console.log(`Firebase Field: ${field} Index: ${index}`);
-          }
-        });
-        await docRef.set(cleanData(newData));
-=======
       const newData: { [key: string]: any } = {};
       headerRow.forEach((field, index) => {
         if (field != null && field != undefined) {
@@ -307,7 +194,6 @@ export default function ClientUploader(route, navigation) {
           uploadError
         );
         throw uploadError;
->>>>>>> cfdd615 (fixed all uploaders)
       }
     }
 
@@ -389,9 +275,3 @@ const styles = StyleSheet.create({
     margin: 6,
   },
 });
-<<<<<<< HEAD
-function convertDataType(value: string, type: string): any {
-  throw new Error("Function not implemented.");
-}
-=======
->>>>>>> cfdd615 (fixed all uploaders)

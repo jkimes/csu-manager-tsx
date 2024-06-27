@@ -12,10 +12,6 @@ import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
 import { firebase } from "../config";
 import { Table, Row, Rows } from "react-native-table-component";
-<<<<<<< HEAD
-import { Header } from "@rneui/themed";
-import Papa from "papaparse"; // Add this line
-=======
 import Papa from "papaparse";
 
 const convertDataType = (
@@ -47,7 +43,6 @@ const convertDataType = (
       return value.trim();
   }
 };
->>>>>>> cfdd615 (fixed all uploaders)
 
 export default function VendorUploader({ route, navigation }) {
   const [csvData, setCsvData] = useState<string[][]>([]);
@@ -76,18 +71,6 @@ export default function VendorUploader({ route, navigation }) {
         const fileContents = await readAsStringAsync(doc.uri);
 
         if (fileContents) {
-<<<<<<< HEAD
-          // Use PapaParse to parse the CSV content
-          const parsedData = Papa.parse(fileContents, {
-            header: false,
-            skipEmptyLines: true,
-          });
-
-          const data = parsedData.data as string[][]; // Ensure the data is in the correct format
-
-          setCsvData(data);
-          console.log(`Data 0: ${data[0]}`);
-=======
           const parsedData = Papa.parse(fileContents, {
             header: false,
             skipEmptyLines: false,
@@ -96,7 +79,6 @@ export default function VendorUploader({ route, navigation }) {
           console.log("Parsed Data:", parsedData);
 
           let data: any[][] = parsedData.data as string[][];
->>>>>>> cfdd615 (fixed all uploaders)
 
           if (data.length > 0) {
             setTableHead(data[0]);
@@ -165,13 +147,8 @@ export default function VendorUploader({ route, navigation }) {
     }
 
     const headerRow = data[0];
-<<<<<<< HEAD
-    const clientsData = data.slice(1); // Exclude header row
-    console.log(`Vendor Uploader FileData ${clientsData}`);
-=======
     const clientsData = data.slice(1);
     console.log(`Vendor Uploader FileData:`, clientsData);
->>>>>>> cfdd615 (fixed all uploaders)
 
     const db = firebase.firestore();
 
