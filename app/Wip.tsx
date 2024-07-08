@@ -49,7 +49,7 @@ export default function WIP() {
     setIsVisible(!isVisible); // Show the bottom sheet
     setSelectedItem(item); // Set the selected item
   };
-  // console.log(`Wip!: ${JSON.stringify(wipData)}`);
+  console.log(`Wip!: ${JSON.stringify(wipData)}`);
 
   const renderCardList = () => {
     return (
@@ -82,7 +82,7 @@ export default function WIP() {
             setExpanded(!expanded);
           }}
         >
-          <ScrollView>
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
             {/* Populates items to display on WIP Cards */}
             {wipData.map((item) => (
               <Card
@@ -134,7 +134,8 @@ export default function WIP() {
 
                         <Text style={WipStyles.digits}>
                           {"$"}
-                          {item.costToDate}
+                          {item.CostToDate}
+                          {/* {console.log(`Cost To Date: ${item.CostToDate}`)} */}
                         </Text>
                       </Card>
 
@@ -166,5 +167,11 @@ export default function WIP() {
     );
   };
 
-  return <View>{renderCardList()}</View>;
+  return <View style={{ flex: 1 }}>{renderCardList()}</View>;
 }
+const styles = StyleSheet.create({
+  scrollViewContent: {
+    paddingBottom: 70,
+  },
+  // Add any other styles you need here
+});

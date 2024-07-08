@@ -17,25 +17,31 @@ export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
 
   const costToComplete: number = wipData?.costToComplete;
   console.log(`FINANCE Summary CTC: ${costToComplete}`);
-  const tc = totalCost(wipData?.costToDate, wipData?.costToComplete);
+
+  const tc = totalCost(wipData?.CostToDate, wipData?.costToComplete);
+  console.log(`Total Cost: ${tc}`);
+
   const perComplete: number = Number(
-    (percentComplete(wipData?.costToDate, tc) * 100).toFixed(2)
+    (percentComplete(wipData?.CostToDate, tc) * 100).toFixed(2)
   );
+  console.log(`Percentage Complete: ${perComplete}`);
+
   const gProfit: number = grossProfit(wipData?.quotedPrice, tc);
+  console.log(`Gross Profit: ${gProfit}`);
   const eProfit: number = earnedProfit(gProfit, perComplete / 100);
   const uBilled: number = underBilled(
-    wipData?.costToDate,
+    wipData?.CostToDate,
     eProfit,
     wipData?.paidToDate
   );
   const oBilled: number = overBilled(
     wipData?.paidToDate,
-    wipData?.costToDate,
+    wipData?.CostToDate,
     eProfit
   );
   const blog: number = backlog(
     wipData?.quotedPrice,
-    wipData?.costToDate,
+    wipData?.CostToDate,
     eProfit
   );
   const fgEarnings: number = futureGrossEarnings(blog, wipData?.costToComplete);

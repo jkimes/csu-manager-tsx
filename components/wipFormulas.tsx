@@ -1,19 +1,21 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-export const totalCost = (costToDate: number, costToComplete: number) => {
-  const result: number = costToDate + costToComplete;
-  //   console.log(`@@CTD ${costToDate} CTC: ${costToComplete} ${result}`);
+export const totalCost = (CostToDate: number, costToComplete: number) => {
+  const result: number = CostToDate + costToComplete;
+  console.log(
+    `WIP Formulas CTD ${CostToDate} CTC: ${costToComplete} TC:${result}`
+  );
   return result;
 };
-export const percentComplete = (costToDate: number, totalCost: number) => {
-  if (costToDate === 0 || totalCost === 0) {
+export const percentComplete = (CostToDate: number, totalCost: number) => {
+  if (CostToDate === 0 || totalCost === 0) {
     return 0;
   } else {
-    const percentage = costToDate / totalCost;
+    const percentage = CostToDate / totalCost;
 
     const result = Number(percentage);
-    // console.log(`CTD: ${costToDate} TC: ${totalCost} ${percentage}`);
+    // console.log(`CTD: ${CostToDate} TC: ${totalCost} ${percentage}`);
     return percentage;
   }
 };
@@ -35,35 +37,35 @@ export const earnedProfit = (
 };
 
 export const underBilled = (
-  costToDate: number,
+  CostToDate: number,
   earnedProfit: number,
   paidToDate: number
 ) => {
   // console.log(
-  //   `CTD: ${costToDate}, Earned: ${earnedProfit}, Paid: ${paidToDate}`
+  //   `CTD: ${CostToDate}, Earned: ${earnedProfit}, Paid: ${paidToDate}`
   // );
-  if (costToDate + earnedProfit - paidToDate >= 0) {
-    const result = costToDate + earnedProfit - paidToDate;
-    return parseFloat((costToDate + earnedProfit - paidToDate).toFixed(2));
+  if (CostToDate + earnedProfit - paidToDate >= 0) {
+    const result = CostToDate + earnedProfit - paidToDate;
+    return parseFloat((CostToDate + earnedProfit - paidToDate).toFixed(2));
   } else return 0;
 };
 
 export const overBilled = (
   paidToDate: number,
-  costToDate: number,
+  CostToDate: number,
   earnedProfit: number
 ) => {
-  if (paidToDate - (costToDate + earnedProfit) >= 0) {
-    return paidToDate - (costToDate + earnedProfit);
+  if (paidToDate - (CostToDate + earnedProfit) >= 0) {
+    return paidToDate - (CostToDate + earnedProfit);
   } else return 0;
 };
 
 export const backlog = (
   quotedPrice: number,
-  costToDate: number,
+  CostToDate: number,
   earnedProfit: number
 ) => {
-  return parseFloat((quotedPrice - (costToDate + earnedProfit)).toFixed(2));
+  return parseFloat((quotedPrice - (CostToDate + earnedProfit)).toFixed(2));
 };
 
 export const futureGrossEarnings = (
@@ -77,13 +79,13 @@ export const futureGrossEarnings = (
 
 export const revenueYear = (
   revenuePriorYear: number,
-  costToDate: number,
+  CostToDate: number,
   earnedProfit: number
 ) => {
-  const result: number = costToDate + earnedProfit - revenuePriorYear;
+  const result: number = CostToDate + earnedProfit - revenuePriorYear;
   return result;
 };
-export const costYear = (costPriorYear: number, costToDate: number) => {
-  const result: number = costToDate - costPriorYear;
+export const costYear = (costPriorYear: number, CostToDate: number) => {
+  const result: number = CostToDate - costPriorYear;
   return result;
 };
