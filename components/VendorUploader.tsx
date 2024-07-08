@@ -52,11 +52,17 @@ export default function VendorUploader({ route, navigation }) {
 
   // Define the mapping between field names and data types
   const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
-    clientNumber: "number",
-    Address_Zip: "number",
-    Site_Zip: "number",
-    Active: "boolean",
-    ClientPhone: "number",
+    VendorNum: "number",
+    Name: "string",
+    ContactName: "number",
+    Tel1: "number",
+    Tel2: "number",
+    Email: "string",
+    WebsiteLink: "string",
+    StreetAddress: "string",
+    City: "string",
+    Specialty: "string",
+    Type: "string",
     // Add more fields here as needed
   };
   const selectFile = async () => {
