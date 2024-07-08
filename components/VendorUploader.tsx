@@ -12,8 +12,37 @@ import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
 import { firebase } from "../config";
 import { Table, Row, Rows } from "react-native-table-component";
-import { Header } from "@rneui/themed";
-import Papa from "papaparse"; // Add this line
+import Papa from "papaparse";
+
+const convertDataType = (
+  value: string,
+  type: "string" | "number" | "boolean"
+): any => {
+  //console.log(`Converting value: '${value}' to type: ${type}`);
+
+  if (value === "") {
+    switch (type) {
+      case "number":
+        return 0; // Default value for number type
+      case "boolean":
+        return false; // Default value for boolean type
+      default:
+        return ""; // Default value for string type
+    }
+  }
+
+  switch (type) {
+    case "number":
+      // Remove commas for number parsing
+      const num = parseFloat(value.replace(/,/g, "").trim());
+      //console.log(`Parsed number: ${num}`);
+      return isNaN(num) ? 0 : num;
+    case "boolean":
+      return value.toLowerCase().trim() === "true";
+    default:
+      return value.trim();
+  }
+};
 
 export default function VendorUploader({ route, navigation }) {
   const [csvData, setCsvData] = useState<string[][]>([]);
@@ -33,7 +62,7 @@ export default function VendorUploader({ route, navigation }) {
   const selectFile = async () => {
     try {
       const file = await DocumentPicker.getDocumentAsync({
-        type: "text/csv", // Specify the file type you want to pick
+        type: "text/csv",
       });
 
       if (!file.canceled) {
@@ -42,22 +71,54 @@ export default function VendorUploader({ route, navigation }) {
         const fileContents = await readAsStringAsync(doc.uri);
 
         if (fileContents) {
-          // Use PapaParse to parse the CSV content
           const parsedData = Papa.parse(fileContents, {
             header: false,
-            skipEmptyLines: true,
+            skipEmptyLines: false,
           });
 
-          const data = parsedData.data as string[][]; // Ensure the data is in the correct format
+          console.log("Parsed Data:", parsedData);
 
-          setCsvData(data);
-          console.log(`Data 0: ${data[0]}`);
+          let data: any[][] = parsedData.data as string[][];
 
-          // Assuming the first row is the header
           if (data.length > 0) {
-            // Assuming the first row is the header
             setTableHead(data[0]);
+            const headers = data[0];
+
+            // Check if all headers are present in fieldTypes
+            headers.forEach((header) => {
+              if (!fieldTypes.hasOwnProperty(header)) {
+                console.error(`Header "${header}" not found in fieldTypes`);
+              }
+            });
+
+            // Convert data types based on fieldTypes
+            data = data.map((row, rowIndex) =>
+              rowIndex === 0
+                ? row
+                : row.map((value, colIndex) => {
+                    const header = headers[colIndex];
+                    const type = fieldTypes[header] || "string";
+                    console.log(
+                      `Converting value for header: ${header}, value: ${value}`
+                    );
+                    if (header === undefined) {
+                      console.error(
+                        `Header is undefined for colIndex: ${colIndex}`
+                      );
+                    }
+                    if (value === undefined) {
+                      console.error(
+                        `Value is undefined for header: ${header}, at row: ${rowIndex}, col: ${colIndex}`
+                      );
+                    }
+                    return convertDataType(String(value), type);
+                  })
+            );
+
+            setCsvData(data);
             setTableData(data.slice(1));
+            //console.log(`Data : ${data}`);
+            data.forEach((row) => console.log(`Data: ${row}`));
           }
         }
       }
@@ -86,14 +147,14 @@ export default function VendorUploader({ route, navigation }) {
     }
 
     const headerRow = data[0];
-    const clientsData = data.slice(1); // Exclude header row
-    console.log(`Vendor Uploader FileData ${clientsData}`);
+    const clientsData = data.slice(1);
+    console.log(`Vendor Uploader FileData:`, clientsData);
 
     const db = firebase.firestore();
 
     for (const client of clientsData) {
-      const clientNumber = client[0]; // Assuming client number is in the first column
-      console.log(`firebase upload client number check: ${clientsData.length}`);
+      const clientNumber = String(client[0]); // Ensure client number is a string
+      console.log(`Uploading client number: ${clientNumber}`);
       const docRef = db.collection("vendors").doc(clientNumber);
       const doc = await docRef.get();
 
@@ -107,24 +168,39 @@ export default function VendorUploader({ route, navigation }) {
         return cleaned;
       };
 
-      if (doc.exists) {
-        console.log(`Doc Exists!`);
-        // Update existing document with data from CSV row
-        const updateData: { [key: string]: any } = {};
-        headerRow.forEach((field, index) => {
-          updateData[field] = client[index];
-        });
-        await docRef.update(cleanData(updateData));
-      } else {
-        // Create new document with data from CSV row
-        const newData: { [key: string]: any } = {};
-        headerRow.forEach((field, index) => {
-          if (field != null || field != undefined) {
-            newData[field] = client[index];
-            console.log(`Firebase Field: ${field} Index: ${index}`);
-          }
-        });
-        await docRef.set(cleanData(newData));
+      const newData: { [key: string]: any } = {};
+      headerRow.forEach((field, index) => {
+        if (field != null && field != undefined) {
+          const value = client[index];
+          console.log(`Creating field: ${field}, value: ${value}`);
+          newData[field] = convertDataType(
+            String(value),
+            fieldTypes[field] || "string"
+          ); // Ensure all values are strings
+        }
+      });
+
+      // Log the document data before uploading
+      console.log(`Document data for client number ${clientNumber}:`, newData);
+
+      try {
+        if (doc.exists) {
+          console.log(
+            `Document exists! Updating document for client number ${clientNumber}`
+          );
+          await docRef.update(cleanData(newData));
+        } else {
+          console.log(
+            `Document does not exist! Creating new document for client number ${clientNumber}`
+          );
+          await docRef.set(cleanData(newData));
+        }
+      } catch (uploadError) {
+        console.error(
+          `Error uploading client number ${clientNumber}:`,
+          uploadError
+        );
+        throw uploadError;
       }
     }
 
