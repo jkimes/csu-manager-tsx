@@ -13,3 +13,22 @@ export const filterByActive = async (collectionRef: any) => {
 export const filterByInactive = async (collectionRef: any) => {
   return collectionRef.filter((item) => item.JobStatus === "I");
 };
+
+export const filterBySubcontractors = async (collectionRef: any) => {
+  return collectionRef.filter((item) => item.Type === "S");
+};
+
+export const filterByProffessional = async (collectionRef: any) => {
+  return collectionRef.filter((item) => item.Type === "P");
+};
+
+export const filterByMaterials = async (collectionRef: any) => {
+  return collectionRef.filter((item) => item.Type === "M");
+};
+export const filterByEquipment = async (collectionRef: any) => {
+  return collectionRef.filter((item) => item.Type === "E");
+};
+
+export const filterAllTypes = async (collectionRef: any) => {
+  return collectionRef;
+};

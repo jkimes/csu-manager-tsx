@@ -26,14 +26,17 @@ import WipUploader from "./components/WipUploader";
 // Define your types and interfaces
 export interface Vendor {
   id: string;
+  city: string;
+  StreetAddress: string;
   VendorNum: number;
-  VendorName: string;
+  Name: string;
   VendorContact: string;
-  Phone: number;
+  Tel1: number;
+  Tel2: number;
   Email: string;
   Specialty: string;
   Type: string;
-  WebLink: string;
+  WebsiteLink: string;
   ContactName: string;
 }
 

@@ -54,7 +54,7 @@ export default function VendorUploader({ route, navigation }) {
   const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
     VendorNum: "number",
     Name: "string",
-    ContactName: "number",
+    ContactName: "string",
     Tel1: "number",
     Tel2: "number",
     Email: "string",

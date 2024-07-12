@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Platform,
   Linking,
+  Alert,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
@@ -28,6 +29,33 @@ import {
 } from "../components/helperFunctions";
 import { idStyles } from "./styles/[id].styles";
 import { VendorsContext } from "../components/VendorsContext";
+
+function displayEmail(email: string) {
+  console.log(` Contact Email ${email}`);
+  if (email.trim() === "") {
+    console.log("inside if statement");
+    return " No email found";
+  } else {
+    return email;
+  }
+}
+
+const handlePress = async (url: string) => {
+  const supported = await Linking.canOpenURL(url);
+
+  if (supported) {
+    await Linking.openURL(url);
+  } else {
+    Alert.alert(`Don't know how to open this URL: ${url}`);
+  }
+};
+
+function handleLink(link: string) {
+  // console.log(`Link: ${link}`);
+  if (link === "") {
+    return "No Link";
+  } else return link;
+}
 
 export default function VendorProfile({ route, navigation }) {
   const data = useContext(VendorsContext);
@@ -71,7 +99,7 @@ export default function VendorProfile({ route, navigation }) {
                       <Card.Title>Name</Card.Title>
                     </ListItem.Title>
                     <ListItem.Subtitle>
-                      <Text>{vendorItem.VendorName}</Text>
+                      <Text>{vendorItem.Name}</Text>
                     </ListItem.Subtitle>
                   </View>
                 </ListItem.Content>
@@ -168,14 +196,18 @@ export default function VendorProfile({ route, navigation }) {
                         Web Link
                       </Card.Title>
                     </ListItem.Title>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignContent: "space-between",
-                      }}
+                    <TouchableOpacity
+                      onPress={() => handlePress(vendorItem.WebsiteLink)}
                     >
-                      <Text> {vendorItem.WebLink}</Text>
-                    </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignContent: "space-between",
+                        }}
+                      >
+                        <Text> {handleLink(vendorItem.WebsiteLink)}</Text>
+                      </View>
+                    </TouchableOpacity>
                   </View>
                 </ListItem.Content>
               </>
@@ -196,96 +228,6 @@ export default function VendorProfile({ route, navigation }) {
                 field={"Address_Street"}
                 collection="vendors"
               />
-            </View>
-          </ListItem.Accordion>
-
-          <Card.Divider />
-
-          <ListItem.Accordion
-            content={
-              <>
-                {/* <Icon name="place" size={30} /> */}
-                <ListItem.Content>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <ListItem.Title
-                      style={[idStyles.cardTitle, { marginRight: 10 }]}
-                    >
-                      <Card.Title style={idStyles.cardTitle}>Email</Card.Title>
-                    </ListItem.Title>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignContent: "space-between",
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => sendEmail(vendorItem.Email.toString())}
-                      >
-                        <Text>{handleEmail(vendorItem.Email)}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </ListItem.Content>
-              </>
-            }
-            isExpanded={expanded}
-            onPress={() => {
-              setExpanded(!expanded);
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Edit id={vendorItem.id} field={"Email"} collection="vendors" />
-              <Delete id={vendorItem.id} field={"Email"} collection="vendors" />
-            </View>
-          </ListItem.Accordion>
-
-          <Card.Divider></Card.Divider>
-
-          <ListItem.Accordion
-            content={
-              <>
-                {/* <Icon name="place" size={30} /> */}
-                <ListItem.Content>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <ListItem.Title
-                      style={[idStyles.cardTitle, { marginRight: 10 }]}
-                    >
-                      <Card.Title style={idStyles.cardTitle}>Phone</Card.Title>
-                    </ListItem.Title>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignContent: "space-between",
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => makePhoneCall(vendorItem.Phone)}
-                      >
-                        <Text>{handlePhone(vendorItem.Phone)}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </ListItem.Content>
-              </>
-            }
-            isExpanded={expanded}
-            onPress={() => {
-              setExpanded(!expanded);
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Edit id={vendorItem.id} field={"Phone"} collection="vendors" />
-              <Delete id={vendorItem.id} field={"Phone"} collection="vendors" />
             </View>
           </ListItem.Accordion>
 
@@ -375,7 +317,13 @@ export default function VendorProfile({ route, navigation }) {
           </ListItem.Accordion>
 
           <Card.Divider></Card.Divider>
+        </ScrollView>
+      </View>
+    ),
 
+    1: (
+      <View style={{ flex: 1 }}>
+        <ScrollView>
           <ListItem.Accordion
             content={
               <>
@@ -424,13 +372,146 @@ export default function VendorProfile({ route, navigation }) {
               />
             </View>
           </ListItem.Accordion>
-        </ScrollView>
-      </View>
-    ),
 
-    1: (
-      <View>
-        <Text>{` What do i put here`}</Text>
+          <Card.Divider />
+
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>Email</Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => sendEmail(vendorItem.Email.toString())}
+                      >
+                        <Text>{handleEmail(vendorItem.Email)}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={vendorItem.id} field={"Email"} collection="vendors" />
+              <Delete id={vendorItem.id} field={"Email"} collection="vendors" />
+            </View>
+          </ListItem.Accordion>
+
+          <Card.Divider></Card.Divider>
+
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>Phone</Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => makePhoneCall(vendorItem.Tel1)}
+                      >
+                        <Text>{handlePhone(vendorItem.Tel1)}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={vendorItem.id} field={"Tel1"} collection="vendors" />
+              <Delete id={vendorItem.id} field={"Tel1"} collection="vendors" />
+            </View>
+          </ListItem.Accordion>
+
+          <Card.Divider></Card.Divider>
+
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>
+                        Phone 2
+                      </Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => makePhoneCall(vendorItem.Tel1)}
+                      >
+                        <Text>{handlePhone(vendorItem.Tel2)}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expanded}
+            onPress={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={vendorItem.id} field={"Tel2"} collection="vendors" />
+              <Delete id={vendorItem.id} field={"Tel2"} collection="vendors" />
+            </View>
+          </ListItem.Accordion>
+
+          <Card.Divider></Card.Divider>
+        </ScrollView>
       </View>
     ),
   };

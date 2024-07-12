@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
+  Alert,
   ScrollView,
 } from "react-native";
 import { COLORS, FONT, SIZES } from "../../constants";
@@ -18,7 +19,13 @@ import { ThemeProvider, useTheme, Card, Button, ListItem } from "@rneui/themed";
 
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
-import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
+import {
+  filterByProffessional,
+  filterBySubcontractors,
+  filterByMaterials,
+  filterByEquipment,
+  filterAllTypes,
+} from "./Filters"; // Import filtering functions
 import { DataContext } from "../DataContext";
 import { handleAddress, DisplayJobStatus } from "../helperFunctions";
 import DeleteClient from "../Buttons/DeleteClient";
@@ -28,6 +35,22 @@ import { VendorsContext } from "../VendorsContext";
 //initalizes firebase connection
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
+}
+const handlePress = async (url: string) => {
+  const supported = await Linking.canOpenURL(url);
+
+  if (supported) {
+    await Linking.openURL(url);
+  } else {
+    Alert.alert(`Don't know how to open this URL: ${url}`);
+  }
+};
+
+function handleLink(link: string) {
+  // console.log(`Link: ${link}`);
+  if (link === "") {
+    return "No Link";
+  } else return link;
 }
 
 const VendorList = ({ navigation, route, searchText }) => {
@@ -59,15 +82,22 @@ const VendorList = ({ navigation, route, searchText }) => {
     let newData: any[] = []; // Initialize filteredData
 
     switch (filterState) {
-      case "showAll":
-        newData = await filterByShowAll(data);
+      case "Subcontractors":
+        newData = await filterBySubcontractors(data);
         break;
-      case "filterByActive":
-        newData = await filterByActive(data);
+      case "Proffessional":
+        newData = await filterByProffessional(data);
         break;
-      case "filterByInactive":
-        newData = await filterByInactive(data);
+      case "Materials":
+        newData = await filterByMaterials(data);
         break;
+      case "Equipment":
+        newData = await filterByMaterials(data);
+        break;
+      case "All Types":
+        newData = await filterAllTypes(data);
+        break;
+
       default:
         break;
     }
@@ -111,9 +141,7 @@ const VendorList = ({ navigation, route, searchText }) => {
           {/* <View key={item.id} style={styles.contactBox}> */}
           <View style={cardlistStyles.contactBoxDetails}>
             <View>
-              <Text style={cardlistStyles.textStyleName}>
-                {item.VendorName}
-              </Text>
+              <Text style={cardlistStyles.textStyleName}>{item.Name}</Text>
               <Text style={cardlistStyles.textStyle}>
                 Vendor #: {item.VendorNum}
               </Text>
@@ -121,11 +149,12 @@ const VendorList = ({ navigation, route, searchText }) => {
                 Specialty: {item.Specialty}
               </Text>
               <Text style={cardlistStyles.textStyle}>Type: {item.Type}</Text>
-
-              <Text style={cardlistStyles.textStyle}>
-                {" "}
-                Link: {item.WebLink}{" "}
-              </Text>
+              <TouchableOpacity onPress={() => handlePress(item.WebsiteLink)}>
+                <Text style={cardlistStyles.textStyle}>
+                  {" "}
+                  Link: {handleLink(item.WebsiteLink)}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
           <Button
@@ -147,21 +176,36 @@ const VendorList = ({ navigation, route, searchText }) => {
       <View>
         <View style={cardlistStyles.buttonContainer}>
           <Button
-            title="Show All"
+            style={cardlistStyles.button}
+            title="All Types"
             onPress={() => {
-              setFilterState("showAll");
+              setFilterState("All Types");
             }}
           />
 
           <Button
-            title="Active"
+            title="Subcontractors"
             onPress={() => {
-              setFilterState("filterByActive");
+              setFilterState("Subcontractors");
             }}
           />
 
           <Button
-            title="Inactive"
+            title="Proffessional"
+            onPress={() => {
+              setFilterState("Proffessional");
+            }}
+          />
+
+          <Button
+            title="Materials"
+            onPress={() => {
+              setFilterState("Materials");
+            }}
+          />
+
+          <Button
+            title="Equipment"
             onPress={() => setFilterState("filterByInactive")}
           />
         </View>

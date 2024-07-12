@@ -14,9 +14,10 @@ export const cardlistStyles = StyleSheet.create({
     width: "100%", // Ensure the Card takes up the full width
   },
   buttonContainer: {
+    flexWrap: "wrap",
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 10,
+    margin: 5,
   },
   button: {
     padding: 10,

@@ -14,16 +14,16 @@ export default function Delete(props) {
     field: string,
     contact: string
   ) => {
-    if (field === "name" && id !== undefined) {
+    if (field === "Contact" && id !== undefined) {
       try {
         const documentRef = firebase.firestore().collection("clients").doc(id);
         // Update the document to set the name field to null
         await documentRef.update({
-          [`Contacts.${contact}.${field}`]: null, // Use the provided contact key
+          [`${field}`]: null, // Use the update the field in the db
         });
         console.log(`Name field updated successfully. ${contact}`);
       } catch (error) {
-        console.error("Error updating name field: ", error);
+        console.error("Error updating Contact Name field: ", error);
       }
     } else if (field === "street" && id !== undefined) {
       try {
