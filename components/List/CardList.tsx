@@ -76,17 +76,17 @@ const CardList = ({ navigation, route, searchText }) => {
       // console.log("User Input: ", searchText);
       // Filter further based on search text
       newData = newData.filter((item) => {
-        const clientNumber = (item.ClientNumber || "").toString().toLowerCase();
-        const id = (item.ClientName || "").toString().toLowerCase();
-        const city = (item.Address_City || "").toString().toLowerCase();
-        const street = (item.Address_Street || "").toString().toLowerCase();
+        const clientNumber = (item.CustomerNum || "").toString().toLowerCase();
+        const id = (item.CustomerName || "").toString().toLowerCase();
+        const JobSite = (item.JobSite || "").toString().toLowerCase();
+        // const street = (item.Address_Street || "").toString().toLowerCase();
 
         const search = searchText.toLowerCase();
         return (
           clientNumber.includes(search) ||
           id.includes(search) ||
-          city.includes(search) ||
-          street.includes(search)
+          JobSite.includes(search)
+          // street.includes(search)
         );
       });
     }
@@ -111,18 +111,17 @@ const CardList = ({ navigation, route, searchText }) => {
           <View style={cardlistStyles.contactBoxDetails}>
             <View>
               <Text style={cardlistStyles.textStyleName}>
-                {item.ClientName}
+                {item.CustomerName}
               </Text>
               <Text style={cardlistStyles.textStyle}>
-                Job Status: {DisplayJobStatus(item.Active)}
+                Job Status: {item.JobStatus}
               </Text>
               <Text style={cardlistStyles.textClientNum}>
-                Client#: {item.ClientNumber}
+                Client#: {item.CustomerNum}
               </Text>
 
               <Text style={cardlistStyles.textStyle}>
-                Job Site:{" "}
-                {handleAddress(item.Address_Street, item.Address_City)}
+                Job Site: {item.JobSite}
               </Text>
             </View>
           </View>
@@ -131,10 +130,10 @@ const CardList = ({ navigation, route, searchText }) => {
             onPress={() => {
               /* 1. Navigate to the Details route with params */
               navigation.navigate("Profile", {
-                ClientNumber: item.ClientNumber,
-                ClientPhone: item.ClientPhone,
+                ClientNumber: item.CustomerNum,
+                ClientPhone: item.ClientCell,
                 ClientEmail: item.ClientEmail,
-                ClientName: item.ClientName,
+                ClientName: item.CustomerName,
               });
             }}
           />

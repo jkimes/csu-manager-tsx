@@ -26,7 +26,7 @@ import {
 import { firebase, firebaseConfig } from "../../config";
 import { DataContext } from "../DataContext";
 import DataTable from "../DataTable";
-import { Client, Contact } from "../../App";
+import { Client } from "../../App";
 import {
   makePhoneCall,
   sendEmail,
@@ -43,6 +43,26 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
+function displayEmail(email: string) {
+  console.log(` Contact Email ${email}`);
+  if (email.trim() === "") {
+    console.log("inside if statement");
+    return " No email found";
+  } else {
+    return email;
+  }
+}
+
+function displayCell(cell: number) {
+  console.log(` Contact Cell ${cell}`);
+  if (cell === 0) {
+    console.log("inside if statement");
+    return " To add cell press arrow on the right";
+  } else {
+    return cell;
+  }
+}
+
 const ContactList = ({ navigation, route, ClientNumber }) => {
   const { theme, updateTheme } = useTheme();
   const data = useContext(DataContext);
@@ -50,228 +70,199 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const client: Client = data.find(
-    (item) => item?.ClientNumber === ClientNumber
+    (item) => item?.CustomerNum === ClientNumber
   );
-  const contactList = client?.Contacts;
-  console.log(`@Contact List@: ${contactList}`);
-  // console.log(`${client.id}`);
+  console.log(JSON.stringify(client));
 
-  // console.log(`Pure Client: ${client.Contacts}`);
-  // console.log(`Contacts@: ${JSON.stringify(client.Contacts)}`);
-
-  const renderContacts = (contactList) => {
-    if (
-      contactList !== undefined &&
-      contactList !== null &&
-      typeof contactList === "object"
-    ) {
-      const keys: string[] = Object.keys(contactList);
-      const contacts: Contact[] = Object.values(contactList);
-      // Now you can safely use keys and contacts here
-      if (!contacts.length) return null;
-
-      return (
+  const renderContacts = () => {
+    return (
+      <View>
         <View>
-          {contacts.map((contact, index) => (
-            <View key={index}>
-              <ScrollView>
-                <Card.Divider />
-                <Card.Title>{keys[index]}</Card.Title>
-                <Card.Divider />
-                <ListItem.Accordion
-                  content={
-                    <>
-                      {/* <Icon name="place" size={30} /> */}
-                      <ListItem.Content>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                          }}
+          <ScrollView>
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Name</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <Text>{client.Contact}</Text>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 0}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 0 ? null : 0);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"name"} />
+                <Delete id={client.CustomerNum} field={"Contact"} />
+              </View>
+            </ListItem.Accordion>
+
+            <Card.Divider />
+
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Contact Email</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <TouchableOpacity
+                          onPress={() => sendEmail(client?.ContactEmail)}
                         >
-                          <ListItem.Title style={[{ marginRight: 10 }]}>
-                            <Card.Title>Name</Card.Title>
-                          </ListItem.Title>
-                          <ListItem.Subtitle>
-                            <Text>{contact?.name}</Text>
-                          </ListItem.Subtitle>
-                        </View>
-                      </ListItem.Content>
-                    </>
-                  }
-                  isExpanded={expandedIndex === 0}
-                  onPress={() => {
-                    setExpandedIndex(expandedIndex === 0 ? null : 0);
-                  }}
-                >
-                  <View style={{ flexDirection: "row" }}>
-                    <Edit id={client.id} field={"name"} contact={keys[index]} />
-                    <Delete
-                      id={client.id}
-                      field={"name"}
-                      contact={keys[index]}
-                    />
-                  </View>
-                </ListItem.Accordion>
+                          <Text>{displayEmail(client?.ContactEmail)}</Text>
+                        </TouchableOpacity>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 1}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 1 ? null : 1);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"ContactEmail"} />
+                <Delete id={client.CustomerNum} field={"ContactEmail"} />
+              </View>
+            </ListItem.Accordion>
 
-                <Card.Divider />
+            <Card.Divider />
 
-                <ListItem.Accordion
-                  content={
-                    <>
-                      {/* <Icon name="place" size={30} /> */}
-                      <ListItem.Content>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                          }}
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Phone</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <TouchableOpacity
+                          onPress={() => makePhoneCall(client?.ContactCell)}
                         >
-                          <ListItem.Title style={[{ marginRight: 10 }]}>
-                            <Card.Title>Email</Card.Title>
-                          </ListItem.Title>
-                          <ListItem.Subtitle>
-                            <TouchableOpacity
-                              onPress={() => sendEmail(contact?.email)}
-                            >
-                              <Text>
-                                {contact?.email && handleEmail(contact?.email)}
-                              </Text>
-                            </TouchableOpacity>
-                          </ListItem.Subtitle>
-                        </View>
-                      </ListItem.Content>
-                    </>
-                  }
-                  isExpanded={expandedIndex === 1}
-                  onPress={() => {
-                    setExpandedIndex(expandedIndex === 1 ? null : 1);
-                  }}
-                >
-                  <View style={{ flexDirection: "row" }}>
-                    <Edit
-                      id={client.id}
-                      field={"email"}
-                      contact={keys[index]}
-                    />
-                    <Delete
-                      id={client.id}
-                      field={"email"}
-                      contact={keys[index]}
-                    />
-                  </View>
-                </ListItem.Accordion>
+                          <Text>{handlePhone(client?.ContactCell)}</Text>
+                        </TouchableOpacity>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 2}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 2 ? null : 2);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"ContactCell"} />
+                <Delete id={client.CustomerNum} field={"ContactCell"} />
+              </View>
+            </ListItem.Accordion>
 
-                <Card.Divider />
+            <Card.Divider />
 
-                <ListItem.Accordion
-                  content={
-                    <>
-                      {/* <Icon name="place" size={30} /> */}
-                      <ListItem.Content>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                          }}
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Phone 2</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <TouchableOpacity
+                          onPress={() => makePhoneCall(client?.ContactTel2)}
                         >
-                          <ListItem.Title style={[{ marginRight: 10 }]}>
-                            <Card.Title>Phone</Card.Title>
-                          </ListItem.Title>
-                          <ListItem.Subtitle>
-                            <TouchableOpacity
-                              onPress={() => makePhoneCall(contact?.phone)}
-                            >
-                              <Text>{handlePhone(contact?.phone)}</Text>
-                            </TouchableOpacity>
-                          </ListItem.Subtitle>
-                        </View>
-                      </ListItem.Content>
-                    </>
-                  }
-                  isExpanded={expandedIndex === 2}
-                  onPress={() => {
-                    setExpandedIndex(expandedIndex === 2 ? null : 2);
-                  }}
-                >
-                  <View style={{ flexDirection: "row" }}>
-                    <Edit
-                      id={client.id}
-                      field={"phone"}
-                      contact={keys[index]}
-                    />
-                    <Delete
-                      id={client.id}
-                      field={"phone"}
-                      contact={keys[index]}
-                    />
-                  </View>
-                </ListItem.Accordion>
+                          <Text>{handlePhone(client?.ContactTel2)}</Text>
+                        </TouchableOpacity>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 2}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 2 ? null : 2);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"ContactTel2"} />
+                <Delete id={client.CustomerNum} field={"ContactTel2"} />
+              </View>
+            </ListItem.Accordion>
 
-                <Card.Divider />
+            <Card.Divider />
 
-                <ListItem.Accordion
-                  content={
-                    <>
-                      {/* <Icon name="place" size={30} /> */}
-                      <ListItem.Content>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <ListItem.Title style={[{ marginRight: 10 }]}>
-                            <Card.Title>Address</Card.Title>
-                          </ListItem.Title>
-                          <ListItem.Subtitle>
-                            <Text>
-                              {handleFullAddress(
-                                contact?.street,
-                                contact?.city,
-                                contact?.zip
-                              )}
-                            </Text>
-                          </ListItem.Subtitle>
-                        </View>
-                      </ListItem.Content>
-                    </>
-                  }
-                  isExpanded={expandedIndex === 3}
-                  onPress={() => {
-                    setExpandedIndex(expandedIndex === 3 ? null : 3);
-                  }}
-                >
-                  <View style={{ flexDirection: "row" }}>
-                    <Edit
-                      id={client.id}
-                      field={"street"}
-                      contact={keys[index]}
-                    />
-                    <Delete
-                      id={client.id}
-                      field={"street"}
-                      contact={keys[index]}
-                    />
-                  </View>
-                </ListItem.Accordion>
-                <Card.Divider />
-              </ScrollView>
-            </View>
-          ))}
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Billing Address</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle style={{ flex: 1, flexWrap: "wrap" }}>
+                        <Text>{client.BillingAddress}</Text>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 3}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 3 ? null : 3);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"BillingAddress"} />
+                <Delete id={client.CustomerNum} field={"BillingAddress"} />
+              </View>
+            </ListItem.Accordion>
+            <Card.Divider />
+          </ScrollView>
         </View>
-      );
-    } else {
-      // Handle the case when contactList is undefined or not an object
-      //Maybe add a function that adds the contact if it is undefined because that meant that it did not find the variable in the client document
-      return (
-        <View>
-          <Text>No Contacts Found</Text>
-        </View>
-      );
-      // You can choose to return early or perform some other error handling
-    }
-    // console.log(`Render Contacts ${keys}`);
+      </View>
+    );
   };
 
   // useEffect(() => {}, [quoteData]); // Call renderQuoteList whenever data changes
@@ -289,7 +280,7 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <View>{renderContacts(contactList)}</View>
+      <View>{renderContacts()}</View>
     </ThemeProvider>
   );
 };

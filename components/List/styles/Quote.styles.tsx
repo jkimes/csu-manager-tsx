@@ -4,9 +4,11 @@ import { COLORS, SIZES } from "../../../constants";
 export const QuoteStyles = StyleSheet.create({
   cardContainer: {
     width: "100%",
+    marginBottom: 10,
+    padding: 0,
   },
   overlayCard: {
-    marginBottom: 10, // Adjust spacing between cards as needed
+    marginBottom: 10,
   },
   lineItemContainer: {
     width: "100%", // Take up the whole width of the card

@@ -8,35 +8,19 @@ export default function Edit(props) {
   const [inputValue, setInputValue] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [step, setStep] = useState(1);
-  const [street, setStreet] = useState("");
+  const [jobSite, setJobSite] = useState("");
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
+  console.log(`Edit ID: ${props.id}`);
 
-  const handleEditField = async (id, field, value, key) => {
-    if (field === "Contacts") {
-      try {
-        const collectionRef = firebase
-          .firestore()
-          .collection("clients")
-          .doc(id);
-        await collectionRef.update({
-          [`Contacts.${key}.name`]: value,
-        });
-      } catch (error) {
-        console.error("Error updating document: ", error);
-      }
-    } else {
-      try {
-        const collectionRef = firebase
-          .firestore()
-          .collection("clients")
-          .doc(id);
-        await collectionRef.update({
-          [field]: value,
-        });
-      } catch (error) {
-        console.error("Error updating document: ", error);
-      }
+  const handleEditField = async (id, field, value) => {
+    try {
+      const collectionRef = firebase.firestore().collection("clients").doc(id);
+      await collectionRef.update({
+        [field]: value,
+      });
+    } catch (error) {
+      console.error("Error updating document: ", error);
     }
   };
 
@@ -47,45 +31,23 @@ export default function Edit(props) {
   };
 
   const handleSubmit = () => {
-    if (props.field === "Address_Site") {
+    console.log(`field ${props.field}`);
+    if (props.field === "ClientName") {
+      console.log(`editing client name id: ${props.id} field: ${props.field}`);
+      handleEditField(props.id, props.field, inputValue);
+      setInputValue("");
+      setModalVisible(false);
+    }
+    if (props.field === "JobSite") {
       if (step === 1) {
-        setStreet(inputValue);
-        setInputValue("");
-        setStep(step + 1);
-      } else if (step === 2) {
-        setCity(inputValue);
-        setInputValue("");
-        setStep(step + 1);
-      } else if (step === 3) {
-        setZip(inputValue);
-        handleEditField(props.id, "Address_Street", street, props.key);
-        handleEditField(props.id, "Address_City", city, props.key);
-        handleEditField(props.id, "Address_Zip", zip, props.key);
-        handleEditField(props.id, "Address_State", "Florida", props.key);
-        setInputValue("");
-        setModalVisible(false);
-      }
-    } else if (props.field === "Site_Street") {
-      // New case for Site_Street
-      if (step === 1) {
-        setStreet(inputValue);
-        setInputValue("");
-        setStep(step + 1);
-      } else if (step === 2) {
-        setCity(inputValue);
-        setInputValue("");
-        setStep(step + 1);
-      } else if (step === 3) {
-        setZip(inputValue);
-        handleEditField(props.id, "Site_Street", street, props.key);
-        handleEditField(props.id, "Site_City", city, props.key);
-        handleEditField(props.id, "Site_Zip", zip, props.key);
-        handleEditField(props.id, "Site_State", "Florida", props.key);
+        setJobSite(inputValue);
+        handleEditField(props.id, "JobSite", jobSite);
         setInputValue("");
         setModalVisible(false);
       }
     } else {
-      handleEditField(props.id, props.field, inputValue, props.key);
+      console.log(`Edit any field: ${props.field} id: ${props.id}`);
+      handleEditField(props.id, props.field, inputValue);
       setInputValue("");
       setModalVisible(false);
     }
@@ -97,7 +59,11 @@ export default function Edit(props) {
   };
 
   const handleSetActive = (value) => {
-    handleEditField(props.id, props.field, value, props.key);
+    let response = "";
+    if (value) {
+      response = "A";
+    } else response = "I";
+    handleEditField(props.id, props.field, response);
     setModalVisible(false);
   };
 
@@ -113,19 +79,16 @@ export default function Edit(props) {
       >
         <View style={EditStyles.modalContainer}>
           <View style={EditStyles.modalContent}>
-            {props.field === "Active" && (
+            {props.field === "JobStatus" && (
               <>
-                <Text style={EditStyles.label}>Set Active to:</Text>
+                <Text style={EditStyles.label}>Is this job Active:</Text>
                 <View style={EditStyles.buttonContainer}>
-                  <Button title="True" onPress={() => handleSetActive(true)} />
-                  <Button
-                    title="False"
-                    onPress={() => handleSetActive(false)}
-                  />
+                  <Button title="Yes" onPress={() => handleSetActive(true)} />
+                  <Button title="No" onPress={() => handleSetActive(false)} />
                 </View>
               </>
             )}
-            {props.field !== "Active" && (
+            {props.field !== "JobStatus" && (
               <>
                 {step === 1 && (
                   <>
@@ -134,31 +97,7 @@ export default function Edit(props) {
                       onChangeText={setInputValue}
                       value={inputValue}
                       placeholderTextColor="black"
-                      placeholder="Add field"
-                    />
-                    <Button title="Next" onPress={handleSubmit} />
-                  </>
-                )}
-                {step === 2 && (
-                  <>
-                    <TextInput
-                      style={EditStyles.input}
-                      onChangeText={setInputValue}
-                      value={inputValue}
-                      placeholderTextColor="black"
-                      placeholder="City"
-                    />
-                    <Button title="Next" onPress={handleSubmit} />
-                  </>
-                )}
-                {step === 3 && (
-                  <>
-                    <TextInput
-                      style={EditStyles.input}
-                      onChangeText={setInputValue}
-                      value={inputValue}
-                      placeholderTextColor="black"
-                      placeholder="Zip"
+                      placeholder="Enter Value"
                     />
                     <Button title="Submit" onPress={handleSubmit} />
                   </>

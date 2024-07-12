@@ -46,9 +46,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
   const [clientData, setclientData] = useState(quoteData); // filters quote data to just data associated with client
   const [visible, setVisible] = useState(false);
 
-  const client: Client = data.find(
-    (item) => item.ClientNumber === ClientNumber
-  );
+  const client: Client = data.find((item) => item.CustomerNum === ClientNumber);
   // console.log(`client Name; ${client.Address_Zip} `);
 
   const filteredQuotes = quoteData.filter((item) => {
@@ -96,6 +94,9 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
       const lineItemContent = lineItems.map((lineItem) => {
         // Calculate the price for the current line item
         const lineItemPrice = lineItem.Price * lineItem.Quantity;
+        console.log(
+          `LineItem Price: ${lineItem.Price} Quantity: ${lineItem.Quantity}`
+        );
         // Add the price to the total sum
         totalPriceSum += lineItemPrice;
 
@@ -161,16 +162,14 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
 
                 <Card.Title> Client Details</Card.Title>
                 <Text>{client.ClientName}</Text>
-                <Text>{client.Address_Street}</Text>
-                <Text>
-                  {client.Address_City},Florida {client.Address_Zip}
-                </Text>
+                <Text>{client.JobSite}</Text>
+                <Text>{client.JobSite}</Text>
                 <Text>{client.ClientEmail}</Text>
-                <Text>{client.ClientPhone}</Text>
+                <Text>{client.ClientCell}</Text>
                 <Card.Divider />
 
                 <Card.Title> Product or Service</Card.Title>
-                <Text>{lineItemContent}</Text>
+                {lineItemContent}
                 <Card.Divider />
 
                 <Text>Total Price: ${totalPriceSum}</Text>
@@ -185,12 +184,17 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
         </Card>
       );
     });
+    console.log("Quote List JSX:", quoteList); // Log the generated JSX for quote list
     return quoteList;
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <View>{renderQuoteList(clientData)}</View>
+      <View style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 15 }}>
+          {renderQuoteList(clientData)}
+        </ScrollView>
+      </View>
     </ThemeProvider>
   );
 };

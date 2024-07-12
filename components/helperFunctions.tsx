@@ -45,7 +45,7 @@ export function formatPhoneNumber(phone) {
   if (match) {
     return "(" + match[1] + ")-" + match[2] + "-" + match[3];
   }
-  return "No number found";
+  return "Number must have 10 digits only ";
 }
 
 export const handlePhone = (phone: number) => {

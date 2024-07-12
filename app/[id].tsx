@@ -34,10 +34,8 @@ export default function SingleClient({ route, navigation }) {
   const quotes = useContext(QuoteContext);
   const [activeTab, setActiveTab] = React.useState<number>(0); // State to manage the active tab
   const { ClientNumber, ClientEmail, ClientPhone, ClientName } = route.params;
-  const client: Client = data.find(
-    (item) => item.ClientNumber === ClientNumber
-  );
-  console.log(`${client.id}`);
+  const client: Client = data.find((item) => item.CustomerNum === ClientNumber);
+  console.log(`CLIENT ID: ${client.id}`);
   // Log the values of the route params to the console
   // console.log("ClientName:", ClientName);
   // console.log("ClientEmail:", ClientEmail);
@@ -76,7 +74,7 @@ export default function SingleClient({ route, navigation }) {
                     <ListItem.Title
                       style={[idStyles.cardTitle, { marginRight: 10 }]}
                     >
-                      <Card.Title>Name</Card.Title>
+                      <Card.Title>Client Name</Card.Title>
                     </ListItem.Title>
                     <ListItem.Subtitle>
                       <Text>{client.ClientName}</Text>
@@ -91,12 +89,101 @@ export default function SingleClient({ route, navigation }) {
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Edit id={client.id} field={"ClientName"} collection="clients" />
-              <Delete
-                id={client.id}
+              <Edit
+                id={String(client.CustomerNum)}
                 field={"ClientName"}
                 collection="clients"
               />
+              <Delete
+                id={String(client.CustomerNum)}
+                field={"ClientName"}
+                collection="clients"
+              />
+            </View>
+          </ListItem.Accordion>
+
+          <Card.Divider></Card.Divider>
+
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title>Customer Name</Card.Title>
+                    </ListItem.Title>
+                    <ListItem.Subtitle>
+                      <Text>{client.CustomerName}</Text>
+                    </ListItem.Subtitle>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expandedIndex === 1}
+            onPress={() => {
+              setExpandedIndex(expandedIndex === 1 ? null : 1);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit
+                id={String(client.CustomerNum)}
+                field={"CustomerName"}
+                collection="clients"
+              />
+              <Delete
+                id={String(client.CustomerNum)}
+                field={"CustomerName"}
+                collection="clients"
+              />
+            </View>
+          </ListItem.Accordion>
+
+          <Card.Divider></Card.Divider>
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>
+                        Job Status
+                      </Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <Text>{client.JobStatus}</Text>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expandedIndex === 3}
+            onPress={() => {
+              setExpandedIndex(expandedIndex === 3 ? null : 3);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit id={String(client.CustomerNum)} field={"JobStatus"} />
             </View>
           </ListItem.Accordion>
 
@@ -127,84 +214,28 @@ export default function SingleClient({ route, navigation }) {
                         alignContent: "space-between",
                       }}
                     >
-                      <Text>{client.ClientNumber}</Text>
+                      <Text>{client.CustomerNum}</Text>
                     </View>
                   </View>
                 </ListItem.Content>
               </>
             }
-            isExpanded={expandedIndex === 1}
+            isExpanded={expandedIndex === 4}
             onPress={() => {
-              setExpandedIndex(expandedIndex === 1 ? null : 1);
+              setExpandedIndex(expandedIndex === 4 ? null : 4);
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Edit
-                id={client.id}
-                field={"ClientNumber"}
+              {/* <Edit
+                id={String(client.id)}
+                field={"CustomerNum"}
                 collection="clients"
               />
               <Delete
-                id={client.id}
-                field={"ClientNumber"}
+                id={String(client.id)}
+                field={"CustomerNum"}
                 collection="clients"
-              />
-            </View>
-          </ListItem.Accordion>
-
-          <Card.Divider />
-
-          <ListItem.Accordion
-            content={
-              <>
-                {/* <Icon name="place" size={30} /> */}
-                <ListItem.Content>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <ListItem.Title
-                      style={[idStyles.cardTitle, { marginRight: 10 }]}
-                    >
-                      <Card.Title style={idStyles.cardTitle}>
-                        Address
-                      </Card.Title>
-                    </ListItem.Title>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignContent: "space-between",
-                      }}
-                    >
-                      <Text>
-                        {handleAddress(
-                          client.Address_Street,
-                          client.Address_City
-                        )}
-                      </Text>
-                    </View>
-                  </View>
-                </ListItem.Content>
-              </>
-            }
-            isExpanded={expandedIndex === 2}
-            onPress={() => {
-              setExpandedIndex(expandedIndex === 2 ? null : 2);
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Edit
-                id={client.id}
-                field={"Address_Street"}
-                collection="clients"
-              />
-              <Delete
-                id={client.id}
-                field={"Address_Street"}
-                collection="clients"
-              />
+              /> */}
             </View>
           </ListItem.Accordion>
 
@@ -242,15 +273,19 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expandedIndex === 3}
+            isExpanded={expandedIndex === 5}
             onPress={() => {
-              setExpandedIndex(expandedIndex === 3 ? null : 3);
+              setExpandedIndex(expandedIndex === 5 ? null : 5);
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Edit id={client.id} field={"ClientEmail"} collection="clients" />
+              <Edit
+                id={String(client.CustomerNum)}
+                field={"ClientEmail"}
+                collection="clients"
+              />
               <Delete
-                id={client.id}
+                id={String(client.CustomerNum)}
                 field={"ClientEmail"}
                 collection="clients"
               />
@@ -282,25 +317,29 @@ export default function SingleClient({ route, navigation }) {
                       }}
                     >
                       <TouchableOpacity
-                        onPress={() => makePhoneCall(client.ClientPhone)}
+                        onPress={() => makePhoneCall(client.ClientCell)}
                       >
-                        <Text>{handlePhone(client.ClientPhone)}</Text>
+                        <Text>{handlePhone(client.ClientCell)}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
                 </ListItem.Content>
               </>
             }
-            isExpanded={expandedIndex === 4}
+            isExpanded={expandedIndex === 6}
             onPress={() => {
-              setExpandedIndex(expandedIndex === 4 ? null : 4);
+              setExpandedIndex(expandedIndex === 6 ? null : 6);
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Edit id={client.id} field={"ClientPhone"} collection="clients" />
+              <Edit
+                id={String(client.CustomerNum)}
+                field={"ClientCell"}
+                collection="clients"
+              />
               <Delete
-                id={client.id}
-                field={"ClientPhone"}
+                id={String(client.CustomerNum)}
+                field={"ClientCell"}
                 collection="clients"
               />
             </View>
@@ -323,7 +362,7 @@ export default function SingleClient({ route, navigation }) {
                       style={[idStyles.cardTitle, { marginRight: 10 }]}
                     >
                       <Card.Title style={idStyles.cardTitle}>
-                        Job Status
+                        Phone 2
                       </Card.Title>
                     </ListItem.Title>
                     <View
@@ -332,19 +371,32 @@ export default function SingleClient({ route, navigation }) {
                         alignContent: "space-between",
                       }}
                     >
-                      <Text>{DisplayJobStatus(client.Active)}</Text>
+                      <TouchableOpacity
+                        onPress={() => makePhoneCall(client.ClientTel2)}
+                      >
+                        <Text>{handlePhone(client.ClientTel2)}</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 </ListItem.Content>
               </>
             }
-            isExpanded={expandedIndex === 5}
+            isExpanded={expandedIndex === 7}
             onPress={() => {
-              setExpandedIndex(expandedIndex === 5 ? null : 5);
+              setExpandedIndex(expandedIndex === 7 ? null : 7);
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Edit id={client.id} field={"Active"} />
+              <Edit
+                id={String(client.CustomerNum)}
+                field={"ClientCell2"}
+                collection="clients"
+              />
+              <Delete
+                id={String(client.CustomerNum)}
+                field={"ClientCell2"}
+                collection="clients"
+              />
             </View>
           </ListItem.Accordion>
 
@@ -375,25 +427,27 @@ export default function SingleClient({ route, navigation }) {
                       }}
                     >
                       <TouchableOpacity>
-                        <Text>
-                          {handleAddress(client.Site_Street, client.Site_City)}
-                        </Text>
+                        <Text>{client.JobSite}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
                 </ListItem.Content>
               </>
             }
-            isExpanded={expandedIndex === 6}
+            isExpanded={expandedIndex === 8}
             onPress={() => {
-              setExpandedIndex(expandedIndex === 6 ? null : 6);
+              setExpandedIndex(expandedIndex === 8 ? null : 8);
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Edit id={client.id} field={"Site_Street"} collection="clients" />
+              <Edit
+                id={String(client.CustomerNum)}
+                field={"JobSite"}
+                collection="clients"
+              />
               <Delete
-                id={client.id}
-                field={"Site_Street"}
+                id={String(client.CustomerNum)}
+                field={"JobSite"}
                 collection="clients"
               />
             </View>
@@ -404,7 +458,7 @@ export default function SingleClient({ route, navigation }) {
       </View>
     ),
     1: (
-      <View>
+      <View style={{ flex: 1 }}>
         <Card containerStyle={idStyles.cardContainer}>
           <Card.Title style={idStyles.cardTitle}>
             <Text>Quote List</Text>
@@ -414,7 +468,7 @@ export default function SingleClient({ route, navigation }) {
         <QuoteList
           navigation={navigation}
           route={route}
-          ClientNumber={client.ClientNumber}
+          ClientNumber={client.CustomerNum}
         ></QuoteList>
 
         {/* Add any additional content for Tab 2 */}
@@ -422,9 +476,8 @@ export default function SingleClient({ route, navigation }) {
     ),
     2: (
       <View>
-        <Text>{`${client.ClientNumber}`}</Text>
         <ContactList
-          ClientNumber={client.ClientNumber}
+          ClientNumber={client.CustomerNum}
           navigation={navigation}
           route={route}
         ></ContactList>

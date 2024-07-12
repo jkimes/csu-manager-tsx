@@ -7,9 +7,9 @@ export const filterByShowAll = async (collectionRef: any) => {
 };
 
 export const filterByActive = async (collectionRef: any) => {
-  return collectionRef.filter((item) => item.Active === true);
+  return collectionRef.filter((item) => item.JobStatus === "A");
 };
 
 export const filterByInactive = async (collectionRef: any) => {
-  return collectionRef.filter((item) => item.Active === false);
+  return collectionRef.filter((item) => item.JobStatus === "I");
 };

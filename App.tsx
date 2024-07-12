@@ -49,22 +49,19 @@ export interface Contact {
 
 export interface Client {
   id: string;
+  CustomerNum: number;
+  CustomerName: string;
+  JobStatus: string;
   ClientName: string;
-  ClientNumber: number;
   ClientEmail: string;
-  ClientPhone: number;
-  Active: boolean;
-  Address_City: string;
-  Address_Street: string;
-  Address_Zip: string;
-  Address_State: string;
-  Contacts: {
-    [key: string]: Contact;
-  };
-  Site_Street: string;
-  Site_City: string;
-  Site_State: string;
-  Site_Zip: string;
+  ClientCell: number;
+  ClientTel2: number;
+  JobSite: string;
+  Contact: string;
+  ContactCell: number;
+  ContactTel2: number;
+  ContactEmail: string;
+  BillingAddress: string;
   // Add more fields as needed
 }
 

@@ -44,15 +44,19 @@ export default function ClientUploader(route, navigation) {
 
   // Define the mapping between field names and data types
   const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
-    Address_Zip: "number",
-    Active: "boolean",
-    Address_City: "string",
-    Address_Street: "string",
-    ClientNumber: "number",
-    ClientPhone: "number",
-    ClientEmail: "string",
+    CustomerNum: "number",
+    CustomerName: "string",
+    JobStatus: "string",
     ClientName: "string",
-
+    ClientEmail: "string",
+    ClientCell: "number",
+    ClientTel2: "number",
+    JobSite: "string",
+    Contact: "string",
+    ContactCell: "number",
+    ContactTel2: "number",
+    ContactEmail: "string",
+    BillingAddress: "string",
     // Add more fields here as needed
   };
 
@@ -146,6 +150,7 @@ export default function ClientUploader(route, navigation) {
     const db = firebase.firestore();
 
     for (const client of clientsData) {
+      console.log(`Client: ${client}`);
       const clientNumber = String(client[0]); // Ensure client number is a string
       console.log(`Uploading client number: ${clientNumber}`);
       const docRef = db.collection("clients").doc(clientNumber);
