@@ -11,13 +11,18 @@ export default function Clientpage({ route, navigation }) {
   const [userInput, setUserInput] = useState<string>("");
   const { theme, updateTheme } = useTheme();
   const [visible, setVisible] = React.useState(true);
+  const placeholderText = "Search by Name, Customer #, or Address";
 
   return (
     <ThemeProvider theme={theme}>
       <View style={clientpageStyles.container}>
         {/* <Card.Divider /> */}
-        <SearchBar userInput={userInput} setUserInput={setUserInput} />
-        <Card.Divider />
+        <SearchBar
+          userInput={userInput}
+          setUserInput={setUserInput}
+          placeholderText={placeholderText}
+        />
+
         <View style={clientpageStyles.listContainer}>
           <ScrollView
             contentContainerStyle={clientpageStyles.scrollViewContent}
@@ -29,14 +34,6 @@ export default function Clientpage({ route, navigation }) {
             />
           </ScrollView>
         </View>
-
-        <FAB
-          visible={visible}
-          icon={{ name: "add", color: "white" }}
-          color="teal"
-          title={"Add"}
-          onPress={() => navigation.navigate("AddClient")}
-        />
       </View>
     </ThemeProvider>
   );

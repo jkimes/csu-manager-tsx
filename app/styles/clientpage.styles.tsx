@@ -7,6 +7,7 @@ export const clientpageStyles = StyleSheet.create({
     paddingTop: 0,
   },
   listContainer: {
+    backgroundColor: "white",
     flex: 1,
     paddingTop: 5,
   },

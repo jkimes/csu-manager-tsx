@@ -15,6 +15,7 @@ export default function Edit(props) {
 
   const handleEditField = async (id, field, value) => {
     try {
+      console.log(`Added value: ${value}`);
       const collectionRef = firebase.firestore().collection("clients").doc(id);
       await collectionRef.update({
         [field]: value,

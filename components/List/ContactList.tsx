@@ -30,9 +30,10 @@ import { Client } from "../../App";
 import {
   makePhoneCall,
   sendEmail,
-  handleFullAddress,
+  handleAddress,
   handlePhone,
   handleEmail,
+  handleName,
 } from "../helperFunctions";
 import EditContact from "../Buttons/EditContact";
 import Delete from "../Buttons/Delete";
@@ -94,7 +95,7 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
                         <Card.Title>Name</Card.Title>
                       </ListItem.Title>
                       <ListItem.Subtitle>
-                        <Text>{client.Contact}</Text>
+                        <Text>{handleName(client.Contact)}</Text>
                       </ListItem.Subtitle>
                     </View>
                   </ListItem.Content>
@@ -242,7 +243,7 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
                         <Card.Title>Billing Address</Card.Title>
                       </ListItem.Title>
                       <ListItem.Subtitle style={{ flex: 1, flexWrap: "wrap" }}>
-                        <Text>{client.BillingAddress}</Text>
+                        <Text>{handleAddress(client.BillingAddress)}</Text>
                       </ListItem.Subtitle>
                     </View>
                   </ListItem.Content>
@@ -270,13 +271,13 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
   // Renders Active or Inactive on the screen based on bool value
 
   //Formats the address based on if the value is assigned or not
-  const handleAddress = (street: string, city: string) => {
-    if (street?.trim() === '""') {
-      return "No address found";
-    } else {
-      return `${street}, ${city}`;
-    }
-  };
+  // const handleAddress = (street: string, city: string) => {
+  //   if (street?.trim() === '""') {
+  //     return "No address found";
+  //   } else {
+  //     return `${street}, ${city}`;
+  //   }
+  // };
 
   return (
     <ThemeProvider theme={theme}>

@@ -27,10 +27,15 @@ import {
   filterAllTypes,
 } from "./Filters"; // Import filtering functions
 import { DataContext } from "../DataContext";
-import { handleAddress, DisplayJobStatus } from "../helperFunctions";
+import {
+  handleAddress,
+  DisplayJobStatus,
+  handleName,
+} from "../helperFunctions";
 import DeleteClient from "../Buttons/DeleteClient";
 import { cardlistStyles } from "./styles/cardlist.styles";
 import { VendorsContext } from "../VendorsContext";
+import { Divider } from "@rneui/base";
 
 //initalizes firebase connection
 if (!firebase.apps.length) {
@@ -58,7 +63,7 @@ const VendorList = ({ navigation, route, searchText }) => {
   const data = useContext(VendorsContext);
   const [filteredData, setFilteredData] = useState(data);
   const collectionRef = firebase.firestore().collection("vendors");
-  const [filterState, setFilterState] = useState<string>("showAll");
+  const [filterState, setFilterState] = useState<string>("All Types");
 
   // Call renderCardList whenever data changes
   useEffect(() => {
@@ -107,17 +112,27 @@ const VendorList = ({ navigation, route, searchText }) => {
       // console.log("User Input: ", searchText);
       // Filter further based on search text
       newData = newData.filter((item) => {
-        const clientNumber = (item.ClientNumber || "").toString().toLowerCase();
-        const id = (item.ClientName || "").toString().toLowerCase();
-        const city = (item.Address_City || "").toString().toLowerCase();
-        const street = (item.Address_Street || "").toString().toLowerCase();
+        const VendorNum = (item.VendorNum || "").toString().toLowerCase();
+        const id = (item.Name || "").toString().toLowerCase();
+        const contact = (item.ContactName || "").toString().toLowerCase();
+        const city = (item.City || "").toString().toLowerCase();
+        const street = (item.StreetAddress || "").toString().toLowerCase();
+        const email = (item.Email || "").toString().toLowerCase();
+        const specialty = (item.Specialty || "").toString().toLowerCase();
+        const tel1 = (item.Tel1 || 0).toString().toLowerCase();
+        const tel2 = (item.Tel2 || 0).toString().toLowerCase();
 
         const search = searchText.toLowerCase();
         return (
-          clientNumber.includes(search) ||
+          VendorNum.includes(search) ||
           id.includes(search) ||
           city.includes(search) ||
-          street.includes(search)
+          street.includes(search) ||
+          contact.includes(search) ||
+          email.includes(search) ||
+          specialty.includes(search) ||
+          tel1.includes(search) ||
+          tel2.includes(search)
         );
       });
     }
@@ -141,7 +156,10 @@ const VendorList = ({ navigation, route, searchText }) => {
           {/* <View key={item.id} style={styles.contactBox}> */}
           <View style={cardlistStyles.contactBoxDetails}>
             <View>
-              <Text style={cardlistStyles.textStyleName}>{item.Name}</Text>
+              <Card.Title style={cardlistStyles.textStyleName}>
+                {handleName(item.Name)}
+              </Card.Title>
+              <Divider />
               <Text style={cardlistStyles.textStyle}>
                 Vendor #: {item.VendorNum}
               </Text>

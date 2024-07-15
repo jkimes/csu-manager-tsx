@@ -50,8 +50,9 @@ export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
     if (typeof number === "undefined") {
       return ""; // Or any default value you prefer
     }
-    // Convert the number to a string
-    let numStr = number.toString();
+
+    // Limit the number to 2 decimal places
+    let numStr = parseFloat(number).toFixed(2);
 
     // Split the number into integer and decimal parts, if any
     let parts = numStr.split(".");

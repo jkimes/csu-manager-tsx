@@ -3,7 +3,13 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ThemeProvider, createTheme, Button, Card } from "@rneui/themed";
+import {
+  ThemeProvider,
+  createTheme,
+  Button,
+  Card,
+  lightColors,
+} from "@rneui/themed";
 
 import Clientpage from "./app/clientpage";
 //import UpdateData from "./components/updateData";
@@ -16,6 +22,7 @@ import { DataContext } from "./components/DataContext";
 import { QuoteContext } from "./components/QuoteContext";
 import { WipContext } from "./components/WipContext";
 import AddClient from "./app/AddClient";
+import AddQuote from "./app/AddQuote";
 import { firebase, firebaseConfig } from "./config";
 import { VendorsContext } from "./components/VendorsContext";
 import VendorProfile from "./app/[vendor]";
@@ -78,6 +85,7 @@ export interface LineItem {
 }
 
 export interface Quote {
+  Label: string;
   id: string;
   ClientNumber: number;
   ClientName: string;
@@ -192,7 +200,8 @@ function HomeScreen({ navigation }) {
 const Stack = createNativeStackNavigator();
 const theme = createTheme({
   lightColors: {
-    primary: "teal",
+    primary: "orange",
+    secondary: "teal",
   },
   darkColors: {
     primary: "black",
@@ -363,7 +372,7 @@ export default function App() {
                 <Stack.Navigator
                   screenOptions={({ navigation }) => ({
                     headerStyle: {
-                      backgroundColor: "black", // Set header background color to black
+                      backgroundColor: theme.lightColors.secondary, // Set header background color to black
                     },
                     headerTintColor: "white",
                     headerRight: () => (
@@ -378,6 +387,7 @@ export default function App() {
                   <Stack.Screen name="Clients" component={Clientpage} />
                   <Stack.Screen name="Profile" component={SingleClient} />
                   <Stack.Screen name="AddClient" component={AddClient} />
+                  <Stack.Screen name="AddQuote" component={AddQuote} />
                   <Stack.Screen name="Vendors" component={Vendors} />
                   <Stack.Screen
                     name="VendorProfile"

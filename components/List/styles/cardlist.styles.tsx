@@ -2,6 +2,16 @@ import { StyleSheet } from "react-native";
 import { COLORS, SIZES } from "../../../constants";
 
 export const cardlistStyles = StyleSheet.create({
+  jobStatus: {
+    position: "absolute",
+    top: 15,
+    right: 10,
+    fontSize: 14,
+    fontWeight: "bold",
+    backgroundColor: "#fff",
+    padding: 5,
+    borderRadius: 5,
+  },
   listItemContainer: {
     flex: 1, // Ensure the container takes up all available space
     justifyContent: "center", // Center the ListItem vertically
@@ -14,6 +24,7 @@ export const cardlistStyles = StyleSheet.create({
     width: "100%", // Ensure the Card takes up the full width
   },
   buttonContainer: {
+    backgroundColor: "white",
     flexWrap: "wrap",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -60,10 +71,10 @@ export const cardlistStyles = StyleSheet.create({
   },
   textStyleName: {
     fontSize: 15,
+    fontWeight: "bold",
   },
   textClientNum: {
     fontSize: 15,
-    fontWeight: "bold",
   },
   textStyle: {
     fontSize: 15,

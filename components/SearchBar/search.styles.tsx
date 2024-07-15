@@ -5,6 +5,8 @@ export const searchstyles = StyleSheet.create({
     flexDirection: "row",
     padding: 5,
     backgroundColor: "white",
+    borderColor: "black",
+    borderWidth: 2,
   },
 
   SearchBar: {

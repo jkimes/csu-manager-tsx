@@ -99,44 +99,42 @@ const CardList = ({ navigation, route, searchText }) => {
       <ListItem.Swipeable
         key={item.id}
         leftContent={(action) => (
-          <View>
-            <Text>{item.id}</Text>
+          <View style={{ alignItems: "center" }}>
             <DeleteClient id={item.id} />
           </View>
         )}
         style={cardlistStyles.listItem}
       >
         <Card key={item.id} containerStyle={cardlistStyles.card}>
-          {/* <View key={item.id} style={styles.contactBox}> */}
-          <View style={cardlistStyles.contactBoxDetails}>
-            <View>
-              <Text style={cardlistStyles.textStyleName}>
-                {item.CustomerName}
-              </Text>
-              <Text style={cardlistStyles.textStyle}>
-                Job Status: {item.JobStatus}
-              </Text>
-              <Text style={cardlistStyles.textClientNum}>
-                Client#: {item.CustomerNum}
-              </Text>
-
-              <Text style={cardlistStyles.textStyle}>
-                Job Site: {item.JobSite}
-              </Text>
+          <View style={{ position: "relative" }}>
+            <Text style={cardlistStyles.jobStatus}>
+              Job Status: {item.JobStatus}
+            </Text>
+            <View style={cardlistStyles.contactBoxDetails}>
+              <View>
+                <Text style={cardlistStyles.textStyleName}>
+                  {item.CustomerName}
+                </Text>
+                <Text style={cardlistStyles.textClientNum}>
+                  Client#: {item.CustomerNum}
+                </Text>
+                <Text style={cardlistStyles.textStyle}>
+                  Job Site: {handleAddress(item.JobSite)}
+                </Text>
+              </View>
             </View>
+            <Button
+              title="View Profile"
+              onPress={() => {
+                navigation.navigate("Profile", {
+                  ClientNumber: item.CustomerNum,
+                  ClientPhone: item.ClientCell,
+                  ClientEmail: item.ClientEmail,
+                  ClientName: item.CustomerName,
+                });
+              }}
+            />
           </View>
-          <Button
-            title="View Profile"
-            onPress={() => {
-              /* 1. Navigate to the Details route with params */
-              navigation.navigate("Profile", {
-                ClientNumber: item.CustomerNum,
-                ClientPhone: item.ClientCell,
-                ClientEmail: item.ClientEmail,
-                ClientName: item.CustomerName,
-              });
-            }}
-          />
         </Card>
       </ListItem.Swipeable>
     ));
@@ -144,7 +142,7 @@ const CardList = ({ navigation, route, searchText }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <View>
+      <View style={{ backgroundColor: "white" }}>
         <View style={cardlistStyles.buttonContainer}>
           <Button
             title="Show All"
@@ -165,7 +163,7 @@ const CardList = ({ navigation, route, searchText }) => {
             onPress={() => setFilterState("filterByInactive")}
           />
         </View>
-        <Card.Divider />
+        {/* <Card.Divider /> */}
         <ScrollView contentContainerStyle={cardlistStyles.listItemContainer}>
           {renderCardList(navigation)}
         </ScrollView>

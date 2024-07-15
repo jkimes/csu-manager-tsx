@@ -17,10 +17,13 @@ import { WipContext } from "../components/WipContext";
 import { DisplayJobStatus, handleAddress } from "../components/helperFunctions";
 import FinanceSummary from "../components/List/BottomSheet/FinanceSummary";
 
-function addCommasToNumber(number: number) {
-  // Convert the number to a string
-  console.log(`WIP add , to Num: ${number}`);
-  let numStr = number.toString();
+function addCommasToNumber(number) {
+  if (typeof number === "undefined") {
+    return ""; // Or any default value you prefer
+  }
+
+  // Limit the number to 2 decimal places
+  let numStr = parseFloat(number).toFixed(2);
 
   // Split the number into integer and decimal parts, if any
   let parts = numStr.split(".");
@@ -120,7 +123,7 @@ export default function WIP() {
                         </View>
 
                         <Text style={WipStyles.digits}>
-                          ${Number(item.quotedPrice)}
+                          ${addCommasToNumber(Number(item.quotedPrice))}
                         </Text>
                       </Card>
 
@@ -134,7 +137,7 @@ export default function WIP() {
 
                         <Text style={WipStyles.digits}>
                           {"$"}
-                          {item.CostToDate}
+                          {addCommasToNumber(item.CostToDate)}
                           {/* {console.log(`Cost To Date: ${item.CostToDate}`)} */}
                         </Text>
                       </Card>
@@ -147,7 +150,7 @@ export default function WIP() {
                         <Card.Divider />
                         <Text style={WipStyles.digits}>
                           {"$"}
-                          {item.paidToDate}
+                          {addCommasToNumber(item.paidToDate)}
                           {/*  */}
                         </Text>
                       </Card>

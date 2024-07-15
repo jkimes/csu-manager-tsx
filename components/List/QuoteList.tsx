@@ -128,7 +128,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
       return (
         <Card key={item.id} containerStyle={QuoteStyles.cardContainer}>
           <Card.FeaturedTitle style={{ color: "black" }}>
-            {item.ClientName}
+            {item.Label}
           </Card.FeaturedTitle>
           <Card.FeaturedSubtitle style={{ color: "black" }}>
             {" "}

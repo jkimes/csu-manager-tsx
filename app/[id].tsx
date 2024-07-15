@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Card, Button, Tab, TabView, ListItem, Icon } from "@rneui/themed";
+import { Card, Button, Tab, TabView, ListItem, Icon, FAB } from "@rneui/themed";
 
 // custom imports
 import Delete from "../components/Buttons/Delete";
@@ -26,12 +26,13 @@ import {
   handleAddress,
   handlePhone,
   handleEmail,
+  handleName,
 } from "../components/helperFunctions";
 import { idStyles } from "./styles/[id].styles";
 
 export default function SingleClient({ route, navigation }) {
   const data = useContext(DataContext);
-  const quotes = useContext(QuoteContext);
+  // const quotes = useContext(QuoteContext);
   const [activeTab, setActiveTab] = React.useState<number>(0); // State to manage the active tab
   const { ClientNumber, ClientEmail, ClientPhone, ClientName } = route.params;
   const client: Client = data.find((item) => item.CustomerNum === ClientNumber);
@@ -77,7 +78,7 @@ export default function SingleClient({ route, navigation }) {
                       <Card.Title>Client Name</Card.Title>
                     </ListItem.Title>
                     <ListItem.Subtitle>
-                      <Text>{client.ClientName}</Text>
+                      <Text>{handleName(client.ClientName)}</Text>
                     </ListItem.Subtitle>
                   </View>
                 </ListItem.Content>
@@ -427,7 +428,7 @@ export default function SingleClient({ route, navigation }) {
                       }}
                     >
                       <TouchableOpacity>
-                        <Text>{client.JobSite}</Text>
+                        <Text>{handleAddress(client.JobSite)}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -470,6 +471,18 @@ export default function SingleClient({ route, navigation }) {
           route={route}
           ClientNumber={client.CustomerNum}
         ></QuoteList>
+
+        <FAB
+          visible={true}
+          icon={{ name: "add", color: "white" }}
+          color="orange"
+          title={"Add"}
+          onPress={() =>
+            navigation.navigate("AddQuote", {
+              ClientNumber: client.CustomerNum,
+            })
+          }
+        />
 
         {/* Add any additional content for Tab 2 */}
       </View>

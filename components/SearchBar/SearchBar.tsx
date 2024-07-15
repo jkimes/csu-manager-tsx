@@ -9,7 +9,7 @@ import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import { searchstyles } from "./search.styles";
 
-const SearchBar = ({ userInput, setUserInput }) => {
+const SearchBar = ({ userInput, setUserInput, placeholderText }) => {
   const handleSearchInputChange = (text) => {
     setUserInput(text);
   };
@@ -25,7 +25,7 @@ const SearchBar = ({ userInput, setUserInput }) => {
       <TextInput
         style={searchstyles.SearchBar}
         placeholderTextColor="black"
-        placeholder="Search Client #, Name , or Address(Street/City)"
+        placeholder={placeholderText}
         value={userInput}
         onChangeText={handleSearchInputChange}
       />

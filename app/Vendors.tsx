@@ -8,12 +8,17 @@ import { ThemeProvider, useTheme, Card, Button, FAB } from "@rneui/themed";
 export default function Vendors({ route, navigation }) {
   const [userInput, setUserInput] = useState<string>("");
   const { theme, updateTheme } = useTheme();
+  const placeholderText = "Search by Name, Vendor #, Specialty, or Address";
 
   return (
     <ThemeProvider theme={theme}>
       <View>
         <Text>VendorPage</Text>
-        <SearchBar userInput={userInput} setUserInput={setUserInput} />
+        <SearchBar
+          userInput={userInput}
+          setUserInput={setUserInput}
+          placeholderText={placeholderText}
+        />
         <ScrollView contentContainerStyle={VendorPageStyles.scrollViewContent}>
           <VendorList
             navigation={navigation}

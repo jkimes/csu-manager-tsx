@@ -8,11 +8,11 @@ export function DisplayJobStatus(bool: boolean) {
   return bool ? "Active" : "Inactive";
 }
 
-export const handleAddress = (street: string, city: string) => {
-  if (street?.trim() === '""') {
+export const handleAddress = (address: string) => {
+  if (address?.trim() === "" || address === null) {
     return "No address found";
   } else {
-    return `${street}, ${city}`;
+    return `${address}`;
   }
 };
 
@@ -27,6 +27,14 @@ export const handleFullAddress = (
     return `${street}, ${city} FL ${zip} `;
   }
 };
+
+export function handleName(name: string) {
+  if (name?.trim() === "" || name === null) {
+    return "No Name found";
+  } else {
+    return name;
+  }
+}
 
 // renders the email if it is not null **slight issue when i delete email from contact Info it does not return No email found**
 export const handleEmail = (email: string) => {
