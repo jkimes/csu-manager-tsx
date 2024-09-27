@@ -20,7 +20,7 @@ import { ThemeProvider, useTheme, Card, Button, ListItem } from "@rneui/themed";
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
 import {
-  filterByProffessional,
+  filterByProfessional,
   filterBySubcontractors,
   filterByMaterials,
   filterByEquipment,
@@ -90,8 +90,8 @@ const VendorList = ({ navigation, route, searchText }) => {
       case "Subcontractors":
         newData = await filterBySubcontractors(data);
         break;
-      case "Proffessional":
-        newData = await filterByProffessional(data);
+      case "Professional":
+        newData = await filterByProfessional(data);
         break;
       case "Materials":
         newData = await filterByMaterials(data);
@@ -209,9 +209,9 @@ const VendorList = ({ navigation, route, searchText }) => {
           />
 
           <Button
-            title="Proffessional"
+            title="Professional"
             onPress={() => {
-              setFilterState("Proffessional");
+              setFilterState("Professional");
             }}
           />
 

@@ -24,6 +24,9 @@ const SelectDB: React.FC<{ route: any; navigation: any }> = ({
   const navigateToVendorUpload = () => {
     navigation.navigate("Vendor Upload");
   };
+  const navigateToPaymentUpload = () => {
+    navigation.navigate("Payment Upload");
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -37,6 +40,7 @@ const SelectDB: React.FC<{ route: any; navigation: any }> = ({
             <Button title="Wip" onPress={navigateToWipUpload} />
             <Button title="Clients" onPress={navigateToClientUpload} />
             <Button title="Vendors" onPress={navigateToVendorUpload} />
+            <Button title="Customer Payments" onPress={navigateToPaymentUpload} />
           </ScrollView>
         </View>
       </View>

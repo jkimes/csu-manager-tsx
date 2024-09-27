@@ -18,7 +18,7 @@ export const filterBySubcontractors = async (collectionRef: any) => {
   return collectionRef.filter((item) => item.Type === "S");
 };
 
-export const filterByProffessional = async (collectionRef: any) => {
+export const filterByProfessional = async (collectionRef: any) => {
   return collectionRef.filter((item) => item.Type === "P");
 };
 

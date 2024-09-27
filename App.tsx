@@ -7,9 +7,12 @@ import {
   ThemeProvider,
   createTheme,
   Button,
+  Icon,
   Card,
   lightColors,
 } from "@rneui/themed";
+import { Timestamp } from "firebase/firestore";
+
 
 import Clientpage from "./app/clientpage";
 //import UpdateData from "./components/updateData";
@@ -21,6 +24,7 @@ import Vendors from "./app/Vendors";
 import { DataContext } from "./components/DataContext";
 import { QuoteContext } from "./components/QuoteContext";
 import { WipContext } from "./components/WipContext";
+import { PaymentContext } from "./components/PaymentContext";
 import AddClient from "./app/AddClient";
 import AddQuote from "./app/AddQuote";
 import { firebase, firebaseConfig } from "./config";
@@ -29,6 +33,7 @@ import VendorProfile from "./app/[vendor]";
 import selectDB from "./app/selectDB";
 import VendorUploader from "./components/VendorUploader";
 import WipUploader from "./components/WipUploader";
+import PaymentUploader from "./components/PaymentUploader";
 
 // Define your types and interfaces
 export interface Vendor {
@@ -96,6 +101,18 @@ export interface Quote {
   lineItems: LineItem[];
   IssueDate: string;
   ExpireDate: string;
+}
+
+export interface Payment {
+  id: string;
+  Bank: string;
+  CkNumber: number;
+  Customer: string;
+  CustomerNum: number;
+  Date: Timestamp;
+  PmtAmount: number;
+  PmtMethod: string;
+  // Add more fields as needed
 }
 
 if (!firebase.apps.length) {
@@ -200,8 +217,8 @@ function HomeScreen({ navigation }) {
 const Stack = createNativeStackNavigator();
 const theme = createTheme({
   lightColors: {
-    primary: "orange",
-    secondary: "teal",
+    primary: "black",
+    secondary: "black",
   },
   darkColors: {
     primary: "black",
@@ -225,21 +242,25 @@ const theme = createTheme({
   },
 });
 export default function App() {
-  const [vendors, setVendors] = useState<any[]>([]);
-  const [data, setData] = useState<any[]>([]);
-  const [quotes, setQuotes] = useState<any[]>([]);
-  const [filteredData, setFilteredData] = useState<any[]>([]);
-  const [wip, setWip] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [data, setData] = useState<Client[]>([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [filteredData, setFilteredData] = useState<Client[]>([]);
+  const [wip, setWip] = useState<Client[]>([]);
   const collectionRef = firebase.firestore().collection("clients");
   const quotesRef = firebase.firestore().collection("Quotes");
   const vendorsRef = firebase.firestore().collection("vendors");
   const wipRef = firebase.firestore().collection("wip");
+  const paymentRef = firebase.firestore().collection("CustomerPayments");
 
   useEffect(() => {
     // Fetch initial data when component mounts
     fetchData();
     fetchQuotes();
     fetchWip();
+    fetchPayments();
+   
 
     // Set up Firestore listener for clients collection
     const unsubscribeWip = wipRef.orderBy("name").onSnapshot((snapshot) => {
@@ -257,6 +278,17 @@ export default function App() {
         ...doc.data(),
       }));
       setVendors(newData);
+    });
+     // Set up Firestore listener for vendors collection
+     const unsubscribePayments = paymentRef
+     .orderBy("CustomerNum")
+     .orderBy("Date", "desc")
+     .onSnapshot((snapshot) => {
+      const newData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPayments(newData);
     });
 
     // Set up Firestore listener for clients collection
@@ -302,8 +334,22 @@ export default function App() {
       unsubscribeQuotes();
       unsubscribeWip();
       unsubscribeVendors();
+      unsubscribePayments();
     };
   }, []);
+
+  const fetchPayments = async () => {
+    const snapshot = await paymentRef.get();
+    if (snapshot.empty) {
+      console.log("No matching results!");
+    } else {
+      const newData: DocumentData<Payment>[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Payment),
+      }));
+      setPayments(newData); // Update state with fetched data
+    }
+  };
 
   const fetchWip = async () => {
     const snapshot = await wipRef.get();
@@ -364,6 +410,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <PaymentContext.Provider value={payments}>
       <VendorsContext.Provider value={vendors}>
         <DataContext.Provider value={data}>
           <QuoteContext.Provider value={quotes}>
@@ -378,7 +425,16 @@ export default function App() {
                     headerRight: () => (
                       <Button
                         onPress={() => navigation.navigate("Home")}
-                        title="Home"
+                        icon={
+                          <Icon
+                            name="home"  // Name of the icon
+                            type="font-awesome"  // Icon type (using FontAwesome in this case)
+                            size={28}  // Size of the icon
+                            color="white"  // Color of the icon
+                            style={{ }}  // Adds spacing between icon and text marginRight: 10, height: 75 
+                          />
+                        }
+                        iconPosition="left"  // Icon appears to the left of the title
                       />
                     ),
                   })}
@@ -403,6 +459,7 @@ export default function App() {
                     component={VendorUploader}
                   />
                   <Stack.Screen name="Wip Upload" component={WipUploader} />
+                  <Stack.Screen name="Payment Upload" component={PaymentUploader} />
                   <Stack.Screen name="SelectDB" component={selectDB} />
                 </Stack.Navigator>
               </NavigationContainer>
@@ -410,6 +467,7 @@ export default function App() {
           </QuoteContext.Provider>
         </DataContext.Provider>
       </VendorsContext.Provider>
+      </PaymentContext.Provider>
     </ThemeProvider>
   );
 }

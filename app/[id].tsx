@@ -14,11 +14,9 @@ import { Card, Button, Tab, TabView, ListItem, Icon, FAB } from "@rneui/themed";
 import Delete from "../components/Buttons/Delete";
 import Edit from "../components/Buttons/Edit";
 import QuoteList from "../components/List/QuoteList";
-import ContactList from "../components/List/ContactList";
 import { Client, LineItem } from "../App";
 import { DataContext } from "../components/DataContext";
-import { QuoteContext } from "../components/QuoteContext";
-import { CardDivider } from "@rneui/base/dist/Card/Card.Divider";
+import Payments from "../components/List/Payments"
 import {
   makePhoneCall,
   sendEmail,
@@ -363,61 +361,6 @@ export default function SingleClient({ route, navigation }) {
                       style={[idStyles.cardTitle, { marginRight: 10 }]}
                     >
                       <Card.Title style={idStyles.cardTitle}>
-                        Phone 2
-                      </Card.Title>
-                    </ListItem.Title>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignContent: "space-between",
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => makePhoneCall(client.ClientTel2)}
-                      >
-                        <Text>{handlePhone(client.ClientTel2)}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </ListItem.Content>
-              </>
-            }
-            isExpanded={expandedIndex === 7}
-            onPress={() => {
-              setExpandedIndex(expandedIndex === 7 ? null : 7);
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Edit
-                id={String(client.CustomerNum)}
-                field={"ClientCell2"}
-                collection="clients"
-              />
-              <Delete
-                id={String(client.CustomerNum)}
-                field={"ClientCell2"}
-                collection="clients"
-              />
-            </View>
-          </ListItem.Accordion>
-
-          <Card.Divider></Card.Divider>
-
-          <ListItem.Accordion
-            content={
-              <>
-                {/* <Icon name="place" size={30} /> */}
-                <ListItem.Content>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <ListItem.Title
-                      style={[idStyles.cardTitle, { marginRight: 10 }]}
-                    >
-                      <Card.Title style={idStyles.cardTitle}>
                         Job Site {}
                       </Card.Title>
                     </ListItem.Title>
@@ -435,9 +378,9 @@ export default function SingleClient({ route, navigation }) {
                 </ListItem.Content>
               </>
             }
-            isExpanded={expandedIndex === 8}
+            isExpanded={expandedIndex === 7}
             onPress={() => {
-              setExpandedIndex(expandedIndex === 8 ? null : 8);
+              setExpandedIndex(expandedIndex === 7 ? null : 7);
             }}
           >
             <View style={{ flexDirection: "row" }}>
@@ -453,8 +396,148 @@ export default function SingleClient({ route, navigation }) {
               />
             </View>
           </ListItem.Accordion>
-
           <Card.Divider></Card.Divider>
+          <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Contact Name</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <Text>{handleName(client.Contact)}</Text>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 8}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 8 ? null : 8);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"name"} />
+                <Delete id={client.CustomerNum} field={"Contact"} />
+              </View>
+            </ListItem.Accordion>
+
+            <Card.Divider />
+
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Contact Email</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <TouchableOpacity
+                          onPress={() => sendEmail(client?.ContactEmail)}
+                        >
+                          <Text>{handleEmail(client?.ContactEmail)}</Text>
+                        </TouchableOpacity>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 9}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 9 ? null : 9);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"ContactEmail"} />
+                <Delete id={client.CustomerNum} field={"ContactEmail"} />
+              </View>
+            </ListItem.Accordion>
+
+            <Card.Divider />
+
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Contact Phone</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <TouchableOpacity
+                          onPress={() => makePhoneCall(client?.ContactCell)}
+                        >
+                          <Text>{handlePhone(client?.ContactCell)}</Text>
+                        </TouchableOpacity>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 10}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 10 ? null : 10);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"ContactCell"} />
+                <Delete id={client.CustomerNum} field={"ContactCell"} />
+              </View>
+            </ListItem.Accordion>
+
+            <Card.Divider />
+
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Billing Address</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle style={{ flex: 1, flexWrap: "wrap" }}>
+                        <Text>{handleAddress(client.BillingAddress)}</Text>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 11}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 11 ? null : 11);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"BillingAddress"} />
+                <Delete id={client.CustomerNum} field={"BillingAddress"} />
+              </View>
+            </ListItem.Accordion>
         </ScrollView>
       </View>
     ),
@@ -489,11 +572,13 @@ export default function SingleClient({ route, navigation }) {
     ),
     2: (
       <View>
-        <ContactList
-          ClientNumber={client.CustomerNum}
-          navigation={navigation}
-          route={route}
-        ></ContactList>
+         <Card.Title style={idStyles.cardTitle}>
+            <Text>Last Payment</Text>
+          </Card.Title>
+          <Payments navigation={navigation} route={route} clientNumber={client.CustomerNum}/> 
+
+          
+        
       </View>
     ),
   };
@@ -503,7 +588,7 @@ export default function SingleClient({ route, navigation }) {
       <Tab value={activeTab} onChange={setActiveTab} dense>
         <Tab.Item>Client info</Tab.Item>
         <Tab.Item>Quotes</Tab.Item>
-        <Tab.Item>Contact Info</Tab.Item>
+        <Tab.Item>Payment Info  </Tab.Item>
       </Tab>
 
       {/* Container for tabs with custom styles */}

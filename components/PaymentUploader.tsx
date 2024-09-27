@@ -5,7 +5,7 @@ import {
   Button,
   FlatList,
   StyleSheet,
-  ScrollView,ActivityIndicator, Alert
+  ScrollView, ActivityIndicator, Alert
 } from "react-native";
 import { readAsStringAsync } from "expo-file-system";
 import * as FileSystem from "expo-file-system";
@@ -15,57 +15,94 @@ import { Table, Row, Rows } from "react-native-table-component";
 import Papa from "papaparse";
 
 const convertDataType = (
-  value: string,
-  type: "string" | "number" | "boolean"
-): any => {
-  //console.log(`Converting value: '${value}' to type: ${type}`);
-
-  if (value === "") {
+    value: any,
+    type: "string" | "number" | "boolean" | "Timestamp"
+  ): any => {
+    if (value === "") {
+      switch (type) {
+        case "number":
+          return 0;
+        case "boolean":
+          return false;
+        case "Timestamp":
+          return null; // Return null for empty Timestamp
+        default:
+          return "";
+      }
+    }
+  
+    // Check if the value is already a Firebase Timestamp
+    if (type === "Timestamp" && value instanceof firebase.firestore.Timestamp) {
+      return value; // Return the Timestamp as is
+    }
+  
     switch (type) {
       case "number":
-        return 0; // Default value for number type
+        const num = parseFloat(value.replace(/,/g, "").trim());
+        return isNaN(num) ? 0 : num;
       case "boolean":
-        return false; // Default value for boolean type
+        return value.toLowerCase().trim() === "true";
+      case "Timestamp":
+        // Check if the value is a string and parse the date
+        if (typeof value === "string") {
+          console.log("Converting from string to date");
+          const dateParts = value.split("/");
+          if (dateParts.length === 3) {
+            const month = parseInt(dateParts[0], 10) - 1; // Months are 0-indexed
+            const day = parseInt(dateParts[1], 10);
+            const year = parseInt(dateParts[2], 10);
+  
+            // Create a valid Date object
+            const parsedDate = new Date(year, month, day);
+            // console.log("ParseDate.getTime: " + !isNaN(parsedDate.getTime()));
+
+            if (!isNaN(parsedDate.getTime())) {
+                console.log("Date is valid")
+                console.log("Firebase Formate date: "+ firebase.firestore.Timestamp.fromDate(parsedDate) )
+              return firebase.firestore.Timestamp.fromDate(parsedDate); // Convert to Firebase Timestamp
+            } else {
+              console.error(`Invalid date1: ${value}`);
+              return null; // Return null for invalid dates
+            }
+          } else {
+            console.error(`Invalid date format2: ${value}`);
+            return null;
+          }
+        } else {
+          console.error(`Unexpected value type for Timestamp: ${typeof value}`);
+          return null;
+        }
       default:
-        return ""; // Default value for string type
+        return value.trim();
     }
-  }
+  };
+  
+  
+  
+  
+  
 
-  switch (type) {
-    case "number":
-      // Remove commas for number parsing
-      const num = parseFloat(value.replace(/,/g, "").trim());
-      //console.log(`Parsed number: ${num}`);
-      return isNaN(num) ? 0 : num;
-    case "boolean":
-      return value.toLowerCase().trim() === "true";
-    default:
-      return value.trim();
-  }
-};
-
-export default function WipUploader({ route, navigation }) {
-  const [csvData, setCsvData] = useState<any[][]>([]);
+export default function PaymentUploader({ route, navigation }) {
+  const [csvData, setCsvData] = useState<string[][]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [tableData, setTableData] = useState<any[][]>([]);
+  const [tableData, setTableData] = useState<string[][]>([]);
   const [tableHead, setTableHead] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [missingHeaders, setMissingHeaders] = useState<string[]>([]);
 
   // Define the mapping between field names and data types
-  const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
-    clientNumber: "number",
-    name: "string",
-    quotedPrice: "number",
-    CostToDate: "number",
-    costToComplete: "number",
-    initalCosts: "number",
-    AdditionalCost: "number",
-    paidToDate: "number",
+  const fieldTypes: { [key: string]: "string" | "number" | "boolean"| "Timestamp" } = {
+    Bank: "string",
+    CkNumber: "number",
+    Customer: "string",
+    CustomerNum: "number",
+    Date: "Timestamp",
+    PmtAmount: "number",
+    PmtMethod: "string",
+    
     // Add more fields here as needed
   };
   const selectFile = async () => {
-    setUploadStatus("");
     try {
       const file = await DocumentPicker.getDocumentAsync({
         type: "text/csv",
@@ -90,7 +127,7 @@ export default function WipUploader({ route, navigation }) {
             setTableHead(data[0]);
             const headers = data[0];
 
-             // Check for missing headers
+            // Check for missing headers
           const missing = Object.keys(fieldTypes).filter(
             (header) => !headers.includes(header)
           );
@@ -123,7 +160,9 @@ export default function WipUploader({ route, navigation }) {
                         `Value is undefined for header: ${header}, at row: ${rowIndex}, col: ${colIndex}`
                       );
                     }
-                    return convertDataType(String(value), type);
+                    var val = convertDataType(String(value), type);
+                    console.log("Converted Value: " + typeof val)
+                    return val;
                   })
             );
 
@@ -164,15 +203,14 @@ export default function WipUploader({ route, navigation }) {
 
   const updateFirebase = async (data: string[][]) => {
     if (data.length === 0) {
-      console.warn("No CSV data to upload.");
-      return;
+        console.warn("No CSV data to upload.");
+        return;
     }
-  
+
     const batchSize = 500; // Firestore's max batch size
-  
     let headerRow = data[0];
     let clientsData = data.slice(1);
-  
+
     // Remove columns where the header is empty or undefined
     headerRow = headerRow.filter((header, index) => {
       if (header == null || header === "") {
@@ -183,92 +221,85 @@ export default function WipUploader({ route, navigation }) {
       }
       return true;
     });
-  
+
     const db = firebase.firestore();
-  
+
     // Function to process a batch of data with retry logic
     const processBatch = async (batchData: string[][], attempt: number = 1) => {
-      const batch = db.batch();
-  
-      for (const client of batchData) {
-        const clientNumber = String(client[0]); // Ensure client number is a string
-        const docRef = db.collection("wip").doc(clientNumber);
-        const doc = await docRef.get();
-  
-        const cleanData = (data: { [key: string]: any }) => {
-          const cleaned: { [key: string]: any } = {};
-          Object.keys(data).forEach((key) => {
-            if (data[key] !== undefined && data[key] !== null) {
-              cleaned[key] = data[key];
+        const batch = db.batch();
+
+        for (const client of batchData) {
+            const newData: { [key: string]: any } = {};
+
+            headerRow.forEach((field, index) => {
+                const value = client[index];
+                newData[field] = value; // Directly assign the value without conversion
+            });
+
+            // Add the operation to the batch with autogenerated ID
+            if (Object.keys(newData).length > 0) {
+                const docRef = db.collection("CustomerPayments").doc(); // Generate a new document reference with auto ID
+                batch.set(docRef, newData); // Set data to the autogenerated ID
             }
-          });
-          return cleaned;
-        };
-  
-        const newData: { [key: string]: any } = {};
-        headerRow.forEach((field, index) => {
-          if (field != null && field != undefined) {
-            const value = client[index];
-            newData[field] = convertDataType(String(value), fieldTypes[field] || "string");
-          }
-        });
-  
-        if (Object.keys(newData).length > 0) {
-          if (doc.exists) {
-            console.log(`Document exists! Updating document for client number ${clientNumber}`);
-            batch.update(docRef, cleanData(newData));
-          } else {
-            console.log(`Document does not exist! Creating new document for client number ${clientNumber}`);
-            batch.set(docRef, cleanData(newData));
-          }
         }
-      }
-  
-      try {
-        // Commit the batch
-        await batch.commit();
-      } catch (error) {
-        if (attempt < 3) {
-          console.warn(`Batch failed, retrying attempt ${attempt}...`);
-          await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
-          await processBatch(batchData, attempt + 1);
-        } else {
-          console.error("Failed to commit batch after multiple attempts:", error);
-          throw error;
+
+        try {
+            // Commit the batch
+            await batch.commit();
+        } catch (error) {
+            if (attempt < 3) {
+                console.warn(`Batch failed, retrying attempt ${attempt}...`);
+                await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
+                await processBatch(batchData, attempt + 1);
+            } else {
+                console.error("Failed to commit batch after multiple attempts:", error);
+                throw error;
+            }
         }
-      }
     };
-  
+
     try {
-      // Process data in batches
-      for (let i = 0; i < clientsData.length; i += batchSize) {
-        const batchData = clientsData.slice(i, i + batchSize);
-        await processBatch(batchData);
-        console.log(`Processed batch ${Math.floor(i / batchSize) + 1}`);
-      }
-  
-      console.log("Firebase database updated successfully!");
+        // Process data in batches
+        for (let i = 0; i < clientsData.length; i += batchSize) {
+            const batchData = clientsData.slice(i, i + batchSize);
+            await processBatch(batchData);
+            console.log(`Processed batch ${Math.floor(i / batchSize) + 1}`);
+        }
+
+        console.log("Firebase database updated successfully!");
     } catch (error) {
-      console.error("Error updating Firebase database:", error);
-      throw error;
+        console.error("Error updating Firebase database:", error);
+        throw error;
     }
-  };
+};
+
   
   
-  const renderItem = ({ item }: { item: string[] }) => (
+  
+
+  const renderItem = ({ item }: { item: any[] }) => (
     <View style={styles.row}>
       {item.map((value, idx) => (
         <View key={idx} style={styles.cell}>
-          <Text style={styles.cellText}>{value}</Text>
+          <Text style={styles.cellText}>
+            {
+              // Check if the value is a Firebase Timestamp object
+              value && value.seconds && value.nanoseconds
+                ? "" // Convert Timestamp to readable date
+                : String(value) // Convert all other types to string
+            }
+          </Text>
         </View>
       ))}
     </View>
   );
-  console.log(`Style type: ${typeof styles.cellText}`); // Log the type of styles.cellText
+  
+
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <Button title="Select File" onPress={selectFile} />
       <Button title="Upload CSV" onPress={handleUpload} />
+
       {loading ? (
   <ActivityIndicator size="large" color="#0000ff" />
 ) : uploadStatus === "Success" ? (
@@ -280,7 +311,6 @@ export default function WipUploader({ route, navigation }) {
       <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
         CSV Data:
       </Text>
-
       <ScrollView horizontal>
         <ScrollView>
         <View>
@@ -291,7 +321,19 @@ export default function WipUploader({ route, navigation }) {
                 style={styles.head}
                 textStyle={styles.text}
               />
-              <Rows data={tableData} textStyle={styles.text} />
+              <Rows
+  data={tableData.map((row) =>
+    row.map((value) => {
+      // If the value is a Firebase Timestamp, format it to a readable date or leave it blank
+      if (value && value.seconds && value.nanoseconds) {
+        return ""; // Leave blank for now, or you can format it as needed
+      }
+      return String(value); // Convert all other values to string
+    })
+  )}
+  textStyle={styles.text}
+/>
+
             </Table>
           )}
         </View>

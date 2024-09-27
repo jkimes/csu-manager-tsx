@@ -92,7 +92,7 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
                       }}
                     >
                       <ListItem.Title style={[{ marginRight: 10 }]}>
-                        <Card.Title>Name</Card.Title>
+                        <Card.Title>Contact Name</Card.Title>
                       </ListItem.Title>
                       <ListItem.Subtitle>
                         <Text>{handleName(client.Contact)}</Text>
@@ -164,7 +164,7 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
                       }}
                     >
                       <ListItem.Title style={[{ marginRight: 10 }]}>
-                        <Card.Title>Phone</Card.Title>
+                        <Card.Title>Contact Phone</Card.Title>
                       </ListItem.Title>
                       <ListItem.Subtitle>
                         <TouchableOpacity
@@ -185,44 +185,6 @@ const ContactList = ({ navigation, route, ClientNumber }) => {
               <View style={{ flexDirection: "row" }}>
                 <Edit id={client.CustomerNum} field={"ContactCell"} />
                 <Delete id={client.CustomerNum} field={"ContactCell"} />
-              </View>
-            </ListItem.Accordion>
-
-            <Card.Divider />
-
-            <ListItem.Accordion
-              content={
-                <>
-                  {/* <Icon name="place" size={30} /> */}
-                  <ListItem.Content>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <ListItem.Title style={[{ marginRight: 10 }]}>
-                        <Card.Title>Phone 2</Card.Title>
-                      </ListItem.Title>
-                      <ListItem.Subtitle>
-                        <TouchableOpacity
-                          onPress={() => makePhoneCall(client?.ContactTel2)}
-                        >
-                          <Text>{handlePhone(client?.ContactTel2)}</Text>
-                        </TouchableOpacity>
-                      </ListItem.Subtitle>
-                    </View>
-                  </ListItem.Content>
-                </>
-              }
-              isExpanded={expandedIndex === 2}
-              onPress={() => {
-                setExpandedIndex(expandedIndex === 2 ? null : 2);
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Edit id={client.CustomerNum} field={"ContactTel2"} />
-                <Delete id={client.CustomerNum} field={"ContactTel2"} />
               </View>
             </ListItem.Accordion>
 
