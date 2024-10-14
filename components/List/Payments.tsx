@@ -82,7 +82,7 @@ const Payments = ({ navigation, route, clientNumber }) => {
   const data = useContext(PaymentContext);
   //console.log("MY PAYMENT Data context" + JSON.stringify(data ));
   const [filteredData, setFilteredData] = useState(data);
-  const collectionRef = firebase.firestore().collection("CustomerPayments");
+  const collectionRef = firebase.firestore().collection("AR");
   const [filterState, setFilterState] = useState<string>("showAll");
 
 

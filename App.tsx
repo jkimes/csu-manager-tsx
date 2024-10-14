@@ -258,7 +258,7 @@ export default function App() {
   const quotesRef = firebase.firestore().collection("Quotes");
   const vendorsRef = firebase.firestore().collection("vendors");
   const wipRef = firebase.firestore().collection("wip");
-  const paymentRef = firebase.firestore().collection("CustomerPayments");
+  const paymentRef = firebase.firestore().collection("AR");
 
   useEffect(() => {
     // Fetch initial data when component mounts
