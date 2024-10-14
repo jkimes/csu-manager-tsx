@@ -48,17 +48,18 @@ export default function ClientUploader(route, navigation) {
   const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
     CustomerNum: "number",
     CustomerName: "string",
-    JobStatus: "string",
-    ClientName: "string",
-    ClientEmail: "string",
-    ClientCell: "number",
-    ClientTel2: "number",
-    JobSite: "string",
-    Contact: "string",
-    ContactCell: "number",
-    ContactTel2: "number",
-    ContactEmail: "string",
+    Active: "string",
     BillingAddress: "string",
+    JobSiteAddress: "string",
+    ContactName: "string",
+    CustomerEmail: "string",
+    ContactEmail: "string",
+    CustomerPhone: "number",
+    CustomerPhone2: "number",
+    ContactPhone: "string",
+    ContactPhone2: "number",
+    
+   
     // Add more fields here as needed
   };
 
@@ -100,8 +101,7 @@ export default function ClientUploader(route, navigation) {
             );
           }
 
-
-            // Convert data types based on fieldTypes
+          // Convert data types based on fieldTypes
             data = data.map((row, rowIndex) =>
               rowIndex === 0
                 ? row

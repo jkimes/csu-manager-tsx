@@ -198,10 +198,12 @@ const VendorList = ({ navigation, route, searchText }) => {
             title="All Types"
             onPress={() => {
               setFilterState("All Types");
+              
             }}
           />
 
           <Button
+          style={cardlistStyles.button}
             title="Subcontractors"
             onPress={() => {
               setFilterState("Subcontractors");
@@ -209,6 +211,7 @@ const VendorList = ({ navigation, route, searchText }) => {
           />
 
           <Button
+          style={cardlistStyles.button}
             title="Professional"
             onPress={() => {
               setFilterState("Professional");
@@ -216,6 +219,7 @@ const VendorList = ({ navigation, route, searchText }) => {
           />
 
           <Button
+          style={cardlistStyles.button}
             title="Materials"
             onPress={() => {
               setFilterState("Materials");
@@ -223,6 +227,7 @@ const VendorList = ({ navigation, route, searchText }) => {
           />
 
           <Button
+          style={cardlistStyles.button}
             title="Equipment"
             onPress={() => setFilterState("filterByInactive")}
           />

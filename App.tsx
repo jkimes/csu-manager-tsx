@@ -35,6 +35,12 @@ import VendorUploader from "./components/VendorUploader";
 import WipUploader from "./components/WipUploader";
 import PaymentUploader from "./components/PaymentUploader";
 
+// const firestore = firebase.firestore();
+// firestore.settings({
+//   cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+//   persistence: false, // Ensure no offline persistence if you're working in a real-time environment
+// }); 
+
 // Define your types and interfaces
 export interface Vendor {
   id: string;
@@ -260,6 +266,7 @@ export default function App() {
     fetchQuotes();
     fetchWip();
     fetchPayments();
+    
    
 
     // Set up Firestore listener for clients collection
@@ -301,6 +308,7 @@ export default function App() {
         }));
         setData(newData);
         setFilteredData(newData);
+        console.log("App.tsx Client Data: " + JSON.stringify(newData));
       });
 
     // Set up Firestore listener for quotes collection
@@ -335,6 +343,7 @@ export default function App() {
       unsubscribeWip();
       unsubscribeVendors();
       unsubscribePayments();
+      console.log("App.tsx Client Data2: " + JSON.stringify(data));
     };
   }, []);
 

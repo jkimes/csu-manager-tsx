@@ -27,13 +27,13 @@ export const cardlistStyles = StyleSheet.create({
     backgroundColor: "white",
     flexWrap: "wrap",
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     margin: 5,
   },
   button: {
-    padding: 10,
-    backgroundColor: COLORS.primary,
-    borderRadius: 5,
+    padding: 2,
+    // backgroundColor: COLORS.primary,
+    borderRadius: 1,
   },
   container: {
     backgroundColor: "black",

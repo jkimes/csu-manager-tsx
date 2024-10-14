@@ -20,7 +20,8 @@ import { Vendor, LineItem } from "../App";
 
 import { CardDivider } from "@rneui/base/dist/Card/Card.Divider";
 import {
-  makePhoneCall,
+  //makePhoneCall,
+  handlePhoneInteraction,
   sendEmail,
   DisplayJobStatus,
   handleAddress,
@@ -444,7 +445,7 @@ export default function VendorProfile({ route, navigation }) {
                       }}
                     >
                       <TouchableOpacity
-                        onPress={() => makePhoneCall(vendorItem.Tel1)}
+                        onPress={() => handlePhoneInteraction(vendorItem.Tel1)}
                       >
                         <Text>{handlePhone(vendorItem.Tel1)}</Text>
                       </TouchableOpacity>
@@ -491,7 +492,7 @@ export default function VendorProfile({ route, navigation }) {
                       }}
                     >
                       <TouchableOpacity
-                        onPress={() => makePhoneCall(vendorItem.Tel1)}
+                        onPress={() => handlePhoneInteraction(vendorItem.Tel1)}
                       >
                         <Text>{handlePhone(vendorItem.Tel2)}</Text>
                       </TouchableOpacity>
@@ -520,7 +521,7 @@ export default function VendorProfile({ route, navigation }) {
   return (
     <View>
       <Tab value={activeTab} onChange={setActiveTab} dense>
-        <Tab.Item>Client info</Tab.Item>
+        <Tab.Item>Vendor info</Tab.Item>
         <Tab.Item>Contact Info</Tab.Item>
       </Tab>
 
@@ -534,3 +535,5 @@ export default function VendorProfile({ route, navigation }) {
     </View>
   );
 }
+
+

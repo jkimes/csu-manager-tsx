@@ -39,7 +39,7 @@ const CardList = ({ navigation, route, searchText }) => {
   // Call renderCardList whenever data changes
   useEffect(() => {
     renderCardList(navigation);
-    // console.log("Card List Data context", { data });
+     console.log("Card List Data context", { data });
   }, [data]);
 
   // This effect will run whenever 'data' changes
@@ -107,17 +107,20 @@ const CardList = ({ navigation, route, searchText }) => {
       >
         <Card key={item.id} containerStyle={cardlistStyles.card}>
           <View style={{ position: "relative" }}>
-            <Text style={cardlistStyles.jobStatus}>
-              Job Status: {item.JobStatus}
-            </Text>
             <View style={cardlistStyles.contactBoxDetails}>
               <View>
                 <Text style={cardlistStyles.textStyleName}>
                   {item.CustomerName}
                 </Text>
+                <View style={{}}>
                 <Text style={cardlistStyles.textClientNum}>
                   Client#: {item.CustomerNum}
                 </Text>
+                <Text >
+                  Job Status: {item.JobStatus}
+                </Text>
+                </View>
+                
                 <Text style={cardlistStyles.textStyle}>
                   Job Site: {handleAddress(item.JobSite)}
                 </Text>

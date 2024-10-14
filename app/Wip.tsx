@@ -117,7 +117,7 @@ export default function WIP() {
                         <View style={WipStyles.TitleView}>
                           <Card.Title style={WipStyles.title}>
                             {" "}
-                            Quoted Price
+                            Quote Price
                           </Card.Title>
                           <Card.Divider />
                         </View>
@@ -131,7 +131,7 @@ export default function WIP() {
                       <Card containerStyle={WipStyles.priceCard}>
                         <Card.Title style={WipStyles.title}>
                           {" "}
-                          Expenses
+                          Cost to Date
                         </Card.Title>
                         <Card.Divider />
 
@@ -145,7 +145,7 @@ export default function WIP() {
                       {/* <Divider orientation="vertical" /> */}
                       <Card containerStyle={WipStyles.priceCard}>
                         <Card.Title style={WipStyles.title}>
-                          Paid To Date
+                          AR To Date
                         </Card.Title>
                         <Card.Divider />
                         <Text style={WipStyles.digits}>

@@ -73,12 +73,12 @@ export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
     >
       <View style={styles.bottomSheetContent}>
         <ListItem>
-          <ListItem.Title>Wip Summary: </ListItem.Title>
+          <ListItem.Title>Client Name: </ListItem.Title>
           <ListItem.Subtitle> {wipData?.name}</ListItem.Subtitle>
         </ListItem>
 
         <ListItem>
-          <ListItem.Title>Est Total Cost:</ListItem.Title>
+          <ListItem.Title>Cost to Date:</ListItem.Title>
           <ListItem.Subtitle>{"$" + addCommasToNumber(tc)}</ListItem.Subtitle>
         </ListItem>
 
@@ -94,17 +94,17 @@ export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
           <ListItem.Subtitle>{perComplete}%</ListItem.Subtitle>
         </ListItem>
 
-        <ListItem>
+        {/* <ListItem>
           <ListItem.Title>Gross Profit:</ListItem.Title>
           <ListItem.Subtitle>${addCommasToNumber(gProfit)}</ListItem.Subtitle>
-        </ListItem>
+        </ListItem> */}
 
-        <ListItem>
+        {/* <ListItem>
           <ListItem.Title>Future Gross Earnings:</ListItem.Title>
           <ListItem.Subtitle>
             ${addCommasToNumber(fgEarnings)}
           </ListItem.Subtitle>
-        </ListItem>
+        </ListItem> */}
       </View>
     </BottomSheet>
   );

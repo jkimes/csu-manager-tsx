@@ -345,6 +345,58 @@ export default function SingleClient({ route, navigation }) {
           </ListItem.Accordion>
 
           <Card.Divider></Card.Divider>
+          <ListItem.Accordion
+            content={
+              <>
+                {/* <Icon name="place" size={30} /> */}
+                <ListItem.Content>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <ListItem.Title
+                      style={[idStyles.cardTitle, { marginRight: 10 }]}
+                    >
+                      <Card.Title style={idStyles.cardTitle}>Phone 2</Card.Title>
+                    </ListItem.Title>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignContent: "space-between",
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => makePhoneCall(client.ClientTel2)}
+                      >
+                        <Text>{handlePhone(client.ClientTel2)}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </ListItem.Content>
+              </>
+            }
+            isExpanded={expandedIndex === 6}
+            onPress={() => {
+              setExpandedIndex(expandedIndex === 6 ? null : 6);
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Edit
+                id={String(client.CustomerNum)}
+                field={"ClientTel2"}
+                collection="clients"
+              />
+              <Delete
+                id={String(client.CustomerNum)}
+                field={"ClientTel2"}
+                collection="clients"
+              />
+            </View>
+          </ListItem.Accordion>
+
+          <Card.Divider></Card.Divider>
 
           <ListItem.Accordion
             content={
@@ -506,6 +558,43 @@ export default function SingleClient({ route, navigation }) {
             </ListItem.Accordion>
 
             <Card.Divider />
+            <ListItem.Accordion
+              content={
+                <>
+                  {/* <Icon name="place" size={30} /> */}
+                  <ListItem.Content>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItem.Title style={[{ marginRight: 10 }]}>
+                        <Card.Title>Contact Phone 2</Card.Title>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        <TouchableOpacity
+                          onPress={() => makePhoneCall(client?.ContactTel2)}
+                        >
+                          <Text>{handlePhone(client?.ContactTel2)}</Text>
+                        </TouchableOpacity>
+                      </ListItem.Subtitle>
+                    </View>
+                  </ListItem.Content>
+                </>
+              }
+              isExpanded={expandedIndex === 10}
+              onPress={() => {
+                setExpandedIndex(expandedIndex === 10 ? null : 10);
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Edit id={client.CustomerNum} field={"ContactTel2"} />
+                <Delete id={client.CustomerNum} field={"ContactTel2"} />
+              </View>
+            </ListItem.Accordion>
+
+            <Card.Divider />
 
             <ListItem.Accordion
               content={
@@ -587,7 +676,7 @@ export default function SingleClient({ route, navigation }) {
     <View>
       <Tab value={activeTab} onChange={setActiveTab} dense>
         <Tab.Item>Client info</Tab.Item>
-        <Tab.Item>Quotes</Tab.Item>
+        <Tab.Item>Quote/Docs</Tab.Item>
         <Tab.Item>Payment Info  </Tab.Item>
       </Tab>
 

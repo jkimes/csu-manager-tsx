@@ -149,9 +149,9 @@ const Payments = ({ navigation, route, clientNumber }) => {
             <Text style={cardlistStyles.textClientNum}>
                 Pmt Method: {item.PmtMethod}
             </Text>
-            <Text style={cardlistStyles.textStyle}>
+            {/* <Text style={cardlistStyles.textStyle}>
                 check#: {item.CkNumber}
-                </Text>
+                </Text> */}
             </View>
         </Card>
       

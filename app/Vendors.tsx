@@ -13,7 +13,7 @@ export default function Vendors({ route, navigation }) {
   return (
     <ThemeProvider theme={theme}>
       <View>
-        <Text>VendorPage</Text>
+        {/* <Text>VendorPage</Text> */}
         <SearchBar
           userInput={userInput}
           setUserInput={setUserInput}
