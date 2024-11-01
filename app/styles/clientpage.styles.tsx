@@ -9,7 +9,7 @@ export const clientpageStyles = StyleSheet.create({
   listContainer: {
     backgroundColor: "white",
     flex: 1,
-    paddingTop: 5,
+    padding: 5,
   },
   SearchBar: {
     borderWidth: 1,
@@ -20,4 +20,8 @@ export const clientpageStyles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
   },
+  buttonContainer:{
+    margin: 10,
+    
+  }
 });

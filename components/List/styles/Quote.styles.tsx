@@ -6,6 +6,7 @@ export const QuoteStyles = StyleSheet.create({
     width: "100%",
     marginBottom: 10,
     padding: 0,
+    marginHorizontal: 5
   },
   overlayCard: {
     marginBottom: 10,
@@ -48,7 +49,7 @@ export const QuoteStyles = StyleSheet.create({
   },
   button: {
     padding: 10,
-    backgroundColor: COLORS.primary,
+    backgroundColor: "#df3a0e",
     borderRadius: 5,
   },
   container: {

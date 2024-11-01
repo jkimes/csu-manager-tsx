@@ -72,6 +72,7 @@ export const cardlistStyles = StyleSheet.create({
   textStyleName: {
     fontSize: 15,
     fontWeight: "bold",
+    marginBottom:1
   },
   textClientNum: {
     fontSize: 15,

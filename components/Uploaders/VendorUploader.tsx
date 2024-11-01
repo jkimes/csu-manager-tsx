@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, StyleSheet, ScrollView, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  FlatList,
+  StyleSheet,
+  ScrollView,ActivityIndicator, Alert
+} from "react-native";
 import { readAsStringAsync } from "expo-file-system";
+import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
-import { firebase } from "../config";
+import { firebase } from "../../config";
 import { Table, Row, Rows } from "react-native-table-component";
-import Papa from "papaparse"; // Add this line
+import Papa from "papaparse";
 
 const convertDataType = (
   value: string,
@@ -36,7 +44,7 @@ const convertDataType = (
   }
 };
 
-export default function ClientUploader(route, navigation) {
+export default function VendorUploader({ route, navigation }) {
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [tableData, setTableData] = useState<string[][]>([]);
@@ -46,23 +54,19 @@ export default function ClientUploader(route, navigation) {
 
   // Define the mapping between field names and data types
   const fieldTypes: { [key: string]: "string" | "number" | "boolean" } = {
-    CustomerNum: "number",
-    CustomerName: "string",
-    Active: "string",
-    BillingAddress: "string",
-    JobSiteAddress: "string",
+    VendorNum: "number",
+    Name: "string",
     ContactName: "string",
-    CustomerEmail: "string",
-    ContactEmail: "string",
-    CustomerPhone: "number",
-    CustomerPhone2: "number",
-    ContactPhone: "string",
-    ContactPhone2: "number",
-    
-   
+    Tel1: "number",
+    Tel2: "number",
+    Email: "string",
+    WebsiteLink: "string",
+    StreetAddress: "string",
+    City: "string",
+    Specialty: "string",
+    Type: "string",
     // Add more fields here as needed
   };
-
   const selectFile = async () => {
     try {
       const file = await DocumentPicker.getDocumentAsync({
@@ -88,7 +92,7 @@ export default function ClientUploader(route, navigation) {
             setTableHead(data[0]);
             const headers = data[0];
 
-          // Check for missing headers
+            // Check for missing headers
           const missing = Object.keys(fieldTypes).filter(
             (header) => !headers.includes(header)
           );
@@ -101,7 +105,7 @@ export default function ClientUploader(route, navigation) {
             );
           }
 
-          // Convert data types based on fieldTypes
+            // Convert data types based on fieldTypes
             data = data.map((row, rowIndex) =>
               rowIndex === 0
                 ? row
@@ -147,112 +151,114 @@ export default function ClientUploader(route, navigation) {
     }
     setLoading(true);
     try {
+      // Process CSV data and update Firebase
       await updateFirebase(csvData);
       setUploadStatus("Success");
+      // console.log(`Upload Status after success: ${uploadStatus}`);
     } catch (error) {
       console.error("Error uploading CSV:", error);
       setUploadStatus("Failed");
-    } finally {
+      // console.log(`Upload Status after fail: ${uploadStatus}`);
+    }finally {
       setLoading(false);
     }
   };
 
-
   const updateFirebase = async (data: string[][]) => {
-  if (data.length === 0) {
-    console.warn("No CSV data to upload.");
-    return;
-  }
-
-  const batchSize = 500; // Firestore's max batch size
-
-  let headerRow = data[0];
-  let clientsData = data.slice(1);
-  console.log(`Client Uploader FileData:`, clientsData);
-
-  // Remove columns where the header is empty or undefined
-  headerRow = headerRow.filter((header, index) => {
-    if (header == null || header === "") {
-      console.warn(`Removing empty or undefined column at index ${index}`);
-      // Remove corresponding column from all rows in data
-      clientsData = clientsData.map((row) => row.filter((_, i) => i !== index));
-      return false;
+    if (data.length === 0) {
+      console.warn("No CSV data to upload.");
+      return;
     }
-    return true;
-  });
-
-  const db = firebase.firestore();
-
-  // Function to process a batch of data with retry logic
-  const processBatch = async (batchData: string[][], attempt: number = 1) => {
-    const batch = db.batch();
-
-    for (const client of batchData) {
-      const clientNumber = String(client[0]); // Ensure client number is a string
-      const docRef = db.collection("clients").doc(clientNumber);
-      const doc = await docRef.get();
-
-      const cleanData = (data: { [key: string]: any }) => {
-        const cleaned: { [key: string]: any } = {};
-        Object.keys(data).forEach((key) => {
-          if (data[key] !== undefined && data[key] !== null) {
-            cleaned[key] = data[key];
+  
+    const batchSize = 500; // Firestore's max batch size
+  
+    let headerRow = data[0];
+    let clientsData = data.slice(1);
+  
+    // Remove columns where the header is empty or undefined
+    headerRow = headerRow.filter((header, index) => {
+      if (header == null || header === "") {
+        console.warn(`Removing empty or undefined column at index ${index}`);
+        // Remove corresponding column from all rows in data
+        clientsData = clientsData.map((row) => row.filter((_, i) => i !== index));
+        return false;
+      }
+      return true;
+    });
+  
+    const db = firebase.firestore();
+  
+    // Function to process a batch of data with retry logic
+    const processBatch = async (batchData: string[][], attempt: number = 1) => {
+      const batch = db.batch();
+  
+      for (const client of batchData) {
+        const clientNumber = String(client[0]); // Ensure client number is a string
+        const docRef = db.collection("vendors").doc(clientNumber);
+        const doc = await docRef.get();
+  
+        const cleanData = (data: { [key: string]: any }) => {
+          const cleaned: { [key: string]: any } = {};
+          Object.keys(data).forEach((key) => {
+            if (data[key] !== undefined && data[key] !== null) {
+              cleaned[key] = data[key];
+            }
+          });
+          return cleaned;
+        };
+  
+        const newData: { [key: string]: any } = {};
+        headerRow.forEach((field, index) => {
+          if (field != null && field != undefined) {
+            const value = client[index];
+            newData[field] = convertDataType(
+              String(value),
+              fieldTypes[field] || "string"
+            ); // Ensure all values are strings
           }
         });
-        return cleaned;
-      };
-
-      const newData: { [key: string]: any } = {};
-      headerRow.forEach((field, index) => {
-        if (field != null && field != undefined) {
-          const value = client[index];
-          newData[field] = convertDataType(
-            String(value),
-            fieldTypes[field] || "string"
-          ); // Ensure all values are strings
+  
+        if (Object.keys(newData).length > 0) {
+          if (doc.exists) {
+            console.log(`Document exists! Updating document for client number ${clientNumber}`);
+            batch.update(docRef, cleanData(newData));
+          } else {
+            console.log(`Document does not exist! Creating new document for client number ${clientNumber}`);
+            batch.set(docRef, cleanData(newData));
+          }
         }
-      });
-
-      if (Object.keys(newData).length > 0) {
-        if (doc.exists) {
-          console.log(`Document exists! Updating document for client number ${clientNumber}`);
-          batch.update(docRef, cleanData(newData));
+      }
+  
+      try {
+        // Commit the batch
+        await batch.commit();
+      } catch (error) {
+        if (attempt < 3) {
+          console.warn(`Batch failed, retrying attempt ${attempt}...`);
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
+          await processBatch(batchData, attempt + 1);
         } else {
-          console.log(`Document does not exist! Creating new document for client number ${clientNumber}`);
-          batch.set(docRef, cleanData(newData));
+          console.error("Failed to commit batch after multiple attempts:", error);
+          throw error;
         }
       }
-    }
-
+    };
+  
     try {
-      // Commit the batch
-      await batch.commit();
-    } catch (error) {
-      if (attempt < 3) {
-        console.warn(`Batch failed, retrying attempt ${attempt}...`);
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
-        await processBatch(batchData, attempt + 1);
-      } else {
-        console.error("Failed to commit batch after multiple attempts:", error);
-        throw error;
+      // Process data in batches
+      for (let i = 0; i < clientsData.length; i += batchSize) {
+        const batchData = clientsData.slice(i, i + batchSize);
+        await processBatch(batchData);
+        console.log(`Processed batch ${Math.floor(i / batchSize) + 1}`);
       }
+  
+      console.log("Firebase database updated successfully!");
+    } catch (error) {
+      console.error("Error updating Firebase database:", error);
+      throw error;
     }
   };
-
-  try {
-    // Process data in batches
-    for (let i = 0; i < clientsData.length; i += batchSize) {
-      const batchData = clientsData.slice(i, i + batchSize);
-      await processBatch(batchData);
-      console.log(`Processed batch ${Math.floor(i / batchSize) + 1}`);
-    }
-
-    console.log("Firebase database updated successfully!");
-  } catch (error) {
-    console.error("Error updating Firebase database:", error);
-    throw error;
-  }
-};
+  
 
   const renderItem = ({ item }: { item: string[] }) => (
     <View style={styles.row}>
@@ -268,7 +274,6 @@ export default function ClientUploader(route, navigation) {
     <View style={{ flex: 1, padding: 20 }}>
       <Button title="Select File" onPress={selectFile} />
       <Button title="Upload CSV" onPress={handleUpload} />
-
       {loading ? (
   <ActivityIndicator size="large" color="#0000ff" />
 ) : uploadStatus === "Success" ? (
@@ -276,7 +281,7 @@ export default function ClientUploader(route, navigation) {
 ) : uploadStatus === "Failed" ? (
   <Text style={{ color: "red", marginTop: 10 }}>Upload failed. Please try again.</Text>
 ) : null}
-      
+
       <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
         CSV Data:
       </Text>
@@ -328,17 +333,3 @@ const styles = StyleSheet.create({
     margin: 6,
   },
 });
-
-
-// {uploadStatus && (
-//   <Text
-//     style={{
-//       color: uploadStatus === "Success" ? "green" : "red",
-//       marginTop: 10,
-//     }}
-//   >
-//     {uploadStatus === "Success"
-//       ? `Upload successful!`
-//       : `Upload failed. Please try again.`}
-//   </Text>
-// )}

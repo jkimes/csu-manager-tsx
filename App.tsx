@@ -17,23 +17,26 @@ import { Timestamp } from "firebase/firestore";
 import Clientpage from "./app/clientpage";
 //import UpdateData from "./components/updateData";
 
-import ClientUploader from "./components/ClientUploader";
+import ClientUploader from "./components/Uploaders/ClientUploader";
 import SingleClient from "./app/[id]";
 import Wip from "./app/Wip";
 import Vendors from "./app/Vendors";
-import { DataContext } from "./components/DataContext";
-import { QuoteContext } from "./components/QuoteContext";
-import { WipContext } from "./components/WipContext";
-import { PaymentContext } from "./components/PaymentContext";
+import { DataContext } from "./components/ContextGetters/DataContext";
+import { QuoteContext } from "./components/ContextGetters/QuoteContext";
+import { WipContext } from "./components/ContextGetters/WipContext";
+import { PaymentContext } from "./components/ContextGetters/PaymentContext";
+import { CustomerExpContext } from "./components/ContextGetters/CustomerExpContext";
 import AddClient from "./app/AddClient";
 import AddQuote from "./app/AddQuote";
 import { firebase, firebaseConfig } from "./config";
-import { VendorsContext } from "./components/VendorsContext";
+import { VendorsContext } from "./components/ContextGetters/VendorsContext";
 import VendorProfile from "./app/[vendor]";
 import selectDB from "./app/selectDB";
-import VendorUploader from "./components/VendorUploader";
-import WipUploader from "./components/WipUploader";
-import PaymentUploader from "./components/PaymentUploader";
+import VendorUploader from "./components/Uploaders/VendorUploader";
+import WipUploader from "./components/Uploaders/WipUploader";
+import PaymentUploader from "./components/Uploaders/PaymentUploader";
+import CusExpenseUploader from "./components/Uploaders/CusExpenseUploader"
+
 
 // const firestore = firebase.firestore();
 // firestore.settings({
@@ -120,6 +123,20 @@ export interface Payment {
   PmtMethod: string;
   // Add more fields as needed
 }
+export interface Expense {
+  id: string;
+  VendorNumber: number;
+  Vendor: string;
+  Date: Timestamp;
+  PayAmount: number;
+  PayMethod: number;
+  CKNumber: number;
+  CustomerNum: string;
+  CustomerName: string;
+  Bank: string;
+  ReExpense: string;
+  // Add more fields as needed
+}
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -145,77 +162,71 @@ function HomeScreen({ navigation }) {
       <Card.Divider style={{ width: "100%" }} />
       {/* Ensure the divider takes full width */}
       <View
-        style={{
-          flex: 1,
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-start",
-        }}
-      >
-        <Button
-          title="WIP"
-          onPress={() => navigation.navigate("WIP")}
-          buttonStyle={{
-            width: "100%",
-            height: 50,
-            margin: 10,
-            justifyContent: "center",
-            alignItems: "center",
-          }} // Adjust height as needed
-          titleStyle={{ alignSelf: "center" }}
-        />
+  style={{
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center", // Ensure all buttons are centered
+    justifyContent: "flex-start",
+  }}
+>
+  <Button
+    title="WIP"
+    onPress={() => navigation.navigate("WIP")}
+    buttonStyle={{
+      width: "100%",  // Set a standard width for all buttons
+      height: 50,
+      margin: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{ alignSelf: "center" }}
+  />
 
-        <Button
-          title="Clients"
-          onPress={() => navigation.navigate("Clients")}
-          buttonStyle={{
-            width: "100%",
-            height: 50,
-            margin: 10,
-            justifyContent: "center",
-            alignItems: "center",
-          }} // Adjust height as needed
-          titleStyle={{ alignSelf: "center" }}
-        />
-        <Button
-          title="Vendors"
-          onPress={() => navigation.navigate("Vendors")}
-          buttonStyle={{
-            width: "100%",
-            height: 50,
-            margin: 10,
-            justifyContent: "center",
-            alignItems: "center",
-          }} // Adjust height as needed
-          titleStyle={{ alignSelf: "center" }}
-        />
+  <Button
+    title="Clients"
+    onPress={() => navigation.navigate("Clients")}
+    buttonStyle={{
+      width: "100%",  // Set a standard width for all buttons
+      height: 50,
+      margin: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{ alignSelf: "center" }}
+  />
 
-        <Button
-          title="CSV Upload"
-          onPress={() => navigation.navigate("SelectDB")}
-          buttonStyle={{
-            width: "100%",
-            height: 50,
-            margin: 10,
-            justifyContent: "center",
-            alignItems: "center",
-          }} // Adjust height as needed
-          titleStyle={{ alignSelf: "center" }}
-        />
+  <Button
+    title="Vendors"
+    onPress={() => navigation.navigate("Vendors")}
+    buttonStyle={{
+      width: "100%",  // Set a standard width for all buttons
+      height: 50,
+      margin: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{ alignSelf: "center" }}
+  />
 
-        {/* <Button
-          title="Vendors"
-          onPress={() => navigation.navigate("Vendors")}
-          buttonStyle={{
-            width: "100%",
-            height: 50,
-            margin: 10,
-            justifyContent: "center",
-            alignItems: "center",
-          }} // Adjust height as needed
-          titleStyle={{ alignSelf: "center" }}
-        /> */}
-      </View>
+  <Button
+    title="CSV Upload - Admin Only"
+    onPress={() => navigation.navigate("SelectDB")}
+    buttonStyle={{
+      backgroundColor: "gray",
+      width: "90%",  // Ensure consistent width
+      height: 50,
+      margin: 20,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{
+      alignSelf: "center",
+      fontSize: 9,  // Adjusted font size for readability
+    }}
+  />
+</View>
+
+
     </View>
   );
 }
@@ -248,6 +259,7 @@ const theme = createTheme({
   },
 });
 export default function App() {
+  const [exp, setExp] = useState<Expense[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [data, setData] = useState<Client[]>([]);
@@ -259,6 +271,7 @@ export default function App() {
   const vendorsRef = firebase.firestore().collection("vendors");
   const wipRef = firebase.firestore().collection("wip");
   const paymentRef = firebase.firestore().collection("AR");
+  const expenseRef = firebase.firestore().collection("customerExp");
 
   useEffect(() => {
     // Fetch initial data when component mounts
@@ -266,7 +279,21 @@ export default function App() {
     fetchQuotes();
     fetchWip();
     fetchPayments();
+    console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
     
+
+    // Set up Firestore listener for vendors collection
+    const unsubscribeExpenses = expenseRef
+    .orderBy("VendorNumber")
+    //.orderBy("CustomerNum")
+
+    .onSnapshot((snapshot) => {
+     const newData = snapshot.docs.map((doc) => ({
+       id: doc.id,
+       ...doc.data(),
+     }));
+     setExp(newData);
+   });
    
 
     // Set up Firestore listener for clients collection
@@ -308,7 +335,7 @@ export default function App() {
         }));
         setData(newData);
         setFilteredData(newData);
-        console.log("App.tsx Client Data: " + JSON.stringify(newData));
+        //console.log("App.tsx Client Data: " + JSON.stringify(newData));
       });
 
     // Set up Firestore listener for quotes collection
@@ -343,7 +370,8 @@ export default function App() {
       unsubscribeWip();
       unsubscribeVendors();
       unsubscribePayments();
-      console.log("App.tsx Client Data2: " + JSON.stringify(data));
+      unsubscribeExpenses();
+      console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
     };
   }, []);
 
@@ -419,6 +447,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <CustomerExpContext.Provider value={exp}> 
       <PaymentContext.Provider value={payments}>
       <VendorsContext.Provider value={vendors}>
         <DataContext.Provider value={data}>
@@ -469,6 +498,7 @@ export default function App() {
                   />
                   <Stack.Screen name="Wip Upload" component={WipUploader} />
                   <Stack.Screen name="Payment Upload" component={PaymentUploader} />
+                  <Stack.Screen name="Expense Upload" component={CusExpenseUploader} />
                   <Stack.Screen name="SelectDB" component={selectDB} />
                 </Stack.Navigator>
               </NavigationContainer>
@@ -477,6 +507,7 @@ export default function App() {
         </DataContext.Provider>
       </VendorsContext.Provider>
       </PaymentContext.Provider>
+      </CustomerExpContext.Provider>
     </ThemeProvider>
   );
 }

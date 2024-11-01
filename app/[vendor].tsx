@@ -27,19 +27,11 @@ import {
   handleAddress,
   handlePhone,
   handleEmail,
-} from "../components/helperFunctions";
+} from "../components/Helpers/helperFunctions";
 import { idStyles } from "./styles/[id].styles";
-import { VendorsContext } from "../components/VendorsContext";
+import { VendorsContext } from "../components/ContextGetters/VendorsContext";
+import VendorPaymentsList from "../components/List/VendorPayments/VendorPaymentsList";
 
-function displayEmail(email: string) {
-  console.log(` Contact Email ${email}`);
-  if (email.trim() === "") {
-    console.log("inside if statement");
-    return " No email found";
-  } else {
-    return email;
-  }
-}
 
 const handlePress = async (url: string) => {
   const supported = await Linking.canOpenURL(url);
@@ -60,6 +52,7 @@ function handleLink(link: string) {
 
 export default function VendorProfile({ route, navigation }) {
   const data = useContext(VendorsContext);
+  
 
   const [activeTab, setActiveTab] = React.useState<number>(0); // State to manage the active tab
   const { VendorNum } = route.params;
@@ -516,19 +509,31 @@ export default function VendorProfile({ route, navigation }) {
         </ScrollView>
       </View>
     ),
+    2: (
+      <View>
+        <Text> {VendorNum} </Text>
+        <VendorPaymentsList navigation={navigation} route={route} vendorNum={VendorNum}></VendorPaymentsList>
+      </View>
+    ),
   };
 
   return (
     <View>
-      <Tab value={activeTab} onChange={setActiveTab} dense>
+      <Tab value={activeTab} onChange={setActiveTab} dense 
+      indicatorStyle={{
+        backgroundColor: '#df3a0e', // Custom highlight color
+        height: 4, // Optional: adjust the thickness of the highlight
+  }}>
         <Tab.Item>Vendor info</Tab.Item>
         <Tab.Item>Contact Info</Tab.Item>
+        <Tab.Item>Expenses</Tab.Item>
       </Tab>
+
 
       {/* Container for tabs with custom styles */}
       <View style={idStyles.tabContainer}>
         {/* Tabs with custom styles */}
-
+      
         {/* Conditional rendering based on active tab */}
         {tabContent[activeTab]}
       </View>

@@ -24,7 +24,7 @@ import {
 
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
-import { DataContext } from "../DataContext";
+import { DataContext } from "../ContextGetters/DataContext";
 import DataTable from "../DataTable";
 import { Client } from "../../App";
 import {
@@ -34,7 +34,7 @@ import {
   handlePhone,
   handleEmail,
   handleName,
-} from "../helperFunctions";
+} from "../Helpers/helperFunctions";
 import EditContact from "../Buttons/EditContact";
 import Delete from "../Buttons/Delete";
 import Edit from "../Buttons/Edit";

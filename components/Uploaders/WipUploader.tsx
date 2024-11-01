@@ -10,7 +10,7 @@ import {
 import { readAsStringAsync } from "expo-file-system";
 import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
-import { firebase } from "../config";
+import { firebase } from "../../config";
 import { Table, Row, Rows } from "react-native-table-component";
 import Papa from "papaparse";
 
@@ -57,10 +57,10 @@ export default function WipUploader({ route, navigation }) {
     clientNumber: "number",
     name: "string",
     quotedPrice: "number",
-    CostToDate: "number",
+    costToDate: "number",
     costToComplete: "number",
     initalCosts: "number",
-    AdditionalCost: "number",
+    additionalCost: "number",
     paidToDate: "number",
     // Add more fields here as needed
   };

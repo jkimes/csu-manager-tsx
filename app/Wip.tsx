@@ -13,8 +13,8 @@ import {
 
 // custom imports
 import { WipStyles } from "./styles/Wip.styles";
-import { WipContext } from "../components/WipContext";
-import { DisplayJobStatus, handleAddress } from "../components/helperFunctions";
+import { WipContext } from "../components/ContextGetters/WipContext";
+import { DisplayJobStatus, handleAddress } from "../components/Helpers/helperFunctions";
 import FinanceSummary from "../components/List/BottomSheet/FinanceSummary";
 
 function addCommasToNumber(number) {
@@ -159,7 +159,7 @@ export default function WIP() {
                 </View>
 
                 <Button
-                  title="View Profile"
+                  title="Additional Details"
                   onPress={() => handleViewProfile(item)}
                 />
               </Card>

@@ -26,15 +26,15 @@ import {
   filterByEquipment,
   filterAllTypes,
 } from "./Filters"; // Import filtering functions
-import { DataContext } from "../DataContext";
+import { DataContext } from "../ContextGetters/DataContext";
 import {
   handleAddress,
   DisplayJobStatus,
   handleName,
-} from "../helperFunctions";
+} from "../Helpers/helperFunctions";
 import DeleteClient from "../Buttons/DeleteClient";
 import { cardlistStyles } from "./styles/cardlist.styles";
-import { VendorsContext } from "../VendorsContext";
+import { VendorsContext } from "../ContextGetters/VendorsContext";
 import { Divider } from "@rneui/base";
 
 //initalizes firebase connection
@@ -63,7 +63,7 @@ const VendorList = ({ navigation, route, searchText }) => {
   const data = useContext(VendorsContext);
   const [filteredData, setFilteredData] = useState(data);
   const collectionRef = firebase.firestore().collection("vendors");
-  const [filterState, setFilterState] = useState<string>("All Types");
+  const [filterState, setFilterState] = useState<string>("All Groups");
 
   // Call renderCardList whenever data changes
   useEffect(() => {
@@ -90,7 +90,7 @@ const VendorList = ({ navigation, route, searchText }) => {
       case "Subcontractors":
         newData = await filterBySubcontractors(data);
         break;
-      case "Professional":
+      case "ProServ":
         newData = await filterByProfessional(data);
         break;
       case "Materials":
@@ -99,7 +99,7 @@ const VendorList = ({ navigation, route, searchText }) => {
       case "Equipment":
         newData = await filterByMaterials(data);
         break;
-      case "All Types":
+      case "All Groups":
         newData = await filterAllTypes(data);
         break;
 
@@ -166,7 +166,7 @@ const VendorList = ({ navigation, route, searchText }) => {
               <Text style={cardlistStyles.textClientNum}>
                 Specialty: {item.Specialty}
               </Text>
-              <Text style={cardlistStyles.textStyle}>Type: {item.Type}</Text>
+              <Text style={cardlistStyles.textStyle}>Group: {item.Type}</Text>
               <TouchableOpacity onPress={() => handlePress(item.WebsiteLink)}>
                 <Text style={cardlistStyles.textStyle}>
                   {" "}
@@ -195,9 +195,9 @@ const VendorList = ({ navigation, route, searchText }) => {
         <View style={cardlistStyles.buttonContainer}>
           <Button
             style={cardlistStyles.button}
-            title="All Types"
+            title="All Groups"
             onPress={() => {
-              setFilterState("All Types");
+              setFilterState("All Groups");
               
             }}
           />
@@ -212,19 +212,21 @@ const VendorList = ({ navigation, route, searchText }) => {
 
           <Button
           style={cardlistStyles.button}
-            title="Professional"
-            onPress={() => {
-              setFilterState("Professional");
-            }}
-          />
-
-          <Button
-          style={cardlistStyles.button}
             title="Materials"
             onPress={() => {
               setFilterState("Materials");
             }}
           />
+
+          <Button
+          style={cardlistStyles.button}
+            title="ProServ"
+            onPress={() => {
+              setFilterState("ProServ");
+            }}
+          />
+
+          
 
           <Button
           style={cardlistStyles.button}

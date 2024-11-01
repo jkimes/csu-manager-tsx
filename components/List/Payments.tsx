@@ -19,8 +19,8 @@ import { ThemeProvider, useTheme, Card, Button, ListItem } from "@rneui/themed";
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
 import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
-import { PaymentContext } from "../PaymentContext";
-import { handleAddress, DisplayJobStatus } from "../helperFunctions";
+import { PaymentContext } from "../ContextGetters/PaymentContext";
+import { handleAddress, DisplayJobStatus } from "../Helpers/helperFunctions";
 import DeleteClient from "../Buttons/DeleteClient";
 import { cardlistStyles } from "./styles/cardlist.styles";
 

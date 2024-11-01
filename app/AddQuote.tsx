@@ -18,7 +18,7 @@ import Papa from "papaparse";
 import { Card, FAB } from "@rneui/themed";
 import { QuoteStyles } from "../components/List/styles/Quote.styles";
 import { Client } from "../App";
-import { DataContext } from "../components/DataContext";
+import { DataContext } from "../components/ContextGetters/DataContext";
 
 export default function AddQuote({ route, navigation }) {
   // pass selected client data

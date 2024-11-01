@@ -10,7 +10,7 @@ import {
   percentComplete,
   totalCost,
   underBilled,
-} from "../../wipFormulas";
+} from "../../Helpers/wipFormulas";
 
 export default function FinanceSummary({ wipData, isVisible, setIsVisible }) {
   // console.log(`#Finance Summary Wip Data# ${wipData}`);

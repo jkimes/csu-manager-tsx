@@ -15,7 +15,7 @@ import Delete from "../components/Buttons/Delete";
 import Edit from "../components/Buttons/Edit";
 import QuoteList from "../components/List/QuoteList";
 import { Client, LineItem } from "../App";
-import { DataContext } from "../components/DataContext";
+import { DataContext } from "../components/ContextGetters/DataContext";
 import Payments from "../components/List/Payments"
 import {
   makePhoneCall,
@@ -25,7 +25,7 @@ import {
   handlePhone,
   handleEmail,
   handleName,
-} from "../components/helperFunctions";
+} from "../components/Helpers/helperFunctions";
 import { idStyles } from "./styles/[id].styles";
 
 export default function SingleClient({ route, navigation }) {
@@ -634,7 +634,7 @@ export default function SingleClient({ route, navigation }) {
       <View style={{ flex: 1 }}>
         <Card containerStyle={idStyles.cardContainer}>
           <Card.Title style={idStyles.cardTitle}>
-            <Text>Quote List</Text>
+            <Text>Document Links</Text>
           </Card.Title>
         </Card>
 
@@ -662,7 +662,6 @@ export default function SingleClient({ route, navigation }) {
     2: (
       <View>
          <Card.Title style={idStyles.cardTitle}>
-            <Text>Last Payment</Text>
           </Card.Title>
           <Payments navigation={navigation} route={route} clientNumber={client.CustomerNum}/> 
 
@@ -674,10 +673,15 @@ export default function SingleClient({ route, navigation }) {
 
   return (
     <View>
-      <Tab value={activeTab} onChange={setActiveTab} dense>
+      <Tab value={activeTab} onChange={
+        setActiveTab} dense
+        indicatorStyle={{
+        backgroundColor: '#df3a0e', // Custom highlight color
+        height: 4, // Optional: adjust the thickness of the highlight
+  }}>
         <Tab.Item>Client info</Tab.Item>
         <Tab.Item>Quote/Docs</Tab.Item>
-        <Tab.Item>Payment Info  </Tab.Item>
+        <Tab.Item>Last payment</Tab.Item>
       </Tab>
 
       {/* Container for tabs with custom styles */}

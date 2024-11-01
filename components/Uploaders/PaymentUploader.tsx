@@ -10,7 +10,7 @@ import {
 import { readAsStringAsync } from "expo-file-system";
 import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
-import { firebase } from "../config";
+import { firebase } from "../../config";
 import { Table, Row, Rows } from "react-native-table-component";
 import Papa from "papaparse";
 

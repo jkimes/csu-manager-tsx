@@ -23,8 +23,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 /*Custom imports */
 import { firebase, firebaseConfig } from "../../config";
 import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
-import { DataContext } from "../DataContext";
-import { QuoteContext } from "../QuoteContext";
+import { DataContext } from "../ContextGetters/DataContext";
+import { QuoteContext } from "../ContextGetters/QuoteContext";
 import DataTable from "../DataTable";
 import { Quote, LineItem, Client } from "../../App";
 import { QuoteStyles } from "./styles/Quote.styles";
@@ -135,7 +135,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
             #{item.QuoteNumber}
           </Card.FeaturedSubtitle>
           <Button
-            title="Open Quote"
+            title="Quote Link"
             onPress={toggleOverlay}
             buttonStyle={QuoteStyles.button}
           />
