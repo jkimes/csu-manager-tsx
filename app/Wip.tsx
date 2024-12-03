@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, Alert } from "react-native";
 import React, { useState, useEffect, useContext } from "react";
 import {
   ThemeProvider,
@@ -10,6 +10,8 @@ import {
   BottomSheet,
   Divider,
 } from "@rneui/themed";
+import { getAuth } from 'firebase/auth';
+import { firebase } from '../config';
 
 // custom imports
 import { WipStyles } from "./styles/Wip.styles";
@@ -42,6 +44,24 @@ export default function WIP() {
   const [isVisible, setIsVisible] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [userRole, setUserRole] = useState('User');
+
+  useEffect(() => {
+    const getCurrentUserRole = async () => {
+      const currentUser = getAuth().currentUser;
+      console.log("Current user:", currentUser?.email); // Log current user
+      if (currentUser) {
+        const userRef = firebase.firestore().collection('Users').doc(currentUser.uid);
+        const doc = await userRef.get();
+        if (doc.exists) {
+          const role = doc.data()?.role || 'User';
+          console.log("User role:", role); // Log the role
+          setUserRole(role);
+        }
+      }
+    };
+    getCurrentUserRole();
+  }, []);
 
   useEffect(() => {
     // console.log("selectedItem has changed:", selectedItem);
@@ -53,6 +73,17 @@ export default function WIP() {
     setSelectedItem(item); // Set the selected item
   };
   //console.log(`Wip!: ${JSON.stringify(wipData)}`);
+
+  const handleDelete = async (id) => {
+    try {
+      await firebase.firestore().collection('wip').doc(id).delete();
+      // Optional: Show success message
+      Alert.alert('Success', 'WIP entry deleted successfully');
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      Alert.alert('Error', 'Failed to delete WIP entry');
+    }
+  };
 
   const renderCardList = () => {
     return (
@@ -79,52 +110,85 @@ export default function WIP() {
                 item.clientNumber !== undefined && 
                 item.clientNumber !== 0
               )
-              .map((item) => (
-                <Card key={item.id} containerStyle={{ borderRadius: 4, padding: 10 }}>
-                  <View style={WipStyles.pageView}>
-                    <Card.FeaturedTitle style={WipStyles.featuredTitle}>
-                      {item.name}
-                    </Card.FeaturedTitle>
+              .map((item) => {
+                console.log("Current user role:", userRole); // Log role for each item
+                console.log("Should show delete button:", ['Admin', 'Manager'].includes(userRole)); // Log condition check
+                
+                return (
+                  <Card key={item.id} containerStyle={{ borderRadius: 4, padding: 10 }}>
+                    {['Admin', 'Manager'].includes(userRole) && (
+                      <View style={styles.deleteContainer}>
+                        <Icon
+                          name="delete"
+                          type="material"
+                          color="#FF0000"
+                          size={24}
+                          onPress={() => {
+                            Alert.alert(
+                              'Confirm Delete',
+                              'Are you sure you want to delete this WIP entry?',
+                              [
+                                {
+                                  text: 'Cancel',
+                                  style: 'cancel',
+                                },
+                                {
+                                  text: 'Delete',
+                                  onPress: () => handleDelete(item.id),
+                                  style: 'destructive',
+                                },
+                              ]
+                            );
+                          }}
+                        />
+                      </View>
+                    )}
 
-                    <Card.FeaturedSubtitle style={WipStyles.featuredSubtitle}>
-                      Client#: {item.clientNumber}
-                    </Card.FeaturedSubtitle>
+                    <View style={WipStyles.pageView}>
+                      <Card.FeaturedTitle style={WipStyles.featuredTitle}>
+                        {item.name}
+                      </Card.FeaturedTitle>
 
-                    <View style={{ flexDirection: "row", alignContent: "center", marginBottom: 5 }}>
-                      <Card containerStyle={WipStyles.priceCard}>
-                        <View style={WipStyles.TitleView}>
-                          <Card.Title style={WipStyles.title}>Quote Price</Card.Title>
+                      <Card.FeaturedSubtitle style={WipStyles.featuredSubtitle}>
+                        Client#: {item.clientNumber}
+                      </Card.FeaturedSubtitle>
+
+                      <View style={{ flexDirection: "row", alignContent: "center", marginBottom: 5 }}>
+                        <Card containerStyle={WipStyles.priceCard}>
+                          <View style={WipStyles.TitleView}>
+                            <Card.Title style={WipStyles.title}>Quote Price</Card.Title>
+                            <Card.Divider />
+                          </View>
+                          <Text style={WipStyles.digits}>
+                            ${addCommasToNumber(Number(item.quotedPrice))}
+                          </Text>
+                        </Card>
+
+                        <Card containerStyle={WipStyles.priceCard}>
+                          <Card.Title style={WipStyles.title}>Cost to Date</Card.Title>
                           <Card.Divider />
-                        </View>
-                        <Text style={WipStyles.digits}>
-                          ${addCommasToNumber(Number(item.quotedPrice))}
-                        </Text>
-                      </Card>
+                          <Text style={WipStyles.digits}>
+                            ${addCommasToNumber(item.CostToDate)}
+                          </Text>
+                        </Card>
 
-                      <Card containerStyle={WipStyles.priceCard}>
-                        <Card.Title style={WipStyles.title}>Cost to Date</Card.Title>
-                        <Card.Divider />
-                        <Text style={WipStyles.digits}>
-                          ${addCommasToNumber(item.CostToDate)}
-                        </Text>
-                      </Card>
-
-                      <Card containerStyle={WipStyles.priceCard}>
-                        <Card.Title style={WipStyles.title}>AR To Date</Card.Title>
-                        <Card.Divider />
-                        <Text style={WipStyles.digits}>
-                          ${addCommasToNumber(item.paidToDate)}
-                        </Text>
-                      </Card>
+                        <Card containerStyle={WipStyles.priceCard}>
+                          <Card.Title style={WipStyles.title}>AR To Date</Card.Title>
+                          <Card.Divider />
+                          <Text style={WipStyles.digits}>
+                            ${addCommasToNumber(item.paidToDate)}
+                          </Text>
+                        </Card>
+                      </View>
                     </View>
-                  </View>
 
-                  <Button
-                    title="Additional Details"
-                    onPress={() => handleViewProfile(item)}
-                  />
-                </Card>
-              ))}
+                    <Button
+                      title="Additional Details"
+                      onPress={() => handleViewProfile(item)}
+                    />
+                  </Card>
+                );
+              })}
           </ScrollView>
         </ListItem.Accordion>
       </>
@@ -137,5 +201,10 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     paddingBottom: 70,
   },
-  // Add any other styles you need here
+  deleteContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
 });

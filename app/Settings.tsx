@@ -82,17 +82,41 @@ export default function Settings() {
 
   const handleRoleChange = async (userId: string, newRole: 'Admin' | 'Manager' | 'User') => {
     try {
-      await firebase.firestore().collection('users').doc(userId).update({
+      // Count number of admin users
+      const adminCount = users.filter(user => user.role === 'Admin').length;
+      
+      // Check if trying to change the last admin
+      const isLastAdmin = adminCount === 1 && 
+                         users.find(u => u.id === userId)?.role === 'Admin' && 
+                         newRole !== 'Admin';
+      
+      if (isLastAdmin) {
+        Alert.alert(
+          'Error',
+          'Cannot change the last admin role. Please assign another admin first.'
+        );
+        // Force refresh of users to reset the dropdown
+        setUsers(prevUsers => [...prevUsers]);
+        return;
+      }
+
+      // Only proceed with update if not the last admin
+      await firebase.firestore().collection('Users').doc(userId).update({
         role: newRole
       });
       
+      // Only update local state if the update was successful and not the last admin
       setUsers(prevUsers =>
         prevUsers.map(user =>
           user.id === userId ? { ...user, role: newRole } : user
         )
       );
+
     } catch (error) {
+      console.error('Error updating user role:', error);
       Alert.alert('Error', 'Failed to update user role');
+      // Force refresh of users to reset the dropdown on error
+      setUsers(prevUsers => [...prevUsers]);
     }
   };
 
@@ -153,11 +177,13 @@ export default function Settings() {
                   <SelectDropdown
                     data={['Admin', 'Manager', 'User']}
                     defaultValue={user.role}
+                    value={user.role}
+                    key={user.id + user.role}
                     onSelect={(selectedItem) => handleRoleChange(user.id, selectedItem as 'Admin' | 'Manager' | 'User')}
                     renderButton={(selectedItem, isOpened) => (
                       <View style={styles.dropdownButtonContainer}>
                         <Text style={styles.dropdownButtonText}>
-                          {selectedItem || user.role}
+                          {user.role}
                         </Text>
                       </View>
                     )}

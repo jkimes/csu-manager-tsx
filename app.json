@@ -4,7 +4,7 @@
     "entryPoint": "./node_modules./expo./AppEntry", 
     "name": "csu-manager-2",
     "slug": "csu-manager-2",
-    "version": "1.11.0",
+    "version": "1.12.0",
     "orientation": "portrait",
     "icon": "./assets/icons/CSU.png",
     "userInterfaceStyle": "light",
