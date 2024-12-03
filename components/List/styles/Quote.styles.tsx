@@ -95,4 +95,11 @@ export const QuoteStyles = StyleSheet.create({
     fontWeight: "normal",
     marginVertical: 2,
   },
+  linkText: {
+    color: '#2089dc',
+    textDecorationLine: 'underline',
+    marginVertical: 5,
+    fontSize: 14,
+    textAlign: 'center'
+  },
 });

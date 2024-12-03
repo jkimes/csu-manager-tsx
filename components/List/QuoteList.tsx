@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
+  Alert,
 } from "react-native";
 // import { Link, Stack } from "expo-router";
 // import { Dropdown } from "react-native-element-dropdown";
@@ -57,7 +58,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
     // );
     const match = Number(item.ClientNumber) === Number(ClientNumber);
     if (match) {
-      console.log("Filtered Quote:", item);
+      //console.log("Filtered Quote:", item);
     }
     return match;
   });
@@ -89,14 +90,14 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
     let totalPriceSum = 0;
 
     const quoteList = data.map((item) => {
-      console.log(`Quote Item: ${item.ClientName}`);
+      //console.log(`Quote Item: ${item.ClientName}`);
       const lineItems: LineItem[] = item.lineItems;
       const lineItemContent = lineItems.map((lineItem) => {
         // Calculate the price for the current line item
         const lineItemPrice = lineItem.Price * lineItem.Quantity;
-        console.log(
-          `LineItem Price: ${lineItem.Price} Quantity: ${lineItem.Quantity}`
-        );
+        // console.log(
+        //   `LineItem Price: ${lineItem.Price} Quantity: ${lineItem.Quantity}`
+        // );
         // Add the price to the total sum
         totalPriceSum += lineItemPrice;
 
@@ -134,6 +135,33 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
             {" "}
             #{item.QuoteNumber}
           </Card.FeaturedSubtitle>
+          {item.Link && (
+            <TouchableOpacity 
+              onPress={async () => {
+                try {
+                  let url = item.Link;
+                  // Add https:// if no protocol is specified
+                  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                  }
+                  const supported = await Linking.canOpenURL(url);
+                  if (supported) {
+                    await Linking.openURL(url);
+                  } else {
+                    console.log("Cannot open URL: " + url);
+                    Alert.alert("Error", "Cannot open this URL");
+                  }
+                } catch (error) {
+                  console.error("Error opening link:", error);
+                  Alert.alert("Error", "Failed to open link");
+                }
+              }}
+            >
+              <Text style={QuoteStyles.linkText}>
+                Click to view
+              </Text>
+            </TouchableOpacity>
+          )}
           <Button
             title="Quote Link"
             onPress={toggleOverlay}
@@ -162,10 +190,9 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
 
                 <Card.Title> Client Details</Card.Title>
                 <Text>{client.ClientName}</Text>
-                <Text>{client.JobSite}</Text>
-                <Text>{client.JobSite}</Text>
+                <Text>{client.JobSiteStreet + " " + client.JobSiteCity}</Text>
                 <Text>{client.ClientEmail}</Text>
-                <Text>{client.ClientCell}</Text>
+                <Text>{client.ClientPhone}</Text>
                 <Card.Divider />
 
                 <Card.Title> Product or Service</Card.Title>
@@ -184,7 +211,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
         </Card>
       );
     });
-    console.log("Quote List JSX:", quoteList); // Log the generated JSX for quote list
+    //console.log("Quote List JSX:", quoteList); // Log the generated JSX for quote list
     return quoteList;
   };
 

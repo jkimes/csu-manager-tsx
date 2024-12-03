@@ -52,7 +52,7 @@ export default function WIP() {
     setIsVisible(!isVisible); // Show the bottom sheet
     setSelectedItem(item); // Set the selected item
   };
-  console.log(`Wip!: ${JSON.stringify(wipData)}`);
+  //console.log(`Wip!: ${JSON.stringify(wipData)}`);
 
   const renderCardList = () => {
     return (
@@ -61,39 +61,26 @@ export default function WIP() {
           isVisible={isVisible}
           setIsVisible={setIsVisible}
           wipData={selectedItem}
-        ></FinanceSummary>
-
-        {/* <BottomSheet
-          modalProps={{}}
-          isVisible={isVisible}
-          onBackdropPress={() => setIsVisible(!isVisible)}
-        >
-          <Text> Finance Summary</Text>
-        </BottomSheet> */}
+        />
 
         <ListItem.Accordion
           content={
-            <>
-              {/* <Icon name="place" size={30} /> */}
-              <ListItem.Content>
-                <ListItem.Title>WIP</ListItem.Title>
-              </ListItem.Content>
-            </>
+            <ListItem.Content>
+              <ListItem.Title>WIP</ListItem.Title>
+            </ListItem.Content>
           }
           isExpanded={expanded}
-          onPress={() => {
-            setExpanded(!expanded);
-          }}
+          onPress={() => setExpanded(!expanded)}
         >
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
-            {/* Populates items to display on WIP Cards */}
-            {wipData.map((item) => (
-              <Card
-                key={item.id}
-                containerStyle={{ borderRadius: 4, padding: 10 }}
-              >
-                {/* <View key={item.id} style={styles.contactBox}> */}
-                <View>
+            {wipData
+              .filter(item => 
+                item.clientNumber != null && 
+                item.clientNumber !== undefined && 
+                item.clientNumber !== 0
+              )
+              .map((item) => (
+                <Card key={item.id} containerStyle={{ borderRadius: 4, padding: 10 }}>
                   <View style={WipStyles.pageView}>
                     <Card.FeaturedTitle style={WipStyles.featuredTitle}>
                       {item.name}
@@ -103,67 +90,41 @@ export default function WIP() {
                       Client#: {item.clientNumber}
                     </Card.FeaturedSubtitle>
 
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignContent: "center",
-                        marginBottom: 5,
-                        // justifyContent: "space-between",
-                        // marginHorizontal: 0, // Adjust margin to reduce space between cards
-                      }}
-                    >
-                      {/* <Divider orientation="vertical" /> */}
+                    <View style={{ flexDirection: "row", alignContent: "center", marginBottom: 5 }}>
                       <Card containerStyle={WipStyles.priceCard}>
                         <View style={WipStyles.TitleView}>
-                          <Card.Title style={WipStyles.title}>
-                            {" "}
-                            Quote Price
-                          </Card.Title>
+                          <Card.Title style={WipStyles.title}>Quote Price</Card.Title>
                           <Card.Divider />
                         </View>
-
                         <Text style={WipStyles.digits}>
                           ${addCommasToNumber(Number(item.quotedPrice))}
                         </Text>
                       </Card>
 
-                      {/* <Divider orientation="vertical" /> */}
                       <Card containerStyle={WipStyles.priceCard}>
-                        <Card.Title style={WipStyles.title}>
-                          {" "}
-                          Cost to Date
-                        </Card.Title>
+                        <Card.Title style={WipStyles.title}>Cost to Date</Card.Title>
                         <Card.Divider />
-
                         <Text style={WipStyles.digits}>
-                          {"$"}
-                          {addCommasToNumber(item.CostToDate)}
-                          {/* {console.log(`Cost To Date: ${item.CostToDate}`)} */}
+                          ${addCommasToNumber(item.CostToDate)}
                         </Text>
                       </Card>
 
-                      {/* <Divider orientation="vertical" /> */}
                       <Card containerStyle={WipStyles.priceCard}>
-                        <Card.Title style={WipStyles.title}>
-                          AR To Date
-                        </Card.Title>
+                        <Card.Title style={WipStyles.title}>AR To Date</Card.Title>
                         <Card.Divider />
                         <Text style={WipStyles.digits}>
-                          {"$"}
-                          {addCommasToNumber(item.paidToDate)}
-                          {/*  */}
+                          ${addCommasToNumber(item.paidToDate)}
                         </Text>
                       </Card>
                     </View>
                   </View>
-                </View>
 
-                <Button
-                  title="Additional Details"
-                  onPress={() => handleViewProfile(item)}
-                />
-              </Card>
-            ))}
+                  <Button
+                    title="Additional Details"
+                    onPress={() => handleViewProfile(item)}
+                  />
+                </Card>
+              ))}
           </ScrollView>
         </ListItem.Accordion>
       </>

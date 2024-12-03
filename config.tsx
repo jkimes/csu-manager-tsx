@@ -1,6 +1,8 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
+import firebaseui from 'firebaseui';
+import 'firebaseui/dist/firebaseui.css'; // Import the CSS for styling
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7NScPQtDe3Tgh9VcnOT0e6DeNL_XtV_s",
@@ -12,6 +14,21 @@ const firebaseConfig = {
   appId: "1:273559061003:web:cb3112e6b527b6f678bd0e",
   measurementId: "G-8DDH2XWLLD",
 };
+
+// // Configure FirebaseUI
+// var uiConfig = {
+//   signInSuccessUrl: '/', // Redirect after successful sign-in
+//   signInOptions: [
+//     // Array of sign-in providers
+//     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+//     // ... (Other providers if you have them enabled)
+//   ],
+//   // ... (Other FirebaseUI configuration options)
+// };
+
+// // Initialize FirebaseUI
+// var ui = new firebaseui.auth.AuthUI(firebase.auth());
+// ui.start('#firebaseui-auth-container', uiConfig);
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);

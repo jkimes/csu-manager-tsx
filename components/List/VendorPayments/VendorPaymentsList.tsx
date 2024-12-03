@@ -15,16 +15,29 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
   useEffect(() => {
     const filterAndGroupData = () => {
       const filtered = data.filter(item => item.VendorNumber === vendorNum);
+      
+      // First group the data
       const grouped = filtered.reduce((acc, item) => {
-        const { CustomerNum, ReExpense, PayAmount } = item;
+        const { CustomerNum, ReExpense, PayAmount, Date } = item;
 
         // Initialize the group if it doesn't exist
         if (!acc[CustomerNum]) {
-          acc[CustomerNum] = { expenses: [], totalPayAmount: 0 };
+          acc[CustomerNum] = { 
+            expenses: [], 
+            totalPayAmount: 0,
+            mostRecentDate: null // Add tracking for most recent date
+          };
         }
 
         // Add the item to the group
         acc[CustomerNum].expenses.push(item);
+
+        // Update most recent date
+        const currentDate = Date?.toDate?.() || new Date(Date);
+        if (!acc[CustomerNum].mostRecentDate || 
+            currentDate > acc[CustomerNum].mostRecentDate) {
+          acc[CustomerNum].mostRecentDate = currentDate;
+        }
 
         // Sum PayAmount as positive value if ReExpense is "N" or "n"
         if (ReExpense === "N" || ReExpense === "n") {
@@ -34,8 +47,18 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
         return acc;
       }, {});
 
-      setGroupedData(grouped);
-      setHasData(Object.keys(grouped).length > 0);  // Update hasData based on grouped data
+      // Convert to array and sort by most recent date
+      const sortedGrouped = Object.entries(grouped)
+        .sort(([, a], [, b]) => {
+          return b.mostRecentDate - a.mostRecentDate;
+        })
+        .reduce((acc, [customerNum, data]) => {
+          acc[customerNum] = data;
+          return acc;
+        }, {});
+
+      setGroupedData(sortedGrouped);
+      setHasData(Object.keys(sortedGrouped).length > 0);
     };
 
     filterAndGroupData();
@@ -43,7 +66,7 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
 
   // Log whenever groupedData updates to confirm it’s set correctly
   useEffect(() => {
-    console.log("Updated Grouped Data: ", JSON.stringify(groupedData));
+    //console.log("Updated Grouped Data: ", JSON.stringify(groupedData));
   }, [groupedData]);
 
   return (

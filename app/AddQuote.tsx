@@ -25,7 +25,7 @@ export default function AddQuote({ route, navigation }) {
   const data = useContext(DataContext);
   const { ClientNumber } = route.params;
   const client: Client = data.find((item) => item.CustomerNum === ClientNumber);
-  console.log(`CLIENT ID: ${client.id}`);
+  //console.log(`CLIENT ID: ${client.id}`);
 
   const [formData, setFormData] = useState({
     IssueDate: "",
@@ -35,6 +35,7 @@ export default function AddQuote({ route, navigation }) {
     Notes: "",
     QuoteNumber: "",
     ClientName: client.ClientName,
+    Link: "",
   });
 
   const [lineItems, setLineItems] = useState([
@@ -101,31 +102,29 @@ export default function AddQuote({ route, navigation }) {
           value={formData.Label}
           onChangeText={(value) => setFormData({ ...formData, Label: value })}
         />
-
+        <TextInput
+          style={styles.input}
+          placeholder="Link"
+          value={formData.Link}
+          onChangeText={(value) => setFormData({ ...formData, Link: value })}
+        />
         <TextInput
           style={styles.input}
           placeholder="Issue Date: MM/DD/YYYY"
           value={formData.IssueDate}
-          onChangeText={(value) =>
-            setFormData({ ...formData, IssueDate: value })
-          }
+          onChangeText={(value) => setFormData({ ...formData, IssueDate: value })}
         />
         <TextInput
           style={styles.input}
           placeholder="Expiry Date: MM/DD/YYYY"
           value={formData.ExpireDate}
-          onChangeText={(value) =>
-            setFormData({ ...formData, ExpireDate: value })
-          }
+          onChangeText={(value) => setFormData({ ...formData, ExpireDate: value })}
         />
-
         <TextInput
           style={styles.input}
           placeholder="Quote #"
           value={formData.QuoteNumber}
-          onChangeText={(value) =>
-            setFormData({ ...formData, QuoteNumber: value })
-          }
+          onChangeText={(value) => setFormData({ ...formData, QuoteNumber: value })}
         />
         <Card.Divider />
 
@@ -139,10 +138,9 @@ export default function AddQuote({ route, navigation }) {
 
         <Card.Title> Client Details</Card.Title>
         <Text>{client.ClientName}</Text>
-        <Text>{client.JobSite}</Text>
-        <Text>{client.JobSite}</Text>
+        <Text>{client?.JobSiteStreet + " " + client?.JobSiteCity}</Text>
         <Text>{client.ClientEmail}</Text>
-        <Text>{client.ClientCell}</Text>
+        <Text>{client.ClientPhone}</Text>
         <Card.Divider />
 
         <Card.Title> Product or Service</Card.Title>

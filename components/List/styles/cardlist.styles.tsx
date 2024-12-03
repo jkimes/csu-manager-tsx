@@ -17,18 +17,26 @@ export const cardlistStyles = StyleSheet.create({
     justifyContent: "center", // Center the ListItem vertically
   },
   listItem: {
-    width: "100%", // Ensure the ListItem takes up the full width
+    width: '100%',
+    padding: 0,
   },
   card: {
-    flex: 1,
-    width: "100%", // Ensure the Card takes up the full width
+    width: '100%',
+    borderRadius: 10,
+    marginHorizontal: 0,
+    marginVertical: 5,
+    padding: 15,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   buttonContainer: {
-    backgroundColor: "white",
-    flexWrap: "wrap",
     flexDirection: "row",
-    justifyContent: "space-evenly",
-    margin: 5,
+    justifyContent: "space-around",
+    padding: 10,
+    backgroundColor: "white",
   },
   button: {
     padding: 2,
@@ -67,19 +75,42 @@ export const cardlistStyles = StyleSheet.create({
     width: "100%",
   },
   contactBoxDetails: {
-    flexDirection: "row",
+    marginTop: 10,
+    marginRight: 40,
+    width: '100%',
   },
   textStyleName: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom:1
+    marginBottom: 5,
+    width: '90%',
   },
   textClientNum: {
-    fontSize: 15,
+    fontSize: 16,
+    marginBottom: 5,
   },
   textStyle: {
-    fontSize: 15,
-    fontWeight: "normal",
-    marginVertical: 2,
+    fontSize: 16,
+    marginBottom: 5,
+    width: '90%',
+  },
+  statusContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 1,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  cardContent: {
+    position: "relative",
+    width: '100%',
+    minHeight: 150,
+    paddingTop: 25,
   },
 });

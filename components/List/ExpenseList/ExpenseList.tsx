@@ -83,7 +83,7 @@ const ExpenseList = ({ navigation, route, data  }) => {
                 Customer #: {item.CustomerNum}
               </Text>
               <Text style={cardlistStyles.textClientNum}>
-                Pmt Amount: {item.PayAmount}
+                Pmt Amount: ${item.PayAmount}
               </Text>
               <Text style={cardlistStyles.textStyle}>Date: {formatTimestampToDate(item.Date)}</Text>
               

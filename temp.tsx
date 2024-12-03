@@ -12,11 +12,10 @@ import {
   lightColors,
 } from "@rneui/themed";
 import { Timestamp } from "firebase/firestore";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
 
 import Clientpage from "./app/clientpage";
 //import UpdateData from "./components/updateData";
-import Settings from "./app/Settings";
 import SignIn from "./app/SignIn";
 import ClientUploader from "./components/Uploaders/ClientUploader";
 import SingleClient from "./app/[id]";
@@ -37,9 +36,6 @@ import VendorUploader from "./components/Uploaders/VendorUploader";
 import WipUploader from "./components/Uploaders/WipUploader";
 import PaymentUploader from "./components/Uploaders/PaymentUploader";
 import CusExpenseUploader from "./components/Uploaders/CusExpenseUploader"
-import SignUp from "./app/SignUp";
-import { useAuth } from "./components/ContextGetters/AuthContext"; // Import your auth context
-import { AuthProvider } from "./components/ContextGetters/AuthContext"; // Import your auth context
 
 
 // const firestore = firebase.firestore();
@@ -120,7 +116,6 @@ export interface Quote {
   lineItems: LineItem[];
   IssueDate: string;
   ExpireDate: string;
-  Link: string;
 }
 
 export interface Payment {
@@ -155,118 +150,94 @@ if (!firebase.apps.length) {
   firebase.app();
 }
 
-type RootStackParamList = {
-  Home: undefined;
-  WIP: undefined;
-  Clients: undefined;
-  Vendors: undefined;
-  Settings: undefined;
-  SelectDB: undefined;
-  SignIn: undefined;
-  SignUp: undefined;
-  Profile: undefined;
-  AddClient: undefined;
-  AddQuote: undefined;
-  VendorProfile: undefined;
-  'Client Upload': undefined;
-  'Vendor Upload': undefined;
-  'Wip Upload': undefined;
-  'Payment Upload': undefined;
-  'Expense Upload': undefined;
-};
-
-function HomeScreen({ navigation }: { 
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'> 
-}) {
-    const { user } = useAuth(); // Get the user from the auth context
-    const [userRole, setUserRole] = useState<string | null>(null);
-  
-    useEffect(() => {
-      if (user) {
-        const userRef = firebase.firestore().collection("Users").doc(user.uid);
-        userRef.get()
-          .then((doc) => {
-            if (doc.exists) {
-              const userData = doc.data();
-              setUserRole(userData?.role);
-            } else {
-              setUserRole(null);
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching user role:", error);
-            setUserRole(null);
-          });
-      } else {
-        setUserRole(null);
-      }
-    }, [user]);
-  
-    useEffect(() => {
-      console.log("Current userRole state:", userRole);
-    }, [userRole]);
-  
-    return (
+function HomeScreen({ navigation }) {
+  return (
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "flex-start",
+        marginTop: 20,
+      }}
+    >
+      <Text style={{ fontWeight: "bold", alignSelf: "center" }}>
+        CSU Manager
+      </Text>
+      <Image
+        style={{ alignSelf: "center", height: 100, width: 100 }}
+        source={require("./assets/icons/CSU.png")}
+      />
+      <Card.Divider style={{ width: "100%" }} />
+      {/* Ensure the divider takes full width */}
       <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "flex-start",
-          backgroundColor: "white",
-        }}
-      >
-        <Text style={{ fontWeight: "bold", alignSelf: "center" }}>
-          CSU Manager
-        </Text>
-        <Image
-          style={{ alignSelf: "center", height: 100, width: 100 }}
-          source={require("./assets/icons/CSU.png")}
-        />
-        <Card.Divider style={{ width: "100%" }} />
-        {/* Ensure the divider takes full width */}
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            paddingHorizontal: 20,
-            width: "100%",
-            backgroundColor: "white",
-          }}
-        >
-          {[
-            { title: "WIP", route: "WIP" as keyof RootStackParamList },
-            { title: "Clients", route: "Clients" as keyof RootStackParamList },
-            { title: "Vendors", route: "Vendors" as keyof RootStackParamList },
-            {title: "Settings", route: "Settings" as keyof RootStackParamList},
-            ...(userRole === "Admin" || userRole === "Manager" 
-              ? [{ title: "CSV Upload - Admin Only", route: "SelectDB" as keyof RootStackParamList, special: true }] 
-              : [])
-          ].map((btn, index) => (
-            <Button
-              key={btn.route}
-              title={btn.title}
-              onPress={() => navigation.navigate(btn.route)}
-              buttonStyle={{
-                width: 300,
-                height: 50,
-                marginVertical: 10,
-                backgroundColor: btn.special ? "gray" : "black",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              titleStyle={{
-                alignSelf: "center",
-                ...(btn.special ? { fontSize: 9 } : {}),
-              }}
-            />
-          ))}
-        </View>
-      </View>
-    );
-  }
-  
+  style={{
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center", // Ensure all buttons are centered
+    justifyContent: "flex-start",
+  }}
+>
+  <Button
+    title="WIP"
+    onPress={() => navigation.navigate("WIP")}
+    buttonStyle={{
+      width: "100%",  // Set a standard width for all buttons
+      height: 50,
+      margin: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{ alignSelf: "center" }}
+  />
+
+  <Button
+    title="Clients"
+    onPress={() => navigation.navigate("Clients")}
+    buttonStyle={{
+      width: "100%",  // Set a standard width for all buttons
+      height: 50,
+      margin: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{ alignSelf: "center" }}
+  />
+
+  <Button
+    title="Vendors"
+    onPress={() => navigation.navigate("Vendors")}
+    buttonStyle={{
+      width: "100%",  // Set a standard width for all buttons
+      height: 50,
+      margin: 10,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{ alignSelf: "center" }}
+  />
+
+  <Button
+    title="CSV Upload - Admin Only"
+    onPress={() => navigation.navigate("SelectDB")}
+    buttonStyle={{
+      backgroundColor: "gray",
+      width: "90%",  // Ensure consistent width
+      height: 50,
+      margin: 20,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    titleStyle={{
+      alignSelf: "center",
+      fontSize: 9,  // Adjusted font size for readability
+    }}
+  />
+</View>
+
+
+    </View>
+  );
+}
 
 const Stack = createNativeStackNavigator();
 const theme = createTheme({
@@ -317,7 +288,7 @@ export default function App() {
     fetchQuotes();
     fetchWip();
     fetchPayments();
-    //console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
+    console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
     
 
     // Set up Firestore listener for vendors collection
@@ -327,9 +298,8 @@ export default function App() {
 
     .onSnapshot((snapshot) => {
      const newData = snapshot.docs.map((doc) => ({
-      ...doc.data() as Expense,
        id: doc.id,
-       
+       ...doc.data(),
      }));
      setExp(newData);
    });
@@ -337,9 +307,9 @@ export default function App() {
 
     // Set up Firestore listener for clients collection
     const unsubscribeWip = wipRef.orderBy("name").onSnapshot((snapshot) => {
-      const newData: Client[] = snapshot.docs.map((doc) => ({
-        ...(doc.data() as Omit<Client, 'id'>),
+      const newData = snapshot.docs.map((doc) => ({
         id: doc.id,
+        ...doc.data(),
       }));
       setWip(newData);
     });
@@ -349,7 +319,7 @@ export default function App() {
       const newData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as Vendor[];
+      }));
       setVendors(newData);
     });
      // Set up Firestore listener for vendors collection
@@ -357,9 +327,9 @@ export default function App() {
      .orderBy("CustomerNum")
      .orderBy("Date", "desc")
      .onSnapshot((snapshot) => {
-      const newData: Payment[] = snapshot.docs.map((doc) => ({
-        ...doc.data() as Payment,
+      const newData = snapshot.docs.map((doc) => ({
         id: doc.id,
+        ...doc.data(),
       }));
       setPayments(newData);
     });
@@ -368,9 +338,9 @@ export default function App() {
     const unsubscribeClients = collectionRef
       .orderBy("ClientName")
       .onSnapshot((snapshot) => {
-        const newData: Client[] = snapshot.docs.map((doc) => ({
-          ...(doc.data() as Omit<Client, 'id'>),
+        const newData = snapshot.docs.map((doc) => ({
           id: doc.id,
+          ...doc.data(),
         }));
         setData(newData);
         setFilteredData(newData);
@@ -385,13 +355,10 @@ export default function App() {
         const quoteData = doc.data();
         const lineItemsRef = quotesRef.doc(doc.id).collection("LineItems");
         const lineItemsSnapshot = await lineItemsRef.get();
-        const lineItems = lineItemsSnapshot.docs.map((lineItemDoc) => {
-          const data = lineItemDoc.data() as Omit<LineItem, 'id'>;
-          return {
-            ...data,
-            id: lineItemDoc.id,
-          };
-        });
+        const lineItems = lineItemsSnapshot.docs.map((lineItemDoc) => ({
+          id: lineItemDoc.id,
+          ...lineItemDoc.data(),
+        }));
 
         const quoteWithLineItems = {
           id: doc.id,
@@ -413,7 +380,7 @@ export default function App() {
       unsubscribeVendors();
       unsubscribePayments();
       unsubscribeExpenses();
-      //console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
+      console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
     };
   }, []);
 
@@ -422,9 +389,9 @@ export default function App() {
     if (snapshot.empty) {
       console.log("No matching results!");
     } else {
-      const newData: Payment[] = snapshot.docs.map((doc) => ({
-        ...doc.data() as Payment,
+      const newData: DocumentData<Payment>[] = snapshot.docs.map((doc) => ({
         id: doc.id,
+        ...(doc.data() as Payment),
       }));
       setPayments(newData); // Update state with fetched data
     }
@@ -435,10 +402,9 @@ export default function App() {
     if (snapshot.empty) {
       console.log("No matching results!");
     } else {
-      const newData: Client[] = snapshot.docs.map((doc) => ({
-        ...(doc.data() as Client),
+      const newData: DocumentData<Client>[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        
+        ...(doc.data() as Client),
       }));
       setWip(newData); // Update state with fetched data
     }
@@ -455,14 +421,13 @@ export default function App() {
         const lineItemsRef = quotesRef.doc(doc.id).collection("LineItems");
         const lineItemsSnapshot = await lineItemsRef.get();
         const lineItems = lineItemsSnapshot.docs.map((lineItemDoc) => ({
-          ...(lineItemDoc.data() as LineItem),
           id: lineItemDoc.id,
-          
+          ...(lineItemDoc.data() as LineItem),
         }));
 
         const quoteWithLineItems = {
-          ...quoteData,
           id: doc.id,
+          ...quoteData,
           lineItems,
         };
 
@@ -481,9 +446,8 @@ export default function App() {
       console.log("No matching results!");
     } else {
       const newData: DocumentData<Client>[] = snapshot.docs.map((doc) => ({
-        ...(doc.data() as Client),
         id: doc.id,
-        
+        ...(doc.data() as Client),
       }));
       setData(newData); // Update state with fetched data
       setFilteredData(newData); // Initialize filteredData with fetched data
@@ -491,65 +455,71 @@ export default function App() {
   };
 
   return (
-    <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <CustomerExpContext.Provider value={exp}> 
-          <PaymentContext.Provider value={payments}>
-            <VendorsContext.Provider value={vendors}>
-              <DataContext.Provider value={data}>
-                <QuoteContext.Provider value={quotes}>
-                  <WipContext.Provider value={wip}>
-                    <NavigationContainer>
-                      <Stack.Navigator
-                        screenOptions={({ navigation }) => ({
-                          headerStyle: {
-                            backgroundColor: theme?.lightColors?.secondary, // Set header background color to black
-                          },
-                          headerTintColor: "white",
-                          headerRight: () => (
-                            <Button
-                              onPress={() => navigation.navigate("Home")}
-                              icon={
-                                <Icon
-                                  name="home"  // Name of the icon
-                                  type="font-awesome"  // Icon type (using FontAwesome in this case)
-                                  size={28}  // Size of the icon
-                                  color="white"  // Color of the icon
-                                  style={{ }}  // Adds spacing between icon and text marginRight: 10, height: 75 
-                                />
-                              }
-                              iconPosition="left"  // Icon appears to the left of the title
-                            />
-                          ),
-                        })}
-                      >
-                        <Stack.Screen name="SignIn" component={SignIn} />
-                        <Stack.Screen name="SignUp" component={SignUp} />
-                        <Stack.Screen name="Home" component={HomeScreen} />
-                        <Stack.Screen name="Clients" component={Clientpage} />
-                        <Stack.Screen name="Profile" component={SingleClient} />
-                        <Stack.Screen name="AddClient" component={AddClient} />
-                        <Stack.Screen name="AddQuote" component={AddQuote} />
-                        <Stack.Screen name="Vendors" component={Vendors} />
-                        <Stack.Screen name="VendorProfile" component={VendorProfile} />
-                        <Stack.Screen name="WIP" component={Wip} />
-                        <Stack.Screen name="Client Upload" component={ClientUploader} />
-                        <Stack.Screen name="Vendor Upload" component={VendorUploader} />
-                        <Stack.Screen name="Wip Upload" component={WipUploader} />
-                        <Stack.Screen name="Payment Upload" component={PaymentUploader} />
-                        <Stack.Screen name="Expense Upload" component={CusExpenseUploader} />
-                        <Stack.Screen name="SelectDB" component={selectDB} />
-                        <Stack.Screen name="Settings" component={Settings} />
-                      </Stack.Navigator>
-                    </NavigationContainer>
-                  </WipContext.Provider>
-                </QuoteContext.Provider>
-              </DataContext.Provider>
-            </VendorsContext.Provider>
-          </PaymentContext.Provider>
-        </CustomerExpContext.Provider>
-      </ThemeProvider>
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CustomerExpContext.Provider value={exp}> 
+      <PaymentContext.Provider value={payments}>
+      <VendorsContext.Provider value={vendors}>
+        <DataContext.Provider value={data}>
+          <QuoteContext.Provider value={quotes}>
+            <WipContext.Provider value={wip}>
+              <NavigationContainer>
+                <Stack.Navigator
+                  screenOptions={({ navigation }) => ({
+                    headerStyle: {
+                      backgroundColor: theme?.lightColors?.secondary, // Set header background color to black
+                    },
+                    headerTintColor: "white",
+                    headerRight: () => (
+                      <Button
+                        onPress={() => navigation.navigate("Home")}
+                        icon={
+                          <Icon
+                            name="home"  // Name of the icon
+                            type="font-awesome"  // Icon type (using FontAwesome in this case)
+                            size={28}  // Size of the icon
+                            color="white"  // Color of the icon
+                            style={{ }}  // Adds spacing between icon and text marginRight: 10, height: 75 
+                          />
+                        }
+                        iconPosition="left"  // Icon appears to the left of the title
+                      />
+                    ),
+                  })}
+                >
+                 
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Clients" component={Clientpage} />
+                  <Stack.Screen name="Profile" component={SingleClient} />
+                  <Stack.Screen name="AddClient" component={AddClient} />
+                  <Stack.Screen name="AddQuote" component={AddQuote} />
+                  <Stack.Screen name="Vendors" component={Vendors} />
+                  {/* <Stack.Screen name ="Sign In" component={SignIn}/> */}
+                  <Stack.Screen
+                    name="VendorProfile"
+                    component={VendorProfile}
+                  />
+                  <Stack.Screen name="WIP" component={Wip} />
+                  <Stack.Screen
+                    name="Client Upload"
+                    component={ClientUploader}
+                  />
+                  <Stack.Screen
+                    name="Vendor Upload"
+                    component={VendorUploader}
+                  />
+                  <Stack.Screen name="Wip Upload" component={WipUploader} />
+                  <Stack.Screen name="Payment Upload" component={PaymentUploader} />
+                  <Stack.Screen name="Expense Upload" component={CusExpenseUploader} />
+                  <Stack.Screen name="SelectDB" component={selectDB} />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </WipContext.Provider>
+          </QuoteContext.Provider>
+        </DataContext.Provider>
+      </VendorsContext.Provider>
+      </PaymentContext.Provider>
+      </CustomerExpContext.Provider>
+    </ThemeProvider>
   );
 }
 

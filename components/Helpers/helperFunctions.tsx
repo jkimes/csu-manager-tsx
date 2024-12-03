@@ -9,7 +9,7 @@ export function DisplayJobStatus(bool: boolean) {
 }
 
 export const handleAddress = (address: string) => {
-  if (address?.trim() === "" || address === null) {
+  if (address?.trim() === "" || address === null || address === undefined) {
     return "No address found";
   } else {
     return `${address}`;
@@ -19,12 +19,14 @@ export const handleAddress = (address: string) => {
 export const handleFullAddress = (
   street: string,
   city: string,
+  state: string,
   zip: string
+  
 ) => {
-  if (street?.trim() === '""' || street === null) {
+  if (street?.trim() === '""' || street === null || street === undefined) {
     return "No address found";
   } else {
-    return `${street}, ${city} FL ${zip} `;
+    return `${street}, ${city} ${state} ${zip} `;
   }
 };
 
@@ -47,13 +49,16 @@ export const handleEmail = (email: string) => {
   }
 };
 
-export function formatPhoneNumber(phone) {
+export function formatPhoneNumber(phone: number) {
+  if (phone === null || phone === undefined || phone === 0) {
+    return "No number found";
+  }
   const cleaned = ("" + phone).replace(/\D/g, "");
   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
   if (match) {
     return "(" + match[1] + ")-" + match[2] + "-" + match[3];
   }
-  return "Number must have 10 digits only ";
+  return "Cannot format number";
 }
 
 export const handlePhone = (phone: number) => {
@@ -97,7 +102,7 @@ export const handlePhoneInteraction = (phoneNumber: number) => {
 };
 
 // Function to make a normal phone call
-const makePhoneCall = (phoneNumber: number) => {
+export const makePhoneCall = (phoneNumber: number) => {
   // var phoneNum = String(phoneNumber);
   const url = `tel:${phoneNumber}`;
   Linking.openURL(url).catch((err) =>

@@ -36,7 +36,7 @@ const convertDataType = (
   }
 };
 
-export default function ClientUploader(route, navigation) {
+export default function ClientUploader(route: any, navigation: any) {
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [tableData, setTableData] = useState<string[][]>([]);
@@ -49,17 +49,23 @@ export default function ClientUploader(route, navigation) {
     CustomerNum: "number",
     CustomerName: "string",
     Active: "string",
-    BillingAddress: "string",
-    JobSiteAddress: "string",
+    ClientName: "string",
     ContactName: "string",
-    CustomerEmail: "string",
+    BillingStreet: "string",
+    BillingCity: "string",
+    BillingState: "string",
+    BillingZip: "string",
+    JobSiteStreet: "string",
+    JobSiteCity: "string",
+    JobSiteState: "string",
+    JobSiteZip: "string",
+    ClientEmail: "string",
     ContactEmail: "string",
-    CustomerPhone: "number",
-    CustomerPhone2: "number",
-    ContactPhone: "string",
-    ContactPhone2: "number",
+    ClientPhone: "number",
+    ClientPhone2: "number",
+    ContactPh1: "number",
+    ContactPh2: "number",
     
-   
     // Add more fields here as needed
   };
 
@@ -265,42 +271,72 @@ export default function ClientUploader(route, navigation) {
   );
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Button title="Select File" onPress={selectFile} />
-      <Button title="Upload CSV" onPress={handleUpload} />
+    <View style={styles.container}>
+      <View style={styles.topContent}>
+        <Button title="Select File" onPress={selectFile} />
+        <Button title="Upload CSV" onPress={handleUpload} />
 
-      {loading ? (
-  <ActivityIndicator size="large" color="#0000ff" />
-) : uploadStatus === "Success" ? (
-  <Text style={{ color: "green", marginTop: 10 }}>Upload successful!</Text>
-) : uploadStatus === "Failed" ? (
-  <Text style={{ color: "red", marginTop: 10 }}>Upload failed. Please try again.</Text>
-) : null}
-      
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
-        CSV Data:
-      </Text>
-      <ScrollView horizontal>
-        <ScrollView>
-        <View>
-          {tableHead.length > 0 && (
-            <Table borderStyle={{ borderWidth: 1, borderColor: "#C1C0B9" }}>
-              <Row
-                data={tableHead}
-                style={styles.head}
-                textStyle={styles.text}
-              />
-              <Rows data={tableData} textStyle={styles.text} />
-            </Table>
-          )}
-        </View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : uploadStatus === "Success" ? (
+          <Text style={{ color: "green", marginTop: 10 }}>Upload successful!</Text>
+        ) : uploadStatus === "Failed" ? (
+          <Text style={{ color: "red", marginTop: 10 }}>Upload failed. Please try again.</Text>
+        ) : null}
+        
+        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
+          CSV Data:
+        </Text>
+      </View>
+
+      <View style={styles.tableContainer}>
+        <ScrollView horizontal>
+          <ScrollView>
+            {tableHead.length > 0 && (
+              <Table borderStyle={{ borderWidth: 1, borderColor: "#C1C0B9" }}>
+                <Row
+                  data={tableHead}
+                  widthArr={Array(tableHead.length).fill(150)}
+                  style={styles.head}
+                  textStyle={styles.text}
+                />
+                <Rows
+                  data={tableData}
+                  widthArr={Array(tableHead.length).fill(150)}
+                  textStyle={styles.text}
+                />
+              </Table>
+            )}
+          </ScrollView>
         </ScrollView>
-      </ScrollView>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  topContent: {
+    paddingBottom: 10,
+  },
+  tableContainer: {
+    flex: 1,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  head: {
+    height: 'auto',
+    backgroundColor: "#f1f8ff",
+    minHeight: 40,
+  },
+  text: {
+    margin: 6,
+    textAlign: "center",
+    flexWrap: "wrap",
+  },
   row: {
     flexDirection: "row",
     paddingVertical: 5,
@@ -312,20 +348,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "black",
     padding: 5,
+    minWidth: 120,
   },
   cellText: {
     textAlign: "center",
     flexWrap: "wrap",
-  },
-  tableContainer: {
-    marginTop: 20,
-  },
-  head: {
-    height: 40,
-    backgroundColor: "#f1f8ff",
-  },
-  text: {
-    margin: 6,
+    flex: 1,
   },
 });
 

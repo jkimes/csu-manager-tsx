@@ -25,6 +25,7 @@ export const idStyles = StyleSheet.create({
     textAlign: "left",
     marginBottom: 1,
     marginTop: 0,
+    fontSize: 16,
   },
   tabViewItem: {
     width: "100%",
@@ -45,5 +46,31 @@ export const idStyles = StyleSheet.create({
   columnLabel: {
     flex: 1,
     fontWeight: "bold",
+  },
+  accordionContainer: {
+    flexWrap: "wrap",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flex: 1,
+    paddingRight: 30,
+  },
+  accordionTitle: {
+    flex: 0.4,
+    marginRight: 10,
+    textAlign: "left",
+  },
+  accordionContent: {
+    flex: 0.6,
+    flexWrap: "wrap",
+  },
+  listItemContent: {
+    width: "100%",
+    paddingRight: 35, // Space for chevron
+  },
+  listItemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
   },
 });

@@ -25,6 +25,7 @@ import {
   filterByMaterials,
   filterByEquipment,
   filterAllTypes,
+  filterByGVT,
 } from "./Filters"; // Import filtering functions
 import { DataContext } from "../ContextGetters/DataContext";
 import {
@@ -52,13 +53,37 @@ const handlePress = async (url: string) => {
 };
 
 function handleLink(link: string) {
-  // console.log(`Link: ${link}`);
-  if (link === "") {
+  console.log("Original link:", link);
+  
+  if (!link || link.trim() === "") {
+    console.log("Returning: No Link");
     return "No Link";
-  } else return link;
+  }
+  
+  // Clean the link by trimming whitespace
+  let cleanLink = link.trim();
+  console.log("Cleaned link:", cleanLink);
+  
+  // Check if the link starts with http:// or https://
+  if (!cleanLink.startsWith('http://') && !cleanLink.startsWith('https://')) {
+    cleanLink = 'https://' + cleanLink;
+    console.log("Added https:// - Final link:", cleanLink);
+  } else {
+    console.log("Link already has protocol - Final link:", cleanLink);
+  }
+  
+  return cleanLink;
 }
 
-const VendorList = ({ navigation, route, searchText }) => {
+const VendorList = ({ 
+  navigation, 
+  route, 
+  searchText 
+}: {
+  navigation: any;
+  route: any;
+  searchText: string;
+}) => {
   const { theme, updateTheme } = useTheme();
   const data = useContext(VendorsContext);
   const [filteredData, setFilteredData] = useState(data);
@@ -95,17 +120,29 @@ const VendorList = ({ navigation, route, searchText }) => {
         break;
       case "Materials":
         newData = await filterByMaterials(data);
+        
         break;
       case "Equipment":
-        newData = await filterByMaterials(data);
+        newData = await filterByEquipment(data);
+        console.log(JSON.stringify(newData));
         break;
       case "All Groups":
         newData = await filterAllTypes(data);
+        break;
+      case "GVT":
+        newData = await filterByGVT(data);
         break;
 
       default:
         break;
     }
+
+    // Filter out invalid VendorNum entries
+    newData = newData.filter(item => 
+      item.VendorNum != null && 
+      item.VendorNum !== undefined && 
+      item.VendorNum !== 0
+    );
 
     // if user input is not blank filter further by the input by checking if certain values in the data match the input
     if (searchText !== "") {
@@ -136,12 +173,19 @@ const VendorList = ({ navigation, route, searchText }) => {
         );
       });
     }
+
+    // Sort alphabetically by Name
+    newData.sort((a, b) => {
+      const nameA = (a.Name || '').toLowerCase();
+      const nameB = (b.Name || '').toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+
     setFilteredData(newData);
   };
-
   // renders a component for each client in filtered data that links to their profile page
-  const renderCardList = (navigation) => {
-    return filteredData.map((item) => (
+  const renderCardList = (navigation: any) => {
+    return filteredData.map((item: any) => (
       <ListItem.Swipeable
         key={item.id}
         leftContent={(action) => (
@@ -167,7 +211,7 @@ const VendorList = ({ navigation, route, searchText }) => {
                 Specialty: {item.Specialty}
               </Text>
               <Text style={cardlistStyles.textStyle}>Group: {item.Type}</Text>
-              <TouchableOpacity onPress={() => handlePress(item.WebsiteLink)}>
+              <TouchableOpacity onPress={() => handlePress(handleLink(item.WebsiteLink))}>
                 <Text style={cardlistStyles.textStyle}>
                   {" "}
                   Link: {handleLink(item.WebsiteLink)}
@@ -231,7 +275,15 @@ const VendorList = ({ navigation, route, searchText }) => {
           <Button
           style={cardlistStyles.button}
             title="Equipment"
-            onPress={() => setFilterState("filterByInactive")}
+            onPress={() => setFilterState("Equipment")}
+          />
+
+          <Button
+          style={cardlistStyles.button}
+            title="GVT"
+            onPress={() => {
+              setFilterState("GVT");
+            }}
           />
         </View>
         <Card.Divider />
