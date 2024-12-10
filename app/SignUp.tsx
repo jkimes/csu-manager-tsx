@@ -75,7 +75,7 @@ const SignUp = ({ navigation }: { navigation: SignUpScreenNavigationProp }) => {
       const userData = {
         uid: user.uid,
         email: user.email,
-        role: 'User'
+        role: 'Basic'
       };
 
       // Add console.log to debug
@@ -109,7 +109,7 @@ const SignUp = ({ navigation }: { navigation: SignUpScreenNavigationProp }) => {
       const userData = {
         uid: user?.uid,
         email: user?.email,
-        role: 'User' // Default role is 'User'
+        role: 'Basic' // Default role is 'User'
       };
       if (!user?.uid) throw new Error('User ID is required');
       await firebase.firestore().collection('Users').doc(user.uid).set(userData);

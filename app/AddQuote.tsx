@@ -98,7 +98,7 @@ export default function AddQuote({ route, navigation }) {
       <ScrollView>
         <TextInput
           style={styles.input}
-          placeholder="Quote Title"
+          placeholder="Title"
           value={formData.Label}
           onChangeText={(value) => setFormData({ ...formData, Label: value })}
         />
@@ -108,113 +108,8 @@ export default function AddQuote({ route, navigation }) {
           value={formData.Link}
           onChangeText={(value) => setFormData({ ...formData, Link: value })}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Issue Date: MM/DD/YYYY"
-          value={formData.IssueDate}
-          onChangeText={(value) => setFormData({ ...formData, IssueDate: value })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Expiry Date: MM/DD/YYYY"
-          value={formData.ExpireDate}
-          onChangeText={(value) => setFormData({ ...formData, ExpireDate: value })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Quote #"
-          value={formData.QuoteNumber}
-          onChangeText={(value) => setFormData({ ...formData, QuoteNumber: value })}
-        />
-        <Card.Divider />
-
-        <Text>Contractors Services Unlimited</Text>
-        <Text> Suite 101-C</Text>
-        <Text>9595 Fontainbleau Boulevard</Text>
-        <Text>Miami, Florida 33172-6883</Text>
-        <Text>Bililng@csuflorida.com</Text>
-        <Text>(305)-213-778</Text>
-        <Card.Divider />
-
-        <Card.Title> Client Details</Card.Title>
-        <Text>{client.ClientName}</Text>
-        <Text>{client?.JobSiteStreet + " " + client?.JobSiteCity}</Text>
-        <Text>{client.ClientEmail}</Text>
-        <Text>{client.ClientPhone}</Text>
-        <Card.Divider />
-
-        <Card.Title> Product or Service</Card.Title>
-        {lineItems.map((lineItem) => (
-          <Card key={lineItem.id}>
-            <TextInput
-              style={styles.input}
-              placeholder="Title"
-              value={lineItem.Title}
-              onChangeText={(value) =>
-                handleLineItemChange(lineItem.id, "Title", value)
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Description"
-              value={lineItem.Description}
-              onChangeText={(value) =>
-                handleLineItemChange(lineItem.id, "Description", value)
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Quantity"
-              value={lineItem.Quantity}
-              onChangeText={(value) =>
-                handleLineItemChange(lineItem.id, "Quantity", value)
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Price"
-              value={lineItem.Price}
-              onChangeText={(value) =>
-                handleLineItemChange(lineItem.id, "Price", value)
-              }
-            />
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => deleteLineItem(lineItem.id)}
-            >
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity>
-          </Card>
-        ))}
-
-        <View style={styles.fabContainer}>
-          <FAB
-            color="blue"
-            onPress={addLineItem}
-            title="+"
-            style={styles.fab}
-          />
-        </View>
-        <Card.Divider />
-
-        <Text>Total Price: (calculated automatically)</Text>
-        <Card.Title> Notes</Card.Title>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Notes"
-          value={formData.Notes}
-          onChangeText={(value) => setFormData({ ...formData, Notes: value })}
-        />
-        <Card.Title>Legal Terms</Card.Title>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Legal terms"
-          value={formData.LegalTerms}
-          onChangeText={(value) =>
-            setFormData({ ...formData, LegalTerms: value })
-          }
-        />
-        <Button title="Add Quote" onPress={saveQuoteToFirebase} />
+       
+        <Button title="Add" onPress={saveQuoteToFirebase} />
       </ScrollView>
     </View>
   );

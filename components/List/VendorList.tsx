@@ -190,7 +190,6 @@ const VendorList = ({
         key={item.id}
         leftContent={(action) => (
           <View>
-            <Text>{item.id}</Text>
             <DeleteClient id={item.id} />
           </View>
         )}
@@ -236,26 +235,28 @@ const VendorList = ({
   return (
     <ThemeProvider theme={theme}>
       <View>
-        <View style={cardlistStyles.buttonContainer}>
+        <View style={[cardlistStyles.buttonContainer, { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }]}>
           <Button
-            style={cardlistStyles.button}
+            style={[cardlistStyles.button, { margin: 4, minWidth: 100 }]}
+            titleStyle={{ fontSize: 12 }}
             title="All Groups"
             onPress={() => {
               setFilterState("All Groups");
-              
             }}
           />
 
           <Button
-          style={cardlistStyles.button}
-            title="Subcontractors"
+            style={[cardlistStyles.button, { margin: 4, minWidth: 100 }]}
+            titleStyle={{ fontSize: 12 }}
+            title="Subcontractors" 
             onPress={() => {
               setFilterState("Subcontractors");
             }}
           />
 
           <Button
-          style={cardlistStyles.button}
+            style={[cardlistStyles.button, { margin: 4, minWidth: 100 }]}
+            titleStyle={{ fontSize: 12 }}
             title="Materials"
             onPress={() => {
               setFilterState("Materials");
@@ -263,23 +264,24 @@ const VendorList = ({
           />
 
           <Button
-          style={cardlistStyles.button}
+            style={[cardlistStyles.button, { margin: 4, minWidth: 100 }]}
+            titleStyle={{ fontSize: 12 }}
             title="ProServ"
             onPress={() => {
               setFilterState("ProServ");
             }}
           />
 
-          
-
           <Button
-          style={cardlistStyles.button}
+            style={[cardlistStyles.button, { margin: 4, minWidth: 100 }]}
+            titleStyle={{ fontSize: 12 }}
             title="Equipment"
             onPress={() => setFilterState("Equipment")}
           />
 
           <Button
-          style={cardlistStyles.button}
+            style={[cardlistStyles.button, { margin: 4, minWidth: 100 }]}
+            titleStyle={{ fontSize: 12 }}
             title="GVT"
             onPress={() => {
               setFilterState("GVT");

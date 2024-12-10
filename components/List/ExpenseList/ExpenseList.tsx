@@ -55,7 +55,12 @@ const formatTimestampToDate = (timestamp) => {
     return `${month}/${day}/${year}`;
   };
 
-const ExpenseList = ({ navigation, route, data  }) => {
+// Utility function to format numbers with commas and decimals
+const formatCurrency = (amount) => {
+  return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const ExpenseList = ({ navigation, route, data, refreshData }) => {
   const { theme, updateTheme } = useTheme();
   //const data = useContext(VendorsContext);
 
@@ -65,16 +70,50 @@ const ExpenseList = ({ navigation, route, data  }) => {
     // console.log("Card List Data context", { data });
   }, [data]);
 
+  const handleDeleteExpense = (expenseId) => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this expense?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: async () => {
+            try {
+              // Logic to delete the expense from Firestore
+              await firebase.firestore().collection('customerExp').doc(expenseId).delete();
+              Alert.alert('Success', 'Expense deleted successfully');
+              refreshData();
+            } catch (error) {
+              console.error('Error deleting expense:', error);
+              Alert.alert('Error', 'Failed to delete expense');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const renderExpenseList = (navigation) => {
-    return data.map((item) => (
+    // Sort the data by the most recent date
+    const sortedData = [...data].sort((a, b) => {
+      const dateA = a.Date?.toDate() || new Date(a.Date);
+      const dateB = b.Date?.toDate() || new Date(b.Date);
+      return dateB - dateA; // Sort in descending order
+    });
+
+    return sortedData.map((item) => (
       <ListItem
         key={item.id}
         style={cardlistStyles.listItem}
       >
         <Card key={item.id} containerStyle={cardlistStyles.card}>
-          {/* <View key={item.id} style={styles.contactBox}> */}
-          <View style={{flexDirection: "row"}}>
-            <View>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <View style={{ flex: 1 }}>
               <Card.Title style={cardlistStyles.textStyleName}>
                 {handleName(item.CustomerName)}
               </Card.Title>
@@ -83,11 +122,17 @@ const ExpenseList = ({ navigation, route, data  }) => {
                 Customer #: {item.CustomerNum}
               </Text>
               <Text style={cardlistStyles.textClientNum}>
-                Pmt Amount: ${item.PayAmount}
+                Pmt Amount: ${formatCurrency(item.PayAmount)}
               </Text>
               <Text style={cardlistStyles.textStyle}>Date: {formatTimestampToDate(item.Date)}</Text>
-              
             </View>
+            <Button
+              title="X"
+              onPress={() => handleDeleteExpense(item.id)}
+              buttonStyle={{ backgroundColor: 'red', padding: 2, borderRadius: 15 }}
+              titleStyle={{ fontSize: 12 }}
+              containerStyle={{ marginLeft: 10 }}
+            />
           </View>
         </Card>
       </ListItem>
@@ -107,3 +152,4 @@ const ExpenseList = ({ navigation, route, data  }) => {
 };
 
 export default ExpenseList;
+

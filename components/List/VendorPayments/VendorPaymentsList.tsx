@@ -4,6 +4,7 @@ import { ThemeProvider, useTheme, Card, ListItem } from "@rneui/themed";
 import { CustomerExpContext } from "../../ContextGetters/CustomerExpContext";
 import { cardlistStyles } from "../styles/cardlist.styles";
 import ExpenseList from "../ExpenseList/ExpenseList";
+import firebase from "firebase/app";
 
 const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
   const { theme } = useTheme();
@@ -64,6 +65,19 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
     filterAndGroupData();
   }, [data, vendorNum]);
 
+  // Function to refresh data after deletion
+  const refreshData = async () => {
+    const snapshot = await firebase.firestore().collection('expenses').get();
+    const expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Update the context or state with the new expenses
+    // Assuming you have a context or state to update
+  };
+
+  // Utility function to format numbers with commas and decimals
+  const formatCurrency = (amount) => {
+    return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   // Log whenever groupedData updates to confirm it’s set correctly
   useEffect(() => {
     //console.log("Updated Grouped Data: ", JSON.stringify(groupedData));
@@ -85,15 +99,18 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
                   <ListItem.Content>
                     <ListItem.Title>CustomerNum: {customerNum}</ListItem.Title>
                     <ListItem.Subtitle>
-                      Total PayAmount: ${group.totalPayAmount.toFixed(2)}
+                      Total PayAmount: ${formatCurrency(group.totalPayAmount)}
                     </ListItem.Subtitle>
                   </ListItem.Content>
                 }
               >
                 {expandedCustomer === customerNum && (
-                  <ExpenseList navigation={navigation} route={route} data={group.expenses}>
-                    
-                  </ExpenseList>
+                  <ExpenseList 
+                    navigation={navigation} 
+                    route={route} 
+                    data={group.expenses} 
+                    refreshData={refreshData}
+                  />
                 )}
               </ListItem.Accordion>
             ))

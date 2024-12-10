@@ -193,54 +193,34 @@ export default function VendorUploader({ route, navigation }) {
       const batch = db.batch();
   
       for (const client of batchData) {
-        const clientNumber = String(client[0]); // Ensure client number is a string
+        const clientNumber = String(client[0]);
         const docRef = db.collection("vendors").doc(clientNumber);
-        const doc = await docRef.get();
-  
-        const cleanData = (data: { [key: string]: any }) => {
-          const cleaned: { [key: string]: any } = {};
-          Object.keys(data).forEach((key) => {
-            if (data[key] !== undefined && data[key] !== null) {
-              cleaned[key] = data[key];
-            }
-          });
-          return cleaned;
-        };
-  
-        const newData: { [key: string]: any } = {};
+        
+        const newData = {};
         headerRow.forEach((field, index) => {
-          if (field != null && field != undefined) {
+          if (field != null && field !== undefined) {
             const value = client[index];
             newData[field] = convertDataType(
               String(value),
               fieldTypes[field] || "string"
-            ); // Ensure all values are strings
+            );
           }
         });
   
         if (Object.keys(newData).length > 0) {
-          if (doc.exists) {
-            console.log(`Document exists! Updating document for client number ${clientNumber}`);
-            batch.update(docRef, cleanData(newData));
-          } else {
-            console.log(`Document does not exist! Creating new document for client number ${clientNumber}`);
-            batch.set(docRef, cleanData(newData));
-          }
+          // Use set with merge option instead of checking existence
+          batch.set(docRef, newData, { merge: true });
         }
       }
   
       try {
-        // Commit the batch
         await batch.commit();
       } catch (error) {
         if (attempt < 3) {
-          console.warn(`Batch failed, retrying attempt ${attempt}...`);
-          await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
-          await processBatch(batchData, attempt + 1);
-        } else {
-          console.error("Failed to commit batch after multiple attempts:", error);
-          throw error;
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return processBatch(batchData, attempt + 1);
         }
+        throw error;
       }
     };
   

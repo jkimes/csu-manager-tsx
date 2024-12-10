@@ -49,13 +49,13 @@ export default function WIP() {
   useEffect(() => {
     const getCurrentUserRole = async () => {
       const currentUser = getAuth().currentUser;
-      console.log("Current user:", currentUser?.email); // Log current user
+      //console.log("Current user:", currentUser?.email); // Log current user
       if (currentUser) {
         const userRef = firebase.firestore().collection('Users').doc(currentUser.uid);
         const doc = await userRef.get();
         if (doc.exists) {
           const role = doc.data()?.role || 'User';
-          console.log("User role:", role); // Log the role
+         // console.log("User role:", role); // Log the role
           setUserRole(role);
         }
       }
@@ -111,8 +111,9 @@ export default function WIP() {
                 item.clientNumber !== 0
               )
               .map((item) => {
-                console.log("Current user role:", userRole); // Log role for each item
-                console.log("Should show delete button:", ['Admin', 'Manager'].includes(userRole)); // Log condition check
+                //console.log("Current user role:", userRole); // Log role for each item
+                //console.log("Should show delete button:", ['Admin', 'Manager'].includes(userRole)); // Log condition check
+                console.log("Cost to Date:", item.costToDate);
                 
                 return (
                   <Card key={item.id} containerStyle={{ borderRadius: 4, padding: 10 }}>
@@ -168,7 +169,7 @@ export default function WIP() {
                           <Card.Title style={WipStyles.title}>Cost to Date</Card.Title>
                           <Card.Divider />
                           <Text style={WipStyles.digits}>
-                            ${addCommasToNumber(item.CostToDate)}
+                            ${addCommasToNumber(item.costToDate)}
                           </Text>
                         </Card>
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { firebase } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 export const AuthContext = createContext<any>(null);
 
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
+      console.log('Sign in was successful');
     } catch (error) {
       throw error;
     }
@@ -60,12 +62,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const deleteUser = async (uid: string) => {
+    console.log(`UID: ${uid}`);
+    try {
+      const functions = getFunctions();
+      const deleteUserFunction = httpsCallable(functions, 'deleteUser');
+      await deleteUserFunction({ uid }); // Call the cloud function to delete the user
+      console.log('User deleted successfully from Firebase Authentication');
+    } catch (error) {
+      console.error('Error deleting user from Firebase Authentication:', error);
+      throw error; // Rethrow the error to handle it in the calling function
+    }
+  };
+
   const value = {
     user, 
     loading, 
     signIn, 
     signOut,
-    signUpWithEmailAndPassword
+    signUpWithEmailAndPassword,
+    deleteUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

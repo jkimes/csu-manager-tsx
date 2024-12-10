@@ -6,48 +6,68 @@ import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Platform,
-  Linking,
+  Alert,
   ScrollView,
 } from "react-native";
-import { COLORS, FONT, SIZES } from "../../constants";
-import { ThemeProvider, useTheme, Card, Button, ListItem } from "@rneui/themed";
-
-/*Custom imports */
+import { ThemeProvider, useTheme, Card, Button } from "@rneui/themed";
 import { firebase, firebaseConfig } from "../../config";
-import { filterByShowAll, filterByActive, filterByInactive } from "./Filters"; // Import filtering functions
 import { PaymentContext } from "../ContextGetters/PaymentContext";
-import { handleAddress, DisplayJobStatus } from "../Helpers/helperFunctions";
-import DeleteClient from "../Buttons/DeleteClient";
+import { useAuth } from "../ContextGetters/AuthContext";
 import { cardlistStyles } from "./styles/cardlist.styles";
 
-//initalizes firebase connection
+// Initializes firebase connection
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const filterAndSortData = (data: any[] | undefined, clientNumber: number) => {
+const formatTimestampToDate = (timestamp) => {
+  if (!timestamp || !timestamp.toDate) {
+    console.error("Invalid timestamp");
+    return null;
+  }
+
+  const date = timestamp.toDate(); // Convert the Firebase Timestamp to a JavaScript Date object
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so we add 1
+  const day = String(date.getDate()).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${month}/${day}/${year}`;
+};
+
+const Payments = ({ navigation, route, clientNumber }) => {
+  const { theme } = useTheme();
+  const data = useContext(PaymentContext);
+  const { user } = useAuth();
+  const [userRole, setUserRole] = useState<string>('User');
+  const [filteredData, setFilteredData] = useState(data);
+
+  useEffect(() => {
+    const getCurrentUserRole = async () => {
+      if (user?.uid) {
+        const userDoc = await firebase.firestore()
+          .collection('Users')
+          .doc(user.uid)
+          .get();
+        
+        if (userDoc.exists) {
+          setUserRole(userDoc.data()?.role || 'User');
+        }
+      }
+    };
+    getCurrentUserRole();
+  }, [user]);
+
+  const filterAndSortData = (data, clientNumber) => {
     if (!data || data.length === 0) {
       console.log("Data is empty or undefined");
       return [];
     }
-  
-    console.log("ClientNumber to filter: ", clientNumber);
-  
+
     // Filter the data to include only entries with matching clientNumber
-    const filteredData = data?.filter(item => {
-      //console.log("Checking item: ", item.CustomerNum); // Log each CustomerNum
-      // Check if item.CustomerNum exists and compare with clientNumber
-      return String(item.CustomerNum) === String(clientNumber); // Type-safe comparison
-    });
-  
-    //console.log("Filtered Data: ", JSON.stringify(filteredData));
-  
+    const filteredData = data.filter(item => String(item.CustomerNum) === String(clientNumber));
+
     // Sort the filtered data by the Date field (most recent first)
-    const sortedData = filteredData?.sort((a, b) => {
+    const sortedData = filteredData.sort((a, b) => {
       if (a.Date && b.Date) {
         const dateA = a.Date.toDate(); // Convert Timestamp to Date
         const dateB = b.Date.toDate(); // Convert Timestamp to Date
@@ -55,117 +75,77 @@ const filterAndSortData = (data: any[] | undefined, clientNumber: number) => {
       }
       return 0; // If Date is missing, treat as equal
     });
-    //console.log("Sorted Data" + sortedData);
+
     return sortedData || [];
   };
-  
 
+  const customerData = filterAndSortData(data, clientNumber);
 
-  const formatTimestampToDate = (timestamp) => {
-    if (!timestamp || !timestamp.toDate) {
-      console.error("Invalid timestamp");
-      return null;
-    }
-  
-    const date = timestamp.toDate(); // Convert the Firebase Timestamp to a JavaScript Date object
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so we add 1
-    const day = String(date.getDate()).padStart(2, "0");
-    const year = date.getFullYear();
-  
-    return `${month}/${day}/${year}`;
+  const handleDeletePayment = async (paymentId) => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this payment?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: async () => {
+            try {
+              // Logic to delete the payment from Firestore
+              await firebase.firestore().collection('AR').doc(paymentId).delete();
+              Alert.alert('Success', 'Payment deleted successfully');
+              // Optionally refresh the data after deletion
+              // fetchData(); // Implement a function to refresh data if needed
+            } catch (error) {
+              console.error('Error deleting payment:', error);
+              Alert.alert('Error', 'Failed to delete payment');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
-  
 
-const Payments = ({ navigation, route, clientNumber }) => {
-    console.log("Payment Client Num " + clientNumber );
-  const { theme, updateTheme } = useTheme();
-  const data = useContext(PaymentContext);
-  //console.log("MY PAYMENT Data context" + JSON.stringify(data ));
-  const [filteredData, setFilteredData] = useState(data);
-  const collectionRef = firebase.firestore().collection("AR");
-  const [filterState, setFilterState] = useState<string>("showAll");
-
-
-  var customerData = filterAndSortData(data,clientNumber);
-  //console.log("Customer Data: " + JSON.stringify(customerData))
-
-  useEffect(() => {
-    console.log("Customer Data to Render: ", customerData);
-  }, [customerData]);
-
-
-  
-  // Call renderCardList whenever data changes
-  useEffect(() => {
-    //renderCardList(navigation);
-  }, [data]);
-
-  // This effect will run whenever 'data' changes
-//   useEffect(() => {
-//     // console.log("Filtered Data", filteredData);
-//   }, [filteredData]);
-
-  // Update filtered data whenever filterState changes
-//   useEffect(() => {
-//     filterData();
-//   }, [filterState, searchText]);
-
-  // executes a helper method to filter data based on the state of "filterState" then optionally
-  // if the user types text into the search bar it will filter by the input after the first filter has been applied
-  
-    // if user input is not blank filter further by the input by checking if certain values in the data match the input
-//     if (searchText !== "") {
-//       // console.log("User Input: ", searchText);
-//       // Filter further based on search text
-//       newData = newData.filter((item) => {
-//         const clientNumber = (item.CustomerNum || "").toString().toLowerCase();
-//         const id = (item.CustomerName || "").toString().toLowerCase();
-//         const JobSite = (item.JobSite || "").toString().toLowerCase();
-//         // const street = (item.Address_Street || "").toString().toLowerCase();
-
-//         const search = searchText.toLowerCase();
-//         return (
-//           clientNumber.includes(search) ||
-//           id.includes(search) ||
-//           JobSite.includes(search)
-//           // street.includes(search)
-//         );
-//       });
-//     }
-//     setFilteredData(newData);
-//   };
-
-  // renders a component for each client in filtered data that links to their profile page
   const renderCardList = () => {
-    return customerData?.map((item) => (
-        <Card key={item.id} containerStyle={cardlistStyles.card}>
-          <View style={{ flexDirection: 'column', alignItems: 'flex-start'  }}>
+    console.log("User Role:", userRole);
+    return customerData.map((item) => (
+      <Card key={item.id} containerStyle={cardlistStyles.card}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View style={{ flex: 1 }}>
             <Text style={cardlistStyles.textStyleName}>
               Payment Date: {formatTimestampToDate(item.Date)}
             </Text>
             <Text style={cardlistStyles.textStyleName}>
-                Amt: ${item.PmtAmount}
+              Amt: ${item.PmtAmount}
             </Text>
             <Text style={cardlistStyles.textClientNum}>
-                Pmt Method: {item.PmtMethod}
+              Pmt Method: {item.PmtMethod}
             </Text>
-            {/* <Text style={cardlistStyles.textStyle}>
-                check#: {item.CkNumber}
-                </Text> */}
-            </View>
-        </Card>
-      
+          </View>
+          {(userRole === 'Admin' || userRole === 'Manager') ? (
+            <Button
+              title="X"
+              onPress={() => handleDeletePayment(item.id)}
+              buttonStyle={{ backgroundColor: 'red', padding: 2, borderRadius: 15 }}
+              titleStyle={{ fontSize: 12 }}
+              containerStyle={{ marginLeft: 10 }}
+            />
+          ) : null}
+        </View>
+      </Card>
     ));
   };
 
   return (
-    // <ThemeProvider theme={theme}>
-      <View >
-        <ScrollView >
-          {renderCardList()}
-        </ScrollView>
-      </View>
-    // </ThemeProvider>
+    <View>
+      <ScrollView>
+        {renderCardList()}
+      </ScrollView>
+    </View>
   );
 };
 

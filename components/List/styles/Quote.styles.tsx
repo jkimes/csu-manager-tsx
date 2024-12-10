@@ -2,6 +2,22 @@ import { StyleSheet } from "react-native";
 import { COLORS, SIZES } from "../../../constants";
 
 export const QuoteStyles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    width: '100%'
+  },
+  cardTitle: {
+    color: "black",
+    fontSize: 18,
+    flex: 1,
+    marginRight: 10
+  },
+  deleteButton: {
+    padding: 5,
+  },
   cardContainer: {
     width: "100%",
     marginBottom: 10,

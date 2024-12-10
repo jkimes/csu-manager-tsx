@@ -29,6 +29,8 @@ import { QuoteContext } from "../ContextGetters/QuoteContext";
 import DataTable from "../DataTable";
 import { Quote, LineItem, Client } from "../../App";
 import { QuoteStyles } from "./styles/Quote.styles";
+import { useAuth } from '../ContextGetters/AuthContext';
+import { Icon } from '@rneui/themed';
 
 //initalizes firebase connection
 if (!firebase.apps.length) {
@@ -46,6 +48,8 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
   const quoteData: Quote[] = useContext(QuoteContext); // all quote data
   const [clientData, setclientData] = useState(quoteData); // filters quote data to just data associated with client
   const [visible, setVisible] = useState(false);
+  const { user } = useAuth();
+  const [userRole, setUserRole] = useState<string>('User');
 
   const client: Client = data.find((item) => item.CustomerNum === ClientNumber);
   // console.log(`client Name; ${client.Address_Zip} `);
@@ -71,6 +75,48 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
     // Set filtered data to clientData
     setclientData(filteredData);
   }, [quoteData, ClientNumber]); // Update clientData whenever quoteData changes
+
+  useEffect(() => {
+    const getCurrentUserRole = async () => {
+      if (user?.uid) {
+        const userDoc = await firebase.firestore()
+          .collection('Users')
+          .doc(user.uid)
+          .get();
+        
+        if (userDoc.exists) {
+          setUserRole(userDoc.data()?.role || 'User');
+        }
+      }
+    };
+    getCurrentUserRole();
+  }, [user]);
+
+  const handleDelete = async (quoteId: string) => {
+    try {
+      // Get reference to quote document
+      const quoteRef = firebase.firestore().collection('Quotes').doc(quoteId);
+      
+      // Delete all line items in subcollection first
+      const lineItemsSnapshot = await quoteRef.collection('LineItems').get();
+      const lineItemBatch = firebase.firestore().batch();
+      lineItemsSnapshot.docs.forEach((doc) => {
+        lineItemBatch.delete(doc.ref);
+      });
+      await lineItemBatch.commit();
+
+      // Then delete the quote document
+      await quoteRef.delete();
+
+      // Update local state
+      setclientData(prevData => prevData.filter(quote => quote.id !== quoteId));
+      
+      Alert.alert('Success', 'Quote deleted successfully');
+    } catch (error) {
+      console.error('Error deleting quote:', error);
+      Alert.alert('Error', 'Failed to delete quote');
+    }
+  };
 
   const toggleOverlay = () => {
     setVisible(!visible);
@@ -128,46 +174,67 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
 
       return (
         <Card key={item.id} containerStyle={QuoteStyles.cardContainer}>
-          <Card.FeaturedTitle style={{ color: "black" }}>
-            {item.Label}
-          </Card.FeaturedTitle>
-          <Card.FeaturedSubtitle style={{ color: "black" }}>
-            {" "}
-            #{item.QuoteNumber}
-          </Card.FeaturedSubtitle>
-          {item.Link && (
-            <TouchableOpacity 
-              onPress={async () => {
-                try {
-                  let url = item.Link;
-                  // Add https:// if no protocol is specified
-                  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    url = 'https://' + url;
-                  }
-                  const supported = await Linking.canOpenURL(url);
-                  if (supported) {
-                    await Linking.openURL(url);
-                  } else {
-                    console.log("Cannot open URL: " + url);
-                    Alert.alert("Error", "Cannot open this URL");
-                  }
-                } catch (error) {
-                  console.error("Error opening link:", error);
-                  Alert.alert("Error", "Failed to open link");
-                }
-              }}
+          <View style={QuoteStyles.headerContainer}>
+            <Card.FeaturedTitle 
+              style={QuoteStyles.cardTitle}
             >
-              <Text style={QuoteStyles.linkText}>
-                Click to view
-              </Text>
-            </TouchableOpacity>
-          )}
+              {item.Label}
+            </Card.FeaturedTitle>
+            
+            {['Admin', 'Manager'].includes(userRole) && (
+              <TouchableOpacity
+                onPress={() => {
+                  Alert.alert(
+                    'Confirm Delete',
+                    'Are you sure you want to delete this quote?',
+                    [
+                      {
+                        text: 'Cancel',
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Delete',
+                        onPress: () => handleDelete(item.id),
+                        style: 'destructive',
+                      },
+                    ]
+                  );
+                }}
+                style={QuoteStyles.deleteButton}
+              >
+                <Icon
+                  name="delete"
+                  type="material"
+                  color="#FF0000"
+                  size={24}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
           <Button
-            title="Quote Link"
-            onPress={toggleOverlay}
+            title="View Link"
+            onPress={async () => {
+              try {
+                let url = item.Link;
+                // Add https:// if no protocol is specified
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                  url = 'https://' + url;
+                }
+                const supported = await Linking.canOpenURL(url);
+                if (supported) {
+                  await Linking.openURL(url);
+                } else {
+                  console.log("Cannot open URL: " + url);
+                  Alert.alert("Error", "Cannot open this URL");
+                }
+              } catch (error) {
+                console.error("Error opening link:", error);
+                Alert.alert("Error", "Failed to open link");
+              }
+            }}
             buttonStyle={QuoteStyles.button}
           />
-          <Overlay
+          {/* <Overlay
             isVisible={visible}
             onBackdropPress={toggleOverlay}
             overlayStyle={QuoteStyles.overlay}
@@ -207,7 +274,7 @@ const QuoteList = ({ navigation, route, ClientNumber }: QuoteListProps) => {
                 <Button title="Close" onPress={toggleOverlay} />
               </ScrollView>
             </View>
-          </Overlay>
+          </Overlay> */}
         </Card>
       );
     });

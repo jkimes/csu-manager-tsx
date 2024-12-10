@@ -15,7 +15,6 @@ import { Timestamp } from "firebase/firestore";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import Clientpage from "./app/clientpage";
-//import UpdateData from "./components/updateData";
 import Settings from "./app/Settings";
 import SignIn from "./app/SignIn";
 import ClientUploader from "./components/Uploaders/ClientUploader";
@@ -36,17 +35,16 @@ import selectDB from "./app/selectDB";
 import VendorUploader from "./components/Uploaders/VendorUploader";
 import WipUploader from "./components/Uploaders/WipUploader";
 import PaymentUploader from "./components/Uploaders/PaymentUploader";
-import CusExpenseUploader from "./components/Uploaders/CusExpenseUploader"
+import CusExpenseUploader from "./components/Uploaders/CusExpenseUploader";
 import SignUp from "./app/SignUp";
 import { useAuth } from "./components/ContextGetters/AuthContext"; // Import your auth context
 import { AuthProvider } from "./components/ContextGetters/AuthContext"; // Import your auth context
 
-
-// const firestore = firebase.firestore();
-// firestore.settings({
-//   cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
-//   persistence: false, // Ensure no offline persistence if you're working in a real-time environment
-// }); 
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app();
+}
 
 // Define your types and interfaces
 export interface Vendor {
@@ -62,7 +60,6 @@ export interface Vendor {
   Specialty: string;
   Type: string;
   WebsiteLink: string;
-  ContactName: string;
 }
 
 type DocumentData<T> = T & { id: string };
@@ -77,25 +74,25 @@ export interface Contact {
 
 export interface Client {
   id: string;
-  CustomerNum: number,
-    CustomerName: string,
-    Active: string,
-    ClientName: string,
-    ContactName: string,
-    BillingStreet: string,
-    BillingCity: string,
-    BillingState: string,
-    BillingZip: string,
-    JobSiteStreet: string,
-    JobSiteCity: string,
-    JobSiteState: string,
-    JobSiteZip: string,
-    ClientEmail: string,
-    ContactEmail: string,
-    ClientPhone: number,
-    ClientPhone2:number,
-    ContactPh1: number,
-    ContactPh2: number,
+  CustomerNum: number;
+  CustomerName: string;
+  Active: string;
+  ClientName: string;
+  ContactName: string;
+  BillingStreet: string;
+  BillingCity: string;
+  BillingState: string;
+  BillingZip: string;
+  JobSiteStreet: string;
+  JobSiteCity: string;
+  JobSiteState: string;
+  JobSiteZip: string;
+  ClientEmail: string;
+  ContactEmail: string;
+  ClientPhone: number;
+  ClientPhone2: number;
+  ContactPh1: number;
+  ContactPh2: number;
   // Add more fields as needed
 }
 
@@ -149,12 +146,6 @@ export interface Expense {
   // Add more fields as needed
 }
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-} else {
-  firebase.app();
-}
-
 type RootStackParamList = {
   Home: undefined;
   WIP: undefined;
@@ -178,95 +169,96 @@ type RootStackParamList = {
 function HomeScreen({ navigation }: { 
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'> 
 }) {
-    const { user } = useAuth(); // Get the user from the auth context
-    const [userRole, setUserRole] = useState<string | null>(null);
-  
-    useEffect(() => {
-      if (user) {
-        const userRef = firebase.firestore().collection("Users").doc(user.uid);
-        userRef.get()
-          .then((doc) => {
-            if (doc.exists) {
-              const userData = doc.data();
-              setUserRole(userData?.role);
-            } else {
-              setUserRole(null);
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching user role:", error);
+  const { user } = useAuth(); // Get the user from the auth context
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const userRef = firebase.firestore().collection("Users").doc(user.uid);
+      userRef.get()
+        .then((doc) => {
+          if (doc.exists) {
+            const userData = doc.data();
+            setUserRole(userData?.role);
+          } else {
             setUserRole(null);
-          });
-      } else {
-        setUserRole(null);
-      }
-    }, [user]);
-  
-    useEffect(() => {
-      console.log("Current userRole state:", userRole);
-    }, [userRole]);
-  
-    return (
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching user role:", error);
+          setUserRole(null);
+        });
+    } else {
+      setUserRole(null);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    console.log("Current userRole state:", userRole);
+  }, [userRole]);
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "flex-start",
+        backgroundColor: "white",
+      }}
+    >
+      <Text style={{ fontWeight: "bold", alignSelf: "center" }}>
+        CSU Manager
+      </Text>
+      <Image
+        style={{ alignSelf: "center", height: 100, width: 100 }}
+        source={require("./assets/icons/CSU.png")}
+      />
+      <Card.Divider style={{ width: "100%" }} />
+      {/* Ensure the divider takes full width */}
       <View
         style={{
           flex: 1,
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "flex-start",
+          paddingHorizontal: 20,
+          width: "100%",
           backgroundColor: "white",
         }}
       >
-        <Text style={{ fontWeight: "bold", alignSelf: "center" }}>
-          CSU Manager
-        </Text>
-        <Image
-          style={{ alignSelf: "center", height: 100, width: 100 }}
-          source={require("./assets/icons/CSU.png")}
-        />
-        <Card.Divider style={{ width: "100%" }} />
-        {/* Ensure the divider takes full width */}
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            paddingHorizontal: 20,
-            width: "100%",
-            backgroundColor: "white",
-          }}
-        >
-          {[
+        {[
+          ...(userRole !== "Basic" ? [
             { title: "WIP", route: "WIP" as keyof RootStackParamList },
             { title: "Clients", route: "Clients" as keyof RootStackParamList },
             { title: "Vendors", route: "Vendors" as keyof RootStackParamList },
-            {title: "Settings", route: "Settings" as keyof RootStackParamList},
-            ...(userRole === "Admin" || userRole === "Manager" 
-              ? [{ title: "CSV Upload - Admin Only", route: "SelectDB" as keyof RootStackParamList, special: true }] 
-              : [])
-          ].map((btn, index) => (
-            <Button
-              key={btn.route}
-              title={btn.title}
-              onPress={() => navigation.navigate(btn.route)}
-              buttonStyle={{
-                width: 300,
-                height: 50,
-                marginVertical: 10,
-                backgroundColor: btn.special ? "gray" : "black",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              titleStyle={{
-                alignSelf: "center",
-                ...(btn.special ? { fontSize: 9 } : {}),
-              }}
-            />
-          ))}
-        </View>
+          ] : []),
+          { title: "Settings", route: "Settings" as keyof RootStackParamList },
+          ...(userRole === "Admin" || userRole === "Manager" 
+            ? [{ title: "CSV Upload - Admin Only", route: "SelectDB" as keyof RootStackParamList, special: true }] 
+            : [])
+        ].map((btn, index) => (
+          <Button
+            key={btn.route}
+            title={btn.title}
+            onPress={() => navigation.navigate(btn.route)}
+            buttonStyle={{
+              width: 300,
+              height: 50,
+              marginVertical: 10,
+              backgroundColor: btn.special ? "gray" : "black",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            titleStyle={{
+              alignSelf: "center",
+              ...(btn.special ? { fontSize: 9 } : {}),
+            }}
+          />
+        ))}
       </View>
-    );
-  }
-  
+    </View>
+  );
+}
 
 const Stack = createNativeStackNavigator();
 const theme = createTheme({
@@ -295,6 +287,32 @@ const theme = createTheme({
     },
   },
 });
+
+// Create a separate component for the header right button
+const HeaderRight = ({ route, navigation }) => {
+  const { user } = useAuth();
+  const isAuthScreen = route.name === 'SignIn' || route.name === 'SignUp';
+
+  if (isAuthScreen || !user) {
+    return null;
+  }
+
+  return (
+    <Button
+      onPress={() => navigation.navigate("Home")}
+      icon={
+        <Icon
+          name="home"
+          type="font-awesome"
+          size={28}
+          color="white"
+        />
+      }
+      iconPosition="left"
+    />
+  );
+};
+
 export default function App() {
   const [exp, setExp] = useState<Expense[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -309,7 +327,6 @@ export default function App() {
   const wipRef = firebase.firestore().collection("wip");
   const paymentRef = firebase.firestore().collection("AR");
   const expenseRef = firebase.firestore().collection("customerExp");
-  
 
   useEffect(() => {
     // Fetch initial data when component mounts
@@ -317,23 +334,17 @@ export default function App() {
     fetchQuotes();
     fetchWip();
     fetchPayments();
-    //console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
-    
 
     // Set up Firestore listener for vendors collection
     const unsubscribeExpenses = expenseRef
-    .orderBy("VendorNumber")
-    //.orderBy("CustomerNum")
-
-    .onSnapshot((snapshot) => {
-     const newData = snapshot.docs.map((doc) => ({
-      ...doc.data() as Expense,
-       id: doc.id,
-       
-     }));
-     setExp(newData);
-   });
-   
+      .orderBy("VendorNumber")
+      .onSnapshot((snapshot) => {
+        const newData = snapshot.docs.map((doc) => ({
+          ...doc.data() as Expense,
+          id: doc.id,
+        }));
+        setExp(newData);
+      });
 
     // Set up Firestore listener for clients collection
     const unsubscribeWip = wipRef.orderBy("name").onSnapshot((snapshot) => {
@@ -352,17 +363,18 @@ export default function App() {
       })) as Vendor[];
       setVendors(newData);
     });
-     // Set up Firestore listener for vendors collection
-     const unsubscribePayments = paymentRef
-     .orderBy("CustomerNum")
-     .orderBy("Date", "desc")
-     .onSnapshot((snapshot) => {
-      const newData: Payment[] = snapshot.docs.map((doc) => ({
-        ...doc.data() as Payment,
-        id: doc.id,
-      }));
-      setPayments(newData);
-    });
+
+    // Set up Firestore listener for vendors collection
+    const unsubscribePayments = paymentRef
+      .orderBy("CustomerNum")
+      .orderBy("Date", "desc")
+      .onSnapshot((snapshot) => {
+        const newData: Payment[] = snapshot.docs.map((doc) => ({
+          ...doc.data() as Payment,
+          id: doc.id,
+        }));
+        setPayments(newData);
+      });
 
     // Set up Firestore listener for clients collection
     const unsubscribeClients = collectionRef
@@ -374,7 +386,6 @@ export default function App() {
         }));
         setData(newData);
         setFilteredData(newData);
-        //console.log("App.tsx Client Data: " + JSON.stringify(newData));
       });
 
     // Set up Firestore listener for quotes collection
@@ -413,7 +424,6 @@ export default function App() {
       unsubscribeVendors();
       unsubscribePayments();
       unsubscribeExpenses();
-      //console.log("App.tsx Expenses Data: " + JSON.stringify(exp));
     };
   }, []);
 
@@ -501,31 +511,36 @@ export default function App() {
                   <WipContext.Provider value={wip}>
                     <NavigationContainer>
                       <Stack.Navigator
-                        screenOptions={({ navigation }) => ({
+                        screenOptions={({ route, navigation }) => ({
                           headerStyle: {
-                            backgroundColor: theme?.lightColors?.secondary, // Set header background color to black
+                            backgroundColor: theme?.lightColors?.secondary,
                           },
                           headerTintColor: "white",
-                          headerRight: () => (
-                            <Button
-                              onPress={() => navigation.navigate("Home")}
-                              icon={
-                                <Icon
-                                  name="home"  // Name of the icon
-                                  type="font-awesome"  // Icon type (using FontAwesome in this case)
-                                  size={28}  // Size of the icon
-                                  color="white"  // Color of the icon
-                                  style={{ }}  // Adds spacing between icon and text marginRight: 10, height: 75 
-                                />
-                              }
-                              iconPosition="left"  // Icon appears to the left of the title
-                            />
-                          ),
+                          headerRight: () => {
+                            if (route.name === 'SignIn' || route.name === 'SignUp') {
+                              return null;
+                            }
+                            return <HeaderRight route={route} navigation={navigation} />;
+                          },
                         })}
                       >
-                        <Stack.Screen name="SignIn" component={SignIn} />
-                        <Stack.Screen name="SignUp" component={SignUp} />
-                        <Stack.Screen name="Home" component={HomeScreen} />
+                        {/* Auth Screens */}
+                        <Stack.Screen 
+                          name="SignIn" 
+                          component={SignIn}
+                          options={{ headerShown: true, title: "Sign In" }}
+                        />
+                        <Stack.Screen 
+                          name="SignUp" 
+                          component={SignUp}
+                          options={{ headerShown: true, title: "Sign Up" }}
+                        />
+                        
+                        {/* Protected Screens */}
+                        <Stack.Screen 
+                          name="Home" 
+                          component={HomeScreen}
+                        />
                         <Stack.Screen name="Clients" component={Clientpage} />
                         <Stack.Screen name="Profile" component={SingleClient} />
                         <Stack.Screen name="AddClient" component={AddClient} />
