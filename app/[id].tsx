@@ -197,7 +197,7 @@ export default function SingleClient({
       </View>
     ),
     2: (
-      <View>
+      <View style={{ flex: 1 }}>
          <Card.Title style={idStyles.cardTitle}>
           </Card.Title>
           <Payments navigation={navigation} route={route} clientNumber={client.CustomerNum}/> 

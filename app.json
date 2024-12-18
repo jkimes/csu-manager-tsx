@@ -4,7 +4,7 @@
     "entryPoint": "./node_modules./expo./AppEntry", 
     "name": "csu-manager-2",
     "slug": "csu-manager-2",
-    "version": "1.12.0",
+    "version": "1.13.0",
     "orientation": "portrait",
     "icon": "./assets/icons/CSU.png",
     "userInterfaceStyle": "light",
@@ -18,7 +18,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.csuflorida.csumanager2"
+      "bundleIdentifier": "com.csuflorida.myapp"
       
     },
     "android": {
@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.csuflorida.csumanager2"
+      "package": "com.csuflorida.myapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

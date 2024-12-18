@@ -141,7 +141,7 @@ const Payments = ({ navigation, route, clientNumber }) => {
   };
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <ScrollView>
         {renderCardList()}
       </ScrollView>
