@@ -98,7 +98,7 @@ export default function PaymentUploader({ route, navigation }) {
   PayAmount: "number",
   PayMethod: "number",
   CKNumber: "number",
-  CustomerNum: "string",
+  CustomerNum: "number",
   CustomerName: "string",
   Bank: "string",
   ReExpense: "string"
@@ -216,16 +216,29 @@ export default function PaymentUploader({ route, navigation }) {
 
     // Remove columns where the header is empty or undefined
     headerRow = headerRow.filter((header, index) => {
-      if (header == null || header === "") {
-        console.warn(`Removing empty or undefined column at index ${index}`);
-        // Remove corresponding column from all rows in data
-        clientsData = clientsData.map((row) => row.filter((_, i) => i !== index));
-        return false;
-      }
-      return true;
+        if (header == null || header === "") {
+            console.warn(`Removing empty or undefined column at index ${index}`);
+            // Remove corresponding column from all rows in data
+            clientsData = clientsData.map((row) => row.filter((_, i) => i !== index));
+            return false;
+        }
+        return true;
     });
 
     const db = firebase.firestore();
+
+    // Clear the collection before uploading new data
+    const collectionRef = db.collection("customerExp");
+    const snapshot = await collectionRef.get();
+    const batch = db.batch();
+
+    // Delete all existing documents in the collection
+    snapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+    });
+
+    // Commit the batch delete
+    await batch.commit();
 
     // Function to process a batch of data with retry logic
     const processBatch = async (batchData: string[][], attempt: number = 1) => {

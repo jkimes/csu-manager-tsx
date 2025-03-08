@@ -26,7 +26,7 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
           acc[CustomerNum] = { 
             expenses: [], 
             totalPayAmount: 0,
-            mostRecentDate: null // Add tracking for most recent date
+            mostRecentDate: null
           };
         }
 
@@ -35,8 +35,7 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
 
         // Update most recent date
         const currentDate = Date?.toDate?.() || new Date(Date);
-        if (!acc[CustomerNum].mostRecentDate || 
-            currentDate > acc[CustomerNum].mostRecentDate) {
+        if (!acc[CustomerNum].mostRecentDate || currentDate > acc[CustomerNum].mostRecentDate) {
           acc[CustomerNum].mostRecentDate = currentDate;
         }
 
@@ -48,11 +47,9 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
         return acc;
       }, {});
 
-      // Convert to array and sort by most recent date
+      // Convert to array and sort by CustomerNum
       const sortedGrouped = Object.entries(grouped)
-        .sort(([, a], [, b]) => {
-          return b.mostRecentDate - a.mostRecentDate;
-        })
+        .sort(([a], [b]) => Number(a) - Number(b))  // Sort by CustomerNum numerically
         .reduce((acc, [customerNum, data]) => {
           acc[customerNum] = data;
           return acc;
@@ -78,7 +75,7 @@ const VendorPaymentsList = ({ navigation, route, vendorNum }) => {
     return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  // Log whenever groupedData updates to confirm it’s set correctly
+  // Log whenever groupedData updates to confirm it's set correctly
   useEffect(() => {
     //console.log("Updated Grouped Data: ", JSON.stringify(groupedData));
   }, [groupedData]);

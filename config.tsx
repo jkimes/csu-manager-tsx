@@ -5,7 +5,7 @@ import firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css'; // Import the CSS for styling
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC7NScPQtDe3Tgh9VcnOT0e6DeNL_XtV_s",
+  apiKey: "AIzaSyCgMn_pZXz6f6Q8aTcjsKS9V7fHFy1I3VI",
   authDomain: "clients-7be32.firebaseapp.com",
   databaseURL: "https://clients-7be32-default-rtdb.firebaseio.com",
   projectId: "clients-7be32",
@@ -14,7 +14,8 @@ const firebaseConfig = {
   appId: "1:273559061003:web:cb3112e6b527b6f678bd0e",
   measurementId: "G-8DDH2XWLLD",
 };
-
+//
+// Original API Key: AIzaSyC7NScPQtDe3Tgh9VcnOT0e6DeNL_XtV_s
 // // Configure FirebaseUI
 // var uiConfig = {
 //   signInSuccessUrl: '/', // Redirect after successful sign-in

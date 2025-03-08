@@ -8,7 +8,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import { Table, Row, Rows } from 'react-native-table-component';
 import { firebase } from '../config'; // Assuming you have Firebase config
 import { getAuth } from 'firebase/auth'; // Import Firebase Auth
-
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAuth } from '../components/ContextGetters/AuthContext';
 
 interface User {
@@ -69,6 +69,20 @@ export default function Settings() {
     fetchSignUpRequests(); // Fetch sign-up requests
   }, []);
 
+  const auth = getAuth();
+
+const refreshToken = async () => {
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      await user.getIdToken(true); // Force refresh the token
+      console.log('Token refreshed with updated claims');
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+    }
+  }
+};
+
   const fetchUsers = async () => {
     try {
       const snapshot = await firebase.firestore().collection('Users').get();
@@ -98,7 +112,7 @@ export default function Settings() {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: 'Admin' | 'Manager' | 'User' | 'Basic') => {
+  const handleRoleChange = async (userId: string, newRole: 'Admin' | 'Manager' | 'User' | 'Basic' | 'Delete') => {
     try {
       // Count number of admin users
       const adminCount = users.filter(user => user.role === 'Admin').length;
@@ -118,6 +132,41 @@ export default function Settings() {
         return;
       }
 
+      // if the role is set to delete the user gets deleted from the db preventing them from logging in (hopefully)
+      if(newRole == 'Delete'){
+        await firebase.firestore().collection('Users').doc(userId).delete();
+        const functions = getFunctions(); // Initialize Firebase Functions
+        const deleteUserFunction = httpsCallable(functions, 'deleteUser'); // Replace 'deleteUser' with your Cloud Function name
+        await deleteUserFunction({ uid: userId }); // Pass the userId as data
+        // Remove the user from the local state
+      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+      }
+      else if(newRole =="Admin"){
+        const functions = getFunctions();
+        const setAdminFunction = httpsCallable(functions,'setAdminClaim');
+        await setAdminFunction({uid: userId, value: true});
+        
+        //Refresh the user's ID token to get updated claims
+        refreshToken();
+
+        await firebase.firestore().collection('Users').doc(userId).update({
+          role: newRole
+        });
+
+        setUsers(prevUsers =>
+          prevUsers.map(user =>
+            user.id === userId ? { ...user, role: newRole } : user
+          )
+        );
+      }
+      else{
+        const functions = getFunctions();
+        const setAdminFunction = httpsCallable(functions,'setAdminClaim');
+        await setAdminFunction({uid: userId, value: false});
+        
+        //Refresh the user's ID token to get updated claims
+        refreshToken();
+    
       // Only proceed with update if not the last admin
       await firebase.firestore().collection('Users').doc(userId).update({
         role: newRole
@@ -129,6 +178,7 @@ export default function Settings() {
           user.id === userId ? { ...user, role: newRole } : user
         )
       );
+    }
 
     } catch (error) {
       console.error('Error updating user role:', error);
@@ -138,71 +188,7 @@ export default function Settings() {
     }
   };
 
-  // Commented out the delete user function
-  /*
-  const handleDeleteUser = async (userId: string) => {
-    const userToDelete = users.find(u => u.id === userId);
-    const currentUser = firebase.auth().currentUser; // Get the currently signed-in user
-
-    if (userToDelete) {
-      // Check if the user to delete is the currently signed-in user
-      if (userToDelete.id === currentUser?.uid) {
-        Alert.alert(
-          'Error',
-          'You cannot delete your own account. Please contact another admin for assistance.',
-          [{ text: 'OK' }]
-        );
-        return; // Exit the function if trying to delete self
-      }
-
-      Alert.alert(
-        'Confirm Delete',
-        `Are you sure you want to delete ${userToDelete.email}? This action cannot be undone.`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Delete',
-            onPress: async () => {
-              try {
-                // Check if the current user is an admin
-                const currentUserDoc = await firebase.firestore().collection('Users').doc(currentUser?.uid).get();
-                if (currentUserDoc.exists && currentUserDoc.data()?.role === 'Admin') {
-                  // Delete the user document from Firestore
-                  await firebase.firestore().collection('Users').doc(userId).delete();
-                  Alert.alert('Success', 'User document deleted successfully.');
-                } else {
-                  Alert.alert('Error', 'You do not have permission to delete users.');
-                }
-              } catch (error) {
-                console.error('Error deleting user document:', error);
-                Alert.alert('Error', 'Failed to delete user document');
-              }
-            },
-          },
-        ],
-        { cancelable: false }
-      );
-    }
-  };
-  */
-
-  // Commented out the sign-up request features
-  /*
-  const handleSignUpRequest = async (requestData) => {
-    try {
-      // Your sign-up request logic here
-      console.log('Sign-up request data:', requestData);
-      // You can add Firestore logic to save the request
-    } catch (error) {
-      console.error('Error handling sign-up request:', error);
-      Alert.alert('Error', 'Failed to handle sign-up request');
-    }
-  };
-  */
-
+  
   const toggleAccordion = (section: string) => {
     setExpanded(expanded === section ? false : section);
   };
@@ -214,43 +200,6 @@ export default function Settings() {
       // The navigation should be handled in the AuthContext
     } catch (error) {
       Alert.alert('Error', 'Failed to sign out');
-    }
-  };
-
-  const handleApproveRequest = async (requestId: string, email: string) => {
-    try {
-      // Create the user in Firebase Authentication
-      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, 'defaultPassword'); // Use a default password or generate one
-      const user = userCredential.user;
-
-      // Store additional user data in Firestore
-      await firebase.firestore().collection('Users').doc(user.uid).set({
-        uid: user.uid,
-        email: user.email,
-        role: 'User' // Default role is 'User'
-      });
-
-      // Update the request status to approved
-      await firebase.firestore().collection('SignUpRequests').doc(requestId).update({ status: 'approved' });
-
-      Alert.alert('Success', 'User approved successfully.');
-      fetchSignUpRequests(); // Refresh requests
-    } catch (error) {
-      console.error('Error approving request:', error);
-      Alert.alert('Error', 'Failed to approve user request');
-    }
-  };
-
-  const handleDenyRequest = async (requestId: string) => {
-    try {
-      // Update the request status to denied
-      await firebase.firestore().collection('SignUpRequests').doc(requestId).update({ status: 'denied' });
-
-      Alert.alert('Success', 'User request denied successfully.');
-      fetchSignUpRequests(); // Refresh requests
-    } catch (error) {
-      console.error('Error denying request:', error);
-      Alert.alert('Error', 'Failed to deny user request');
     }
   };
 
@@ -314,15 +263,15 @@ export default function Settings() {
                     <Text style={styles.userName}>{user.email}</Text>
                   </View>
                   <SelectDropdown
-                    data={['Admin', 'Manager', 'User', 'Basic',]}
+                    data={['Admin', 'Manager', 'User', 'Basic','Delete']}
                     defaultValue={user.role}
-                    value={user.role}
+                    //value={user.role}
                     key={user.id + user.role}
                     onSelect={(selectedItem) => {
                       if (selectedItem === 'Delete User') {
                         // handleDeleteUser(user.id);
                       } else {
-                        handleRoleChange(user.id, selectedItem as 'Admin' | 'Manager' | 'User' | 'Basic');
+                        handleRoleChange(user.id, selectedItem as 'Admin' | 'Manager' | 'User' | 'Basic' | 'Delete');
                       }
                     }}
                     renderButton={(selectedItem, isOpened) => (

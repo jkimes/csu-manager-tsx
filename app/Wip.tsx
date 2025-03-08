@@ -36,7 +36,7 @@ function addCommasToNumber(number) {
   let integerWithCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   // Combine the integer and decimal parts
-  return integerWithCommas + decimalPart;
+  return integerWithCommas; // + decimalPart;
 }
 
 export default function WIP() {
